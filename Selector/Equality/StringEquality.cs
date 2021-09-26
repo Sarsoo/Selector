@@ -18,13 +18,20 @@ namespace Selector {
 
         new public bool Episode(FullEpisode ep1, FullEpisode ep2)
         {
-            return ep1.Uri == ep2.Uri;
+            return ep1.Uri == ep2.Uri
+                && Show(ep1.Show, ep2.Show);
         }
 
         new public bool Album(FullAlbum album1, FullAlbum album2)
         {
             return album1.Name == album2.Name
                 && Enumerable.SequenceEqual(album1.Artists.Select(a => a.Name), album2.Artists.Select(a => a.Name));
+        }
+
+        new public bool Show(FullShow show1, FullShow show2)
+        {
+            return show1.Name == show2.Name
+                && show1.Publisher == show2.Publisher;
         }
 
         new public bool Artist(FullArtist artist1, FullArtist artist2)
@@ -47,6 +54,12 @@ namespace Selector {
         {
             return album1.Name == album2.Name
                 && Enumerable.SequenceEqual(album1.Artists.Select(a => a.Name), album2.Artists.Select(a => a.Name));
+        }
+
+        new public bool Show(SimpleShow show1, SimpleShow show2)
+        {
+            return show1.Name == show2.Name
+                && show1.Publisher == show2.Publisher;
         }
         
         new public bool Artist(SimpleArtist artist1, SimpleArtist artist2)

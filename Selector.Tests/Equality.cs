@@ -140,6 +140,31 @@ namespace Selector.Tests
             var eq = new UriEquality();
             eq.Artist(artist1, artist2).Should().Be(shouldEqual);
         }
+
+        public static IEnumerable<object[]> EpisodeData =>
+        new List<object[]>
+        {
+            // SAME
+            new object[] {
+                Helper.FullEpisode("1"),
+                Helper.FullEpisode("1"),
+                true
+            },
+            // DIFFERENT
+            new object[] {
+                Helper.FullEpisode("1"),
+                Helper.FullEpisode("2"),
+                false
+            }
+        };
+
+        [Theory]
+        [MemberData(nameof(EpisodeData))]
+        public void EpisodeEquality(FullEpisode episode1, FullEpisode episode2, bool shouldEqual)
+        {
+            var eq = new UriEquality();
+            eq.Episode(episode1, episode2).Should().Be(shouldEqual);
+        }
     }
 
     public class StringEqualityTests
@@ -272,6 +297,43 @@ namespace Selector.Tests
         {
             var eq = new StringEquality();
             eq.Artist(artist1, artist2).Should().Be(shouldEqual);
+        }
+
+        public static IEnumerable<object[]> EpisodeData =>
+        new List<object[]>
+        {
+            // SAME
+            new object[] {
+                Helper.FullEpisode("1", "1", "1"),
+                Helper.FullEpisode("1", "1", "1"),
+                true
+            },
+            // DIFFERENT PUBLISHER
+            new object[] {
+                Helper.FullEpisode("1", "1", "1"),
+                Helper.FullEpisode("1", "1", "2"),
+                false
+            },
+            // DIFFERENT SHOW
+            new object[] {
+                Helper.FullEpisode("1", "1", "1"),
+                Helper.FullEpisode("1", "2", "1"),
+                false
+            },
+            // DIFFERENT EPISODE
+            new object[] {
+                Helper.FullEpisode("1", "1", "1"),
+                Helper.FullEpisode("2", "1", "1"),
+                false
+            },
+        };
+
+        [Theory]
+        [MemberData(nameof(EpisodeData))]
+        public void EpisodeEquality(FullEpisode episode1, FullEpisode episode2, bool shouldEqual)
+        {
+            var eq = new StringEquality();
+            eq.Episode(episode1, episode2).Should().Be(shouldEqual);
         }
     }
 }

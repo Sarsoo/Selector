@@ -9,13 +9,13 @@ namespace Selector
     public class PlayerWatcher: IPlayerWatcher
     {
         private readonly IPlayerClient spotifyClient;
-        private IScheduler sleepScheduler;
         private IEqualityChecker equalityChecker;
 
-        public event EventHandler<ListeningChangeEventArgs> TrackChange;
+        public event EventHandler<ListeningChangeEventArgs> ItemChange;
         public event EventHandler<ListeningChangeEventArgs> AlbumChange;
         public event EventHandler<ListeningChangeEventArgs> ArtistChange;
         public event EventHandler<ListeningChangeEventArgs> ContextChange;
+        public event EventHandler<ListeningChangeEventArgs> ContentChange;
 
         // public event EventHandler<ListeningChangeEventArgs> VolumeChange;
         // public event EventHandler<ListeningChangeEventArgs> DeviceChange;
@@ -24,80 +24,157 @@ namespace Selector
         private CurrentlyPlaying live { get; set; }
         private List<List<CurrentlyPlaying>> lastPlays { get; set; }
 
-        public PlayerWatcher(IPlayerClient spotifyClient, IScheduler sleepScheduler, IEqualityChecker equalityChecker) {
+        private int _pollPeriod;
+        public int PollPeriod {
+            get => _pollPeriod;
+            set => _pollPeriod = Math.Max(0, value);
+        }
+
+        public PlayerWatcher(IPlayerClient spotifyClient, 
+                IEqualityChecker equalityChecker,
+                int pollPeriod = 3000) {
+
             this.spotifyClient = spotifyClient;
-            this.sleepScheduler = sleepScheduler;
             this.equalityChecker = equalityChecker;
+            this.PollPeriod = pollPeriod;
 
             lastPlays = new List<List<CurrentlyPlaying>>();
         }
 
         public async Task WatchOne() 
         {
-            var polledCurrent = await spotifyClient.GetCurrentlyPlaying(new PlayerCurrentlyPlayingRequest());
-
-            StoreCurrentPlaying(polledCurrent);
-
-            CurrentlyPlaying existing;
-            if(live is null) {
-                live = polledCurrent;
-                existing = polledCurrent;
-            }
-            else {
-                existing = live;
-                live = polledCurrent;
-            }
-            
             try{
-                var existingItem = (FullTrack) existing.Item;
-                var currentItem = (FullTrack) live.Item;
+                var polledCurrent = await spotifyClient.GetCurrentlyPlaying(new PlayerCurrentlyPlayingRequest());
 
-                if(!equalityChecker.Track(existingItem, currentItem, true)) {
-                    OnTrackChange(new ListeningChangeEventArgs(){
-                        Previous = existing,
-                        Current = live
-                    });
+                if (polledCurrent != null) StoreCurrentPlaying(polledCurrent);
+
+                CurrentlyPlaying previous;
+                if(live is null) {
+                    live = polledCurrent;
+                    previous = polledCurrent;
+                }
+                else {
+                    previous = live;
+                    live = polledCurrent;
                 }
 
-                if(!equalityChecker.Album(existingItem.Album, currentItem.Album)) {
-                    OnAlbumChange(new ListeningChangeEventArgs(){
-                        Previous = existing,
-                        Current = live
-                    });
+                // NOT PLAYING
+                if(previous is null && live is null)
+                {
+                    // Console.WriteLine("not playing");
                 }
+                else
+                {
+                    // STARTED PLAYBACK
+                    if(previous is null && (live.Item is FullTrack || live.Item is FullEpisode))
+                    {
+                        // Console.WriteLine("started playing");
 
-                if(!equalityChecker.Artist(existingItem.Artists[0], currentItem.Artists[0])) {
-                    OnArtistChange(new ListeningChangeEventArgs(){
-                        Previous = existing,
-                        Current = live
-                    });
-                }
+                    }
+                    // STOPPED PLAYBACK
+                    else if((previous.Item is FullTrack || previous.Item is FullEpisode) && live is null)
+                    {
+                        // Console.WriteLine("stopped playing");
 
-                if(!equalityChecker.Context(existing.Context, live.Context)) {
-                    OnContextChange(new ListeningChangeEventArgs(){
-                        Previous = existing,
-                        Current = live
-                    });
-                }
+                    }
+                    else {
 
-                if(existing.IsPlaying != live.IsPlaying) {
-                    OnPlayingChange(new ListeningChangeEventArgs(){
-                        Previous = existing,
-                        Current = live
-                    });
-                }
+                        // MUSIC
+                        if(previous.Item is FullTrack && live.Item is FullTrack)
+                        {
+                            var previousItem = (FullTrack) previous.Item;
+                            var currentItem = (FullTrack) live.Item;
+
+                            if(!equalityChecker.Track(previousItem, currentItem, true)) {
+                                OnItemChange(new ListeningChangeEventArgs(){
+                                    Previous = previous,
+                                    Current = live
+                                });
+                            }
+
+                            if(!equalityChecker.Album(previousItem.Album, currentItem.Album)) {
+                                OnAlbumChange(new ListeningChangeEventArgs(){
+                                    Previous = previous,
+                                    Current = live
+                                });
+                            }
+
+                            if(!equalityChecker.Artist(previousItem.Artists[0], currentItem.Artists[0])) {
+                                OnArtistChange(new ListeningChangeEventArgs(){
+                                    Previous = previous,
+                                    Current = live
+                                });
+                            }
+                        }
+                        // CHANGED CONTENT
+                        else if(previous.Item is FullTrack && live.Item is FullEpisode
+                            || previous.Item is FullEpisode && live.Item is FullTrack)
+                        {
+                            OnContentChange(new ListeningChangeEventArgs(){
+                                Previous = previous,
+                                Current = live
+                            });
+                            OnItemChange(new ListeningChangeEventArgs(){
+                                Previous = previous,
+                                Current = live
+                            });
+                        }
+                        // PODCASTS
+                        else if(previous.Item is FullEpisode && live.Item is FullEpisode)
+                        {
+                            var previousItem = (FullEpisode) previous.Item;
+                            var currentItem = (FullEpisode) live.Item;
+
+                            if(!equalityChecker.Episode(previousItem, currentItem)) {
+                                OnItemChange(new ListeningChangeEventArgs(){
+                                    Previous = previous,
+                                    Current = live
+                                });
+                            }
+                        }
+                        else {
+                            throw new NotSupportedException("Unknown item combination");
+                        }
+
+                        // CONTEXT
+                        if(!equalityChecker.Context(previous.Context, live.Context)) {
+                            OnContextChange(new ListeningChangeEventArgs(){
+                                Previous = previous,
+                                Current = live
+                            });
+                        }
+
+                        // IS PLAYING
+                        if(previous.IsPlaying != live.IsPlaying) {
+                            OnPlayingChange(new ListeningChangeEventArgs(){
+                                Previous = previous,
+                                Current = live
+                            });
+                        }
+                    }
+                }                
             }
-            catch(InvalidCastException)
+            catch(APIUnauthorizedException e)
             {
-                var existingItem = (FullEpisode) existing.Item;
-
-                throw new NotImplementedException("Podcasts not implemented");
+                throw e;
+            }
+            catch(APITooManyRequestsException e)
+            {
+                throw e;
+            }
+            catch(APIException e)
+            {
+                throw e;
             }
         }
 
-        public Task Watch(CancellationToken cancelToken)
+        public async Task Watch(CancellationToken cancelToken)
         {
-            return Task.CompletedTask;
+            while (!cancelToken.IsCancellationRequested)
+            {
+                await WatchOne();
+                await Task.Delay(PollPeriod);
+            }
         }
 
         public CurrentlyPlaying NowPlaying()
@@ -156,9 +233,9 @@ namespace Selector
             }
         }
 
-        protected virtual void OnTrackChange(ListeningChangeEventArgs args)
+        protected virtual void OnItemChange(ListeningChangeEventArgs args)
         {
-            TrackChange?.Invoke(this, args); 
+            ItemChange?.Invoke(this, args); 
         }
 
         protected virtual void OnAlbumChange(ListeningChangeEventArgs args)
@@ -176,6 +253,10 @@ namespace Selector
             ContextChange?.Invoke(this, args); 
         }
 
+        protected virtual void OnContentChange(ListeningChangeEventArgs args)
+        {
+            ContentChange?.Invoke(this, args); 
+        }
 
         // protected virtual void OnVolumeChange(ListeningChangeEventArgs args)
         // {

@@ -26,6 +26,16 @@ namespace Selector.Tests
             return FullTrack(name, album, new List<string>() { artist });
         }
 
+        public static FullEpisode FullEpisode(string name, string show = null, string publisher = null)
+        {
+            return new FullEpisode()
+            {
+                Name = name,
+                Uri = name,
+                Show = SimpleShow(show ?? name, publisher: publisher)
+            };
+        }
+
         public static SimpleAlbum SimpleAlbum(string name, List<string> artists)
         {
             return new SimpleAlbum()
@@ -50,6 +60,16 @@ namespace Selector.Tests
             };
         }
 
+        public static SimpleShow SimpleShow(string name, string publisher = null)
+        {
+            return new SimpleShow()
+            {
+                Name = name,
+                Publisher = publisher ?? name,
+                Uri = name
+            };
+        }
+
         public static CurrentlyPlaying CurrentlyPlaying(FullTrack track, bool isPlaying = true, string context = null)
         {
             return new CurrentlyPlaying()
@@ -57,6 +77,16 @@ namespace Selector.Tests
                 Context = Context(context ?? track.Uri),
                 IsPlaying = isPlaying,
                 Item = track
+            };
+        }
+
+        public static CurrentlyPlaying CurrentlyPlaying(FullEpisode episode, bool isPlaying = true, string context = null)
+        {
+            return new CurrentlyPlaying()
+            {
+                Context = Context(context ?? episode.Uri),
+                IsPlaying = isPlaying,
+                Item = episode
             };
         }
 

@@ -24,6 +24,11 @@ namespace Selector {
             return album1.Uri == album2.Uri
                 && Enumerable.SequenceEqual(album1.Artists.Select(a => a.Uri), album2.Artists.Select(a => a.Uri));
         }
+
+        public bool Show(FullShow show1, FullShow show2)
+        {
+            return show1.Uri == show2.Uri;
+        }
         public bool Artist(FullArtist artist1, FullArtist artist2)
         {
             return artist1.Uri == artist2.Uri;
@@ -45,6 +50,12 @@ namespace Selector {
             return album1.Uri == album2.Uri
                 && Enumerable.SequenceEqual(album1.Artists.Select(a => a.Uri), album2.Artists.Select(a => a.Uri));
         }
+
+        public bool Show(SimpleShow show1, SimpleShow show2)
+        {
+            return show1.Uri == show2.Uri;
+        }
+
         public bool Artist(SimpleArtist artist1, SimpleArtist artist2)
         {
             return artist1.Uri == artist2.Uri;
@@ -54,6 +65,7 @@ namespace Selector {
         {
             return context1.Uri == context2.Uri;
         }
+
         public bool Device(Device device1, Device device2)
         {
             return device1.Id == device2.Id;
