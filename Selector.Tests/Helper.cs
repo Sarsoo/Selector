@@ -49,5 +49,23 @@ namespace Selector.Tests
                 Uri = name
             };
         }
+
+        public static CurrentlyPlaying CurrentlyPlaying(FullTrack track, bool isPlaying = true, string context = null)
+        {
+            return new CurrentlyPlaying()
+            {
+                Context = Context(context ?? track.Uri),
+                IsPlaying = isPlaying,
+                Item = track
+            };
+        }
+
+        public static Context Context(string uri)
+        {
+            return new Context()
+            {
+                Uri = uri
+            };
+        }
     }
 }

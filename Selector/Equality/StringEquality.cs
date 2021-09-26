@@ -15,11 +15,18 @@ namespace Selector {
                 && track1.Name == track2.Name
                 && Enumerable.SequenceEqual(track1.Artists.Select(a => a.Name), track2.Artists.Select(a => a.Name));
         }
+
+        new public bool Episode(FullEpisode ep1, FullEpisode ep2)
+        {
+            return ep1.Uri == ep2.Uri;
+        }
+
         new public bool Album(FullAlbum album1, FullAlbum album2)
         {
-            return album1.Name == album1.Name
+            return album1.Name == album2.Name
                 && Enumerable.SequenceEqual(album1.Artists.Select(a => a.Name), album2.Artists.Select(a => a.Name));
         }
+
         new public bool Artist(FullArtist artist1, FullArtist artist2)
         {
             return artist1.Name == artist2.Name;
@@ -30,11 +37,18 @@ namespace Selector {
             return track1.Name == track2.Name
                 && Enumerable.SequenceEqual(track1.Artists.Select(a => a.Name), track2.Artists.Select(a => a.Name));
         }
+
+        new public bool Episode(SimpleEpisode ep1, SimpleEpisode ep2)
+        {
+            return ep1.Name == ep2.Name;
+        }
+
         new public bool Album(SimpleAlbum album1, SimpleAlbum album2)
         {
-            return album1.Name == album1.Name
+            return album1.Name == album2.Name
                 && Enumerable.SequenceEqual(album1.Artists.Select(a => a.Name), album2.Artists.Select(a => a.Name));
         }
+        
         new public bool Artist(SimpleArtist artist1, SimpleArtist artist2)
         {
             return artist1.Name == artist2.Name;

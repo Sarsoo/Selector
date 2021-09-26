@@ -11,8 +11,9 @@ namespace Selector
         public event EventHandler<ListeningChangeEventArgs> ArtistChange;
         public event EventHandler<ListeningChangeEventArgs> ContextChange;
 
-        public event EventHandler<ListeningChangeEventArgs> VolumeChange;
-        public event EventHandler<ListeningChangeEventArgs> DeviceChange;
+        // public event EventHandler<ListeningChangeEventArgs> VolumeChange;
+        // public event EventHandler<ListeningChangeEventArgs> DeviceChange;
+        public event EventHandler<ListeningChangeEventArgs> PlayingChange;
 
         public CurrentlyPlaying NowPlaying();
         // recently playing

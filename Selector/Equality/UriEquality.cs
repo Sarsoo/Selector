@@ -13,6 +13,12 @@ namespace Selector {
                 && track1.Uri == track2.Uri
                 && Enumerable.SequenceEqual(track1.Artists.Select(a => a.Uri), track2.Artists.Select(a => a.Uri));
         }
+
+        public bool Episode(FullEpisode ep1, FullEpisode ep2)
+        {
+            return ep1.Uri == ep2.Uri;
+        }
+
         public bool Album(FullAlbum album1, FullAlbum album2)
         {
             return album1.Uri == album2.Uri
@@ -28,6 +34,12 @@ namespace Selector {
             return track1.Uri == track2.Uri
                 && Enumerable.SequenceEqual(track1.Artists.Select(a => a.Uri), track2.Artists.Select(a => a.Uri));
         }
+
+        public bool Episode(SimpleEpisode ep1, SimpleEpisode ep2)
+        {
+            return ep1.Uri == ep2.Uri;
+        }
+
         public bool Album(SimpleAlbum album1, SimpleAlbum album2)
         {
             return album1.Uri == album2.Uri

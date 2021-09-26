@@ -115,6 +115,31 @@ namespace Selector.Tests
             var eq = new UriEquality();
             eq.Album(album1, album2).Should().Be(shouldEqual);
         }
+
+        public static IEnumerable<object[]> ArtistData =>
+        new List<object[]>
+        {
+            // SAME
+            new object[] {
+                Helper.SimpleArtist("1"),
+                Helper.SimpleArtist("1"),
+                true
+            },
+            // DIFFERENT
+            new object[] {
+                Helper.SimpleArtist("1"),
+                Helper.SimpleArtist("2"),
+                false
+            }
+        };
+
+        [Theory]
+        [MemberData(nameof(ArtistData))]
+        public void ArtistEquality(SimpleArtist artist1, SimpleArtist artist2, bool shouldEqual)
+        {
+            var eq = new UriEquality();
+            eq.Artist(artist1, artist2).Should().Be(shouldEqual);
+        }
     }
 
     public class StringEqualityTests
@@ -222,6 +247,31 @@ namespace Selector.Tests
         {
             var eq = new StringEquality();
             eq.Album(album1, album2).Should().Be(shouldEqual);
+        }
+
+        public static IEnumerable<object[]> ArtistData =>
+        new List<object[]>
+        {
+            // SAME
+            new object[] {
+                Helper.SimpleArtist("1"),
+                Helper.SimpleArtist("1"),
+                true
+            },
+            // DIFFERENT
+            new object[] {
+                Helper.SimpleArtist("1"),
+                Helper.SimpleArtist("2"),
+                false
+            }
+        };
+
+        [Theory]
+        [MemberData(nameof(ArtistData))]
+        public void ArtistEquality(SimpleArtist artist1, SimpleArtist artist2, bool shouldEqual)
+        {
+            var eq = new StringEquality();
+            eq.Artist(artist1, artist2).Should().Be(shouldEqual);
         }
     }
 }
