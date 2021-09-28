@@ -14,24 +14,24 @@ namespace Selector.Tests
         public static IEnumerable<object[]> NowPlayingData => 
         new List<object[]>
         {
-            new object[] { new List<CurrentlyPlaying>(){
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist1")),
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track2", "album2", "artist2")),
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track3", "album3", "artist3")),
+            new object[] { new List<CurrentlyPlayingContext>(){
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1")),
+                    Helper.CurrentPlayback(Helper.FullTrack("track2", "album2", "artist2")),
+                    Helper.CurrentPlayback(Helper.FullTrack("track3", "album3", "artist3")),
                 } 
             }
         };
 
         [Theory]
         [MemberData(nameof(NowPlayingData))]
-        public async void NowPlaying(List<CurrentlyPlaying> playing)
+        public async void NowPlaying(List<CurrentlyPlayingContext> playing)
         {
-            var playingQueue = new Queue<CurrentlyPlaying>(playing);
+            var playingQueue = new Queue<CurrentlyPlayingContext>(playing);
 
             var spotMock = new Mock<IPlayerClient>();
             var eq = new UriEquality();
 
-            spotMock.Setup(s => s.GetCurrentlyPlaying(It.IsAny<PlayerCurrentlyPlayingRequest>()).Result).Returns(playingQueue.Dequeue);
+            spotMock.Setup(s => s.GetCurrentPlayback().Result).Returns(playingQueue.Dequeue);
 
             var watcher = new PlayerWatcher(spotMock.Object, eq);
 
@@ -47,108 +47,150 @@ namespace Selector.Tests
         new List<object[]>
         {
             // NO CHANGING
-            new object[] { new List<CurrentlyPlaying>(){
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1"),
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1"),
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1"),
+            new object[] { new List<CurrentlyPlayingContext>(){
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1"),
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1"),
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1"),
                 },
                 // to raise
                 new List<string>(){ },
                 // to not raise
-                new List<string>(){ "ItemChange", "AlbumChange", "ArtistChange", "ContextChange", "PlayingChange" }
+                new List<string>(){ "ItemChange", "AlbumChange", "ArtistChange", "ContextChange", "PlayingChange", "DeviceChange", "VolumeChange" }
             },
             // TRACK CHANGE
-            new object[] { new List<CurrentlyPlaying>(){
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist1")),
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track2", "album1", "artist1"))
+            new object[] { new List<CurrentlyPlayingContext>(){
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1")),
+                    Helper.CurrentPlayback(Helper.FullTrack("track2", "album1", "artist1"))
                 },
                 // to raise
                 new List<string>(){ "ItemChange" },
                 // to not raise
-                new List<string>(){ "AlbumChange", "ArtistChange" }
+                new List<string>(){ "AlbumChange", "ArtistChange", "DeviceChange", "VolumeChange" }
             },
             // ALBUM CHANGE
-            new object[] { new List<CurrentlyPlaying>(){
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist1")),
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album2", "artist1"))
+            new object[] { new List<CurrentlyPlayingContext>(){
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1")),
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album2", "artist1"))
                 },
                 // to raise
                 new List<string>(){ "ItemChange", "AlbumChange" },
                 // to not raise
-                new List<string>(){ "ArtistChange" }
+                new List<string>(){ "ArtistChange", "DeviceChange", "VolumeChange" }
             },
             // ARTIST CHANGE
-            new object[] { new List<CurrentlyPlaying>(){
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist1")),
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist2"))
+            new object[] { new List<CurrentlyPlayingContext>(){
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1")),
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist2"))
                 },
                 // to raise
                 new List<string>(){ "ItemChange", "AlbumChange", "ArtistChange" },
                 // to not raise
-                new List<string>(){ }
+                new List<string>(){ "DeviceChange", "VolumeChange" }
             },
             // CONTEXT CHANGE
-            new object[] { new List<CurrentlyPlaying>(){
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist1"), context: "context1"),
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist1"), context: "context2")
+            new object[] { new List<CurrentlyPlayingContext>(){
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), context: "context1"),
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), context: "context2")
                 },
                 // to raise
                 new List<string>(){ "ContextChange" },
                 // to not raise
-                new List<string>(){ "ItemChange", "AlbumChange", "ArtistChange" }
+                new List<string>(){ "ItemChange", "AlbumChange", "ArtistChange", "DeviceChange", "VolumeChange" }
             },
             // PLAYING CHANGE
-            new object[] { new List<CurrentlyPlaying>(){
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1"),
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: false, context: "context1")
+            new object[] { new List<CurrentlyPlayingContext>(){
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1"),
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: false, context: "context1")
                 },
                 // to raise
                 new List<string>(){ "PlayingChange" },
                 // to not raise
-                new List<string>(){ "ItemChange", "AlbumChange", "ArtistChange", "ContextChange" }
+                new List<string>(){ "ItemChange", "AlbumChange", "ArtistChange", "ContextChange", "DeviceChange", "VolumeChange" }
             },
             // PLAYING CHANGE
-            new object[] { new List<CurrentlyPlaying>(){
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: false, context: "context1"),
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1")
+            new object[] { new List<CurrentlyPlayingContext>(){
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: false, context: "context1"),
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1")
                 },
                 // to raise
                 new List<string>(){ "PlayingChange" },
                 // to not raise
-                new List<string>(){ "ItemChange", "AlbumChange", "ArtistChange", "ContextChange" }
+                new List<string>(){ "ItemChange", "AlbumChange", "ArtistChange", "ContextChange", "DeviceChange", "VolumeChange" }
             },
             // CONTENT CHANGE
-            new object[] { new List<CurrentlyPlaying>(){
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1"),
-                    Helper.CurrentlyPlaying(Helper.FullEpisode("ep1", "show1", "pub1"), isPlaying: true, context: "context2")
+            new object[] { new List<CurrentlyPlayingContext>(){
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1"),
+                    Helper.CurrentPlayback(Helper.FullEpisode("ep1", "show1", "pub1"), isPlaying: true, context: "context2")
                 },
                 // to raise
                 new List<string>(){ "ContentChange", "ContextChange", "ItemChange" },
                 // to not raise
-                new List<string>(){ "AlbumChange", "ArtistChange", "PlayingChange" }
+                new List<string>(){ "AlbumChange", "ArtistChange", "PlayingChange", "DeviceChange", "VolumeChange" }
             },
             // CONTENT CHANGE
-            new object[] { new List<CurrentlyPlaying>(){
-                    Helper.CurrentlyPlaying(Helper.FullEpisode("ep1", "show1", "pub1"), isPlaying: true, context: "context2"),
-                    Helper.CurrentlyPlaying(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1")
+            new object[] { new List<CurrentlyPlayingContext>(){
+                    Helper.CurrentPlayback(Helper.FullEpisode("ep1", "show1", "pub1"), isPlaying: true, context: "context2"),
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1")
                 },
                 // to raise
                 new List<string>(){ "ContentChange", "ContextChange", "ItemChange" },
                 // to not raise
-                new List<string>(){ "AlbumChange", "ArtistChange", "PlayingChange" }
-            }
+                new List<string>(){ "AlbumChange", "ArtistChange", "PlayingChange", "DeviceChange", "VolumeChange" }
+            },
+            // DEVICE CHANGE
+            new object[] { new List<CurrentlyPlayingContext>(){
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), device: Helper.Device("dev1")),
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), device: Helper.Device("dev2"))
+                },
+                // to raise
+                new List<string>(){ "DeviceChange" },
+                // to not raise
+                new List<string>(){ "AlbumChange", "ArtistChange", "PlayingChange", "ContentChange", "ContextChange", "ItemChange", "VolumeChange" }
+            },
+            // VOLUME CHANGE
+            new object[] { new List<CurrentlyPlayingContext>(){
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), device: Helper.Device("dev1", volume: 50)),
+                    Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), device: Helper.Device("dev1", volume: 60))
+                },
+                // to raise
+                new List<string>(){ "VolumeChange" },
+                // to not raise
+                new List<string>(){ "AlbumChange", "ArtistChange", "PlayingChange", "ContentChange", "ContextChange", "ItemChange", "DeviceChange" }
+            },
+            // // STARTED PLAYBACK
+            // new object[] { new List<CurrentlyPlayingContext>(){
+            //         null,
+            //         Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1")
+            //     },
+            //     // to raise
+            //     new List<string>(){ "PlayingChange" },
+            //     // to not raise
+            //     new List<string>(){ "AlbumChange", "ArtistChange", "ContentChange", "ContextChange", "ItemChange"  }
+            // },
+            // // STARTED PLAYBACK
+            // new object[] { new List<CurrentlyPlayingContext>(){
+            //         Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1"), isPlaying: true, context: "context1"),
+            //         null
+            //     },
+            //     // to raise
+            //     new List<string>(){ "PlayingChange" },
+            //     // to not raise
+            //     new List<string>(){ "AlbumChange", "ArtistChange", "ContentChange", "ContextChange", "ItemChange"  }
+            // }
         };
 
         [Theory]
         [MemberData(nameof(EventsData))]
-        public async void Events(List<CurrentlyPlaying> playing, List<string> toRaise, List<string> toNotRaise)
+        public async void Events(List<CurrentlyPlayingContext> playing, List<string> toRaise, List<string> toNotRaise)
         {
-            var playingQueue = new Queue<CurrentlyPlaying>(playing);
+            var playingQueue = new Queue<CurrentlyPlayingContext>(playing);
 
             var spotMock = new Mock<IPlayerClient>();
             var eq = new UriEquality();
 
-            spotMock.Setup(s => s.GetCurrentlyPlaying(It.IsAny<PlayerCurrentlyPlayingRequest>()).Result).Returns(playingQueue.Dequeue);
+            spotMock.Setup(
+                s => s.GetCurrentPlayback().Result
+            ).Returns(playingQueue.Dequeue);
 
             var watcher = new PlayerWatcher(spotMock.Object, eq);
             using var monitoredWatcher = watcher.Monitor();
@@ -158,12 +200,8 @@ namespace Selector.Tests
                 await watcher.WatchOne();
             }
 
-            foreach(var raise in toRaise){
-                monitoredWatcher.Should().Raise(raise).WithSender(watcher);
-            }
-            foreach(var notRraise in toNotRaise){
-                monitoredWatcher.Should().NotRaise(notRraise);
-            }
+            toRaise.ForEach(r => monitoredWatcher.Should().Raise(r).WithSender(watcher));
+            toNotRaise.ForEach(r => monitoredWatcher.Should().NotRaise(r));
         }
 
         // [Fact]

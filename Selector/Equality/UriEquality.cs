@@ -63,12 +63,12 @@ namespace Selector {
 
         public bool Context(Context context1, Context context2)
         {
-            return context1.Uri == context2.Uri;
+            return context1?.Uri == context2?.Uri;
         }
 
         public bool Device(Device device1, Device device2)
         {
-            return device1.Id == device2.Id;
+            return device1?.Id == device2?.Id;
         }
     }
 }

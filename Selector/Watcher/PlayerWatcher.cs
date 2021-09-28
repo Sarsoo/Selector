@@ -17,12 +17,12 @@ namespace Selector
         public event EventHandler<ListeningChangeEventArgs> ContextChange;
         public event EventHandler<ListeningChangeEventArgs> ContentChange;
 
-        // public event EventHandler<ListeningChangeEventArgs> VolumeChange;
-        // public event EventHandler<ListeningChangeEventArgs> DeviceChange;
+        public event EventHandler<ListeningChangeEventArgs> VolumeChange;
+        public event EventHandler<ListeningChangeEventArgs> DeviceChange;
         public event EventHandler<ListeningChangeEventArgs> PlayingChange;
 
-        private CurrentlyPlaying live { get; set; }
-        private List<List<CurrentlyPlaying>> lastPlays { get; set; }
+        private CurrentlyPlayingContext live { get; set; }
+        private List<List<CurrentlyPlayingContext>> lastPlays { get; set; }
 
         private int _pollPeriod;
         public int PollPeriod {
@@ -38,17 +38,17 @@ namespace Selector
             this.equalityChecker = equalityChecker;
             this.PollPeriod = pollPeriod;
 
-            lastPlays = new List<List<CurrentlyPlaying>>();
+            lastPlays = new List<List<CurrentlyPlayingContext>>();
         }
 
         public async Task WatchOne() 
         {
             try{
-                var polledCurrent = await spotifyClient.GetCurrentlyPlaying(new PlayerCurrentlyPlayingRequest());
+                var polledCurrent = await spotifyClient.GetCurrentPlayback();
 
-                if (polledCurrent != null) StoreCurrentPlaying(polledCurrent);
+                if (polledCurrent != null) StoreCurrentPlaying(live, polledCurrent);
 
-                CurrentlyPlaying previous;
+                CurrentlyPlayingContext previous;
                 if(live is null) {
                     live = polledCurrent;
                     previous = polledCurrent;
@@ -69,13 +69,19 @@ namespace Selector
                     if(previous is null && (live.Item is FullTrack || live.Item is FullEpisode))
                     {
                         // Console.WriteLine("started playing");
-
+                        OnPlayingChange(new ListeningChangeEventArgs(){
+                            Previous = previous,
+                            Current = live
+                        });
                     }
                     // STOPPED PLAYBACK
                     else if((previous.Item is FullTrack || previous.Item is FullEpisode) && live is null)
                     {
                         // Console.WriteLine("stopped playing");
-
+                        OnPlayingChange(new ListeningChangeEventArgs(){
+                            Previous = previous,
+                            Current = live
+                        });
                     }
                     else {
 
@@ -144,9 +150,25 @@ namespace Selector
                             });
                         }
 
+                        // DEVICE
+                        if(!equalityChecker.Device(previous?.Device, live?.Device)) {
+                            OnDeviceChange(new ListeningChangeEventArgs(){
+                                Previous = previous,
+                                Current = live
+                            });
+                        }
+
                         // IS PLAYING
                         if(previous.IsPlaying != live.IsPlaying) {
                             OnPlayingChange(new ListeningChangeEventArgs(){
+                                Previous = previous,
+                                Current = live
+                            });
+                        }
+
+                        // VOLUME
+                        if(previous.Device.VolumePercent != live.Device.VolumePercent) {
+                            OnVolumeChange(new ListeningChangeEventArgs(){
                                 Previous = previous,
                                 Current = live
                             });
@@ -177,7 +199,7 @@ namespace Selector
             }
         }
 
-        public CurrentlyPlaying NowPlaying()
+        public CurrentlyPlayingContext NowPlaying()
         {
             return live;
         }
@@ -186,7 +208,7 @@ namespace Selector
         /// Store currently playing in last plays. Determine whether new list or appending required
         /// </summary>
         /// <param name="current">New currently playing to store</param>
-        private void StoreCurrentPlaying(CurrentlyPlaying current) 
+        private void StoreCurrentPlaying(CurrentlyPlayingContext previous, CurrentlyPlayingContext current) 
         {
             if(lastPlays.Count > 0)
             {
@@ -212,11 +234,11 @@ namespace Selector
                 }
                 else 
                 {
-                    StoreNewTrack(current);
+                    StoreNewTrack(previous, current);
                 }
             }
             else {
-                StoreNewTrack(current);
+                StoreNewTrack(previous, current);
             }
         }
 
@@ -224,11 +246,11 @@ namespace Selector
         /// Store currently playing at front of last plays list. Pushes new list to hold same track
         /// </summary>
         /// <param name="current">New currently playing to store</param>
-        private void StoreNewTrack(CurrentlyPlaying current)
+        private void StoreNewTrack(CurrentlyPlayingContext previous, CurrentlyPlayingContext current)
         {
-            if (live != null) {
-                var newPlayingList = new List<CurrentlyPlaying>();
-                newPlayingList.Add(live);
+            if (previous != null) {
+                var newPlayingList = new List<CurrentlyPlayingContext>();
+                newPlayingList.Add(previous);
                 lastPlays.Insert(0, newPlayingList);
             }
         }
@@ -258,15 +280,15 @@ namespace Selector
             ContentChange?.Invoke(this, args); 
         }
 
-        // protected virtual void OnVolumeChange(ListeningChangeEventArgs args)
-        // {
-        //     ArtistChange?.Invoke(this, args);
-        // }
+        protected virtual void OnVolumeChange(ListeningChangeEventArgs args)
+        {
+            VolumeChange?.Invoke(this, args);
+        }
 
-        // protected virtual void OnDeviceChange(ListeningChangeEventArgs args)
-        // {
-        //     ContextChange?.Invoke(this, args); 
-        // }
+        protected virtual void OnDeviceChange(ListeningChangeEventArgs args)
+        {
+            DeviceChange?.Invoke(this, args); 
+        }
 
         protected virtual void OnPlayingChange(ListeningChangeEventArgs args)
         {

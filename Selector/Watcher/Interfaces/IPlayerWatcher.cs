@@ -12,11 +12,11 @@ namespace Selector
         public event EventHandler<ListeningChangeEventArgs> ContextChange;
         public event EventHandler<ListeningChangeEventArgs> ContentChange;
 
-        // public event EventHandler<ListeningChangeEventArgs> VolumeChange;
-        // public event EventHandler<ListeningChangeEventArgs> DeviceChange;
+        public event EventHandler<ListeningChangeEventArgs> VolumeChange;
+        public event EventHandler<ListeningChangeEventArgs> DeviceChange;
         public event EventHandler<ListeningChangeEventArgs> PlayingChange;
 
-        public CurrentlyPlaying NowPlaying();
+        public CurrentlyPlayingContext NowPlaying();
         // recently playing
     }
 }

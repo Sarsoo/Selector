@@ -80,6 +80,17 @@ namespace Selector.Tests
             };
         }
 
+        public static CurrentlyPlayingContext CurrentPlayback(FullTrack track, Device device = null, bool isPlaying = true, string context = null)
+        {
+            return new CurrentlyPlayingContext()
+            {
+                Context = Context(context ?? track.Uri),
+                Device = device ?? Device("device"),
+                IsPlaying = isPlaying,
+                Item = track
+            };
+        }
+
         public static CurrentlyPlaying CurrentlyPlaying(FullEpisode episode, bool isPlaying = true, string context = null)
         {
             return new CurrentlyPlaying()
@@ -90,11 +101,33 @@ namespace Selector.Tests
             };
         }
 
+        public static CurrentlyPlayingContext CurrentPlayback(FullEpisode episode, Device device = null, bool isPlaying = true, string context = null)
+        {
+            return new CurrentlyPlayingContext()
+            {
+                Context = Context(context ?? episode.Uri),
+                Device = device ?? Device("device"),
+                IsPlaying = isPlaying,
+                Item = episode
+            };
+        }
+
         public static Context Context(string uri)
         {
             return new Context()
             {
                 Uri = uri
+            };
+        }
+
+        public static Device Device(string name, string id = null, int volume = 50)
+        {
+            return new Device()
+            {
+                Name = name,
+                Id = id ?? name,
+                Type = "computer",
+                VolumePercent = volume
             };
         }
     }
