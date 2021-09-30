@@ -11,14 +11,14 @@ namespace Selector.Tests
 {
     public class PlayerWatcherTests
     {
-        public static IEnumerable<object[]> NowPlayingData => 
+        public static IEnumerable<object[]> NowPlayingData =>
         new List<object[]>
         {
             new object[] { new List<CurrentlyPlayingContext>(){
                     Helper.CurrentPlayback(Helper.FullTrack("track1", "album1", "artist1")),
                     Helper.CurrentPlayback(Helper.FullTrack("track2", "album2", "artist2")),
                     Helper.CurrentPlayback(Helper.FullTrack("track3", "album3", "artist3")),
-                } 
+                }
             }
         };
 
@@ -35,7 +35,7 @@ namespace Selector.Tests
 
             var watcher = new PlayerWatcher(spotMock.Object, eq);
 
-            for(var i = 0; i < playing.Count; i++)
+            for (var i = 0; i < playing.Count; i++)
             {
                 await watcher.WatchOne();
                 var current = watcher.NowPlaying();
@@ -43,7 +43,7 @@ namespace Selector.Tests
             }
         }
 
-        public static IEnumerable<object[]> EventsData => 
+        public static IEnumerable<object[]> EventsData =>
         new List<object[]>
         {
             // NO CHANGING
@@ -165,7 +165,7 @@ namespace Selector.Tests
             //     // to raise
             //     new List<string>(){ "PlayingChange" },
             //     // to not raise
-            //     new List<string>(){ "AlbumChange", "ArtistChange", "ContentChange", "ContextChange", "ItemChange"  }
+            //     new List<string>(){ "AlbumChange", "ArtistChange", "ContentChange", "ContextChange", "ItemChange", "DeviceChange", "VolumeChange" }
             // },
             // // STARTED PLAYBACK
             // new object[] { new List<CurrentlyPlayingContext>(){
@@ -175,7 +175,7 @@ namespace Selector.Tests
             //     // to raise
             //     new List<string>(){ "PlayingChange" },
             //     // to not raise
-            //     new List<string>(){ "AlbumChange", "ArtistChange", "ContentChange", "ContextChange", "ItemChange"  }
+            //     new List<string>(){ "AlbumChange", "ArtistChange", "ContentChange", "ContextChange", "ItemChange", "DeviceChange", "VolumeChange" }
             // }
         };
 
@@ -195,7 +195,7 @@ namespace Selector.Tests
             var watcher = new PlayerWatcher(spotMock.Object, eq);
             using var monitoredWatcher = watcher.Monitor();
 
-            for(var i = 0; i < playing.Count; i++)
+            for (var i = 0; i < playing.Count; i++)
             {
                 await watcher.WatchOne();
             }
