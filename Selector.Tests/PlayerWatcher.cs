@@ -38,8 +38,7 @@ namespace Selector.Tests
             for (var i = 0; i < playing.Count; i++)
             {
                 await watcher.WatchOne();
-                var current = watcher.NowPlaying();
-                current.Should().Be(playing[i]);
+                watcher.Live.Should().Be(playing[i]);
             }
         }
 

@@ -6,10 +6,10 @@ using SpotifyAPI.Web;
 
 namespace Selector
 {
-    public class PlayerWatcher: IPlayerWatcher
+    public class PlayerWatcher: BaseWatcher, IPlayerWatcher
     {
         private readonly IPlayerClient spotifyClient;
-        private IEqualityChecker equalityChecker;
+        private readonly IEqualityChecker equalityChecker;
 
         public event EventHandler<ListeningChangeEventArgs> ItemChange;
         public event EventHandler<ListeningChangeEventArgs> AlbumChange;
@@ -21,14 +21,9 @@ namespace Selector
         public event EventHandler<ListeningChangeEventArgs> DeviceChange;
         public event EventHandler<ListeningChangeEventArgs> PlayingChange;
 
-        private CurrentlyPlayingContext live { get; set; }
+        public CurrentlyPlayingContext Live { get; private set; }
+        public ITimeline<CurrentlyPlayingContext> Past { get; private set; }
         private List<List<CurrentlyPlayingContext>> lastPlays { get; set; }
-
-        private int _pollPeriod;
-        public int PollPeriod {
-            get => _pollPeriod;
-            set => _pollPeriod = Math.Max(0, value);
-        }
 
         public PlayerWatcher(IPlayerClient spotifyClient, 
                 IEqualityChecker equalityChecker,
@@ -41,101 +36,72 @@ namespace Selector
             lastPlays = new List<List<CurrentlyPlayingContext>>();
         }
 
-        public async Task WatchOne() 
+        public override async Task WatchOne() 
         {
             try{
                 var polledCurrent = await spotifyClient.GetCurrentPlayback();
 
-                if (polledCurrent != null) StoreCurrentPlaying(live, polledCurrent);
+                if (polledCurrent != null) StoreCurrentPlaying(Live, polledCurrent);
 
+                // swap new item into live and bump existing down to previous
                 CurrentlyPlayingContext previous;
-                if(live is null) {
-                    live = polledCurrent;
+                if(Live is null) {
+                    Live = polledCurrent;
                     previous = polledCurrent;
                 }
                 else {
-                    previous = live;
-                    live = polledCurrent;
+                    previous = Live;
+                    Live = polledCurrent;
                 }
 
                 // NOT PLAYING
-                if(previous is null && live is null)
+                if(previous is null && Live is null)
                 {
                     // Console.WriteLine("not playing");
                 }
                 else
                 {
                     // STARTED PLAYBACK
-                    if(previous is null && (live.Item is FullTrack || live.Item is FullEpisode))
+                    if(previous is null && (Live.Item is FullTrack || Live.Item is FullEpisode))
                     {
-                        // Console.WriteLine("started playing");
-                        OnPlayingChange(new ListeningChangeEventArgs(){
-                            Previous = previous,
-                            Current = live
-                        });
+                        OnPlayingChange(ListeningChangeEventArgs.From(previous, Live));
                     }
                     // STOPPED PLAYBACK
-                    else if((previous.Item is FullTrack || previous.Item is FullEpisode) && live is null)
+                    else if((previous.Item is FullTrack || previous.Item is FullEpisode) && Live is null)
                     {
-                        // Console.WriteLine("stopped playing");
-                        OnPlayingChange(new ListeningChangeEventArgs(){
-                            Previous = previous,
-                            Current = live
-                        });
+                        OnPlayingChange(ListeningChangeEventArgs.From(previous, Live));
                     }
+                    // CONTINUING PLAYBACK
                     else {
 
                         // MUSIC
-                        if(previous.Item is FullTrack && live.Item is FullTrack)
+                        if(previous.Item is FullTrack previousTrack && Live.Item is FullTrack currentTrack)
                         {
-                            var previousItem = (FullTrack) previous.Item;
-                            var currentItem = (FullTrack) live.Item;
 
-                            if(!equalityChecker.Track(previousItem, currentItem, true)) {
-                                OnItemChange(new ListeningChangeEventArgs(){
-                                    Previous = previous,
-                                    Current = live
-                                });
+                            if(!equalityChecker.Track(previousTrack, currentTrack, true)) {
+                                OnItemChange(ListeningChangeEventArgs.From(previous, Live));
                             }
 
-                            if(!equalityChecker.Album(previousItem.Album, currentItem.Album)) {
-                                OnAlbumChange(new ListeningChangeEventArgs(){
-                                    Previous = previous,
-                                    Current = live
-                                });
+                            if(!equalityChecker.Album(previousTrack.Album, currentTrack.Album)) {
+                                OnAlbumChange(ListeningChangeEventArgs.From(previous, Live));
                             }
 
-                            if(!equalityChecker.Artist(previousItem.Artists[0], currentItem.Artists[0])) {
-                                OnArtistChange(new ListeningChangeEventArgs(){
-                                    Previous = previous,
-                                    Current = live
-                                });
+                            if(!equalityChecker.Artist(previousTrack.Artists[0], currentTrack.Artists[0])) {
+                                OnArtistChange(ListeningChangeEventArgs.From(previous, Live));
                             }
                         }
                         // CHANGED CONTENT
-                        else if(previous.Item is FullTrack && live.Item is FullEpisode
-                            || previous.Item is FullEpisode && live.Item is FullTrack)
+                        else if(previous.Item is FullTrack && Live.Item is FullEpisode
+                            || previous.Item is FullEpisode && Live.Item is FullTrack)
                         {
-                            OnContentChange(new ListeningChangeEventArgs(){
-                                Previous = previous,
-                                Current = live
-                            });
-                            OnItemChange(new ListeningChangeEventArgs(){
-                                Previous = previous,
-                                Current = live
-                            });
+                            OnContentChange(ListeningChangeEventArgs.From(previous, Live));
+                            OnItemChange(ListeningChangeEventArgs.From(previous, Live));
                         }
                         // PODCASTS
-                        else if(previous.Item is FullEpisode && live.Item is FullEpisode)
+                        else if(previous.Item is FullEpisode previousEp && Live.Item is FullEpisode currentEp)
                         {
-                            var previousItem = (FullEpisode) previous.Item;
-                            var currentItem = (FullEpisode) live.Item;
-
-                            if(!equalityChecker.Episode(previousItem, currentItem)) {
-                                OnItemChange(new ListeningChangeEventArgs(){
-                                    Previous = previous,
-                                    Current = live
-                                });
+                            if(!equalityChecker.Episode(previousEp, currentEp)) {
+                                OnItemChange(ListeningChangeEventArgs.From(previous, Live));
                             }
                         }
                         else {
@@ -143,35 +109,23 @@ namespace Selector
                         }
 
                         // CONTEXT
-                        if(!equalityChecker.Context(previous.Context, live.Context)) {
-                            OnContextChange(new ListeningChangeEventArgs(){
-                                Previous = previous,
-                                Current = live
-                            });
+                        if(!equalityChecker.Context(previous.Context, Live.Context)) {
+                            OnContextChange(ListeningChangeEventArgs.From(previous, Live));
                         }
 
                         // DEVICE
-                        if(!equalityChecker.Device(previous?.Device, live?.Device)) {
-                            OnDeviceChange(new ListeningChangeEventArgs(){
-                                Previous = previous,
-                                Current = live
-                            });
+                        if(!equalityChecker.Device(previous?.Device, Live?.Device)) {
+                            OnDeviceChange(ListeningChangeEventArgs.From(previous, Live));
                         }
 
                         // IS PLAYING
-                        if(previous.IsPlaying != live.IsPlaying) {
-                            OnPlayingChange(new ListeningChangeEventArgs(){
-                                Previous = previous,
-                                Current = live
-                            });
+                        if(previous.IsPlaying != Live.IsPlaying) {
+                            OnPlayingChange(ListeningChangeEventArgs.From(previous, Live));
                         }
 
                         // VOLUME
-                        if(previous.Device.VolumePercent != live.Device.VolumePercent) {
-                            OnVolumeChange(new ListeningChangeEventArgs(){
-                                Previous = previous,
-                                Current = live
-                            });
+                        if(previous.Device.VolumePercent != Live.Device.VolumePercent) {
+                            OnVolumeChange(ListeningChangeEventArgs.From(previous, Live));
                         }
                     }
                 }                
@@ -188,20 +142,6 @@ namespace Selector
             {
                 throw e;
             }
-        }
-
-        public async Task Watch(CancellationToken cancelToken)
-        {
-            while (!cancelToken.IsCancellationRequested)
-            {
-                await WatchOne();
-                await Task.Delay(PollPeriod);
-            }
-        }
-
-        public CurrentlyPlayingContext NowPlaying()
-        {
-            return live;
         }
 
         /// <summary>

@@ -15,8 +15,5 @@ namespace Selector
         public event EventHandler<ListeningChangeEventArgs> VolumeChange;
         public event EventHandler<ListeningChangeEventArgs> DeviceChange;
         public event EventHandler<ListeningChangeEventArgs> PlayingChange;
-
-        public CurrentlyPlayingContext NowPlaying();
-        // recently playing
     }
 }
