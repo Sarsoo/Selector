@@ -9,7 +9,7 @@ namespace Selector
     public class PlayerWatcher: BaseWatcher, IPlayerWatcher
     {
         private readonly IPlayerClient spotifyClient;
-        private readonly IEqualityChecker equalityChecker;
+        private readonly IEqual eq;
 
         public event EventHandler<ListeningChangeEventArgs> ItemChange;
         public event EventHandler<ListeningChangeEventArgs> AlbumChange;
@@ -26,11 +26,11 @@ namespace Selector
         private List<List<CurrentlyPlayingContext>> lastPlays { get; set; }
 
         public PlayerWatcher(IPlayerClient spotifyClient, 
-                IEqualityChecker equalityChecker,
+                IEqual equalityChecker,
                 int pollPeriod = 3000) {
 
             this.spotifyClient = spotifyClient;
-            this.equalityChecker = equalityChecker;
+            this.eq = equalityChecker;
             this.PollPeriod = pollPeriod;
 
             lastPlays = new List<List<CurrentlyPlayingContext>>();
@@ -78,15 +78,15 @@ namespace Selector
                         if(previous.Item is FullTrack previousTrack && Live.Item is FullTrack currentTrack)
                         {
 
-                            if(!equalityChecker.Track(previousTrack, currentTrack, true)) {
+                            if(!eq.IsEqual<FullTrack>(previousTrack, currentTrack)) {
                                 OnItemChange(ListeningChangeEventArgs.From(previous, Live));
                             }
 
-                            if(!equalityChecker.Album(previousTrack.Album, currentTrack.Album)) {
+                            if(!eq.IsEqual<SimpleAlbum>(previousTrack.Album, currentTrack.Album)) {
                                 OnAlbumChange(ListeningChangeEventArgs.From(previous, Live));
                             }
 
-                            if(!equalityChecker.Artist(previousTrack.Artists[0], currentTrack.Artists[0])) {
+                            if(!eq.IsEqual<SimpleArtist>(previousTrack.Artists[0], currentTrack.Artists[0])) {
                                 OnArtistChange(ListeningChangeEventArgs.From(previous, Live));
                             }
                         }
@@ -100,7 +100,7 @@ namespace Selector
                         // PODCASTS
                         else if(previous.Item is FullEpisode previousEp && Live.Item is FullEpisode currentEp)
                         {
-                            if(!equalityChecker.Episode(previousEp, currentEp)) {
+                            if(!eq.IsEqual<FullEpisode>(previousEp, currentEp)) {
                                 OnItemChange(ListeningChangeEventArgs.From(previous, Live));
                             }
                         }
@@ -109,12 +109,12 @@ namespace Selector
                         }
 
                         // CONTEXT
-                        if(!equalityChecker.Context(previous.Context, Live.Context)) {
+                        if(!eq.IsEqual<Context>(previous.Context, Live.Context)) {
                             OnContextChange(ListeningChangeEventArgs.From(previous, Live));
                         }
 
                         // DEVICE
-                        if(!equalityChecker.Device(previous?.Device, Live?.Device)) {
+                        if(!eq.IsEqual<Device>(previous?.Device, Live?.Device)) {
                             OnDeviceChange(ListeningChangeEventArgs.From(previous, Live));
                         }
 
@@ -158,14 +158,14 @@ namespace Selector
                     var castItem = (FullTrack) current.Item;
                     var castStoredItem = (FullTrack) lastPlays[0][0].Item;
 
-                    matchesMostRecent = equalityChecker.Track(castItem, castStoredItem, true);
+                    matchesMostRecent = eq.IsEqual<FullTrack>(castItem, castStoredItem);
                 }
                 catch(InvalidCastException)
                 {
                     var castItem = (FullEpisode) current.Item;
                     var castStoredItem = (FullEpisode) lastPlays[0][0].Item;
 
-                    matchesMostRecent = equalityChecker.Episode(castItem, castStoredItem);
+                    matchesMostRecent = eq.IsEqual<FullEpisode>(castItem, castStoredItem);
                 }
 
                 if (matchesMostRecent)

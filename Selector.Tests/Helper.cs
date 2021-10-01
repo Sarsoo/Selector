@@ -10,8 +10,10 @@ namespace Selector.Tests
 {
     static class Helper
     {
-        public static FullTrack FullTrack(string name, string album, List<string> artists)
+        public static FullTrack FullTrack(string name, string album = "album name", List<string> artists = null)
         {
+            if (artists is null) artists = new List<string>() {"artist"};
+            
             return new FullTrack()
             {
                 Name = name,
@@ -36,8 +38,9 @@ namespace Selector.Tests
             };
         }
 
-        public static SimpleAlbum SimpleAlbum(string name, List<string> artists)
+        public static SimpleAlbum SimpleAlbum(string name, List<string> artists = null)
         {
+            if (artists is null) artists = new List<string>() {"artist"};
             return new SimpleAlbum()
             {
                 Name = name,
@@ -80,11 +83,11 @@ namespace Selector.Tests
             };
         }
 
-        public static CurrentlyPlayingContext CurrentPlayback(FullTrack track, Device device = null, bool isPlaying = true, string context = null)
+        public static CurrentlyPlayingContext CurrentPlayback(FullTrack track, Device device = null, bool isPlaying = true, string context = "context")
         {
             return new CurrentlyPlayingContext()
             {
-                Context = Context(context ?? track.Uri),
+                Context = Context(context),
                 Device = device ?? Device("device"),
                 IsPlaying = isPlaying,
                 Item = track
