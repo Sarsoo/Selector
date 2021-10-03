@@ -22,18 +22,15 @@ namespace Selector
         public event EventHandler<ListeningChangeEventArgs> PlayingChange;
 
         public CurrentlyPlayingContext Live { get; private set; }
-        public ITimeline<CurrentlyPlayingContext> Past { get; private set; }
-        private List<List<CurrentlyPlayingContext>> lastPlays { get; set; }
+        public PlayerTimeline Past { get; private set; }
 
         public PlayerWatcher(IPlayerClient spotifyClient, 
                 IEqual equalityChecker,
                 int pollPeriod = 3000) {
 
             this.spotifyClient = spotifyClient;
-            this.eq = equalityChecker;
-            this.PollPeriod = pollPeriod;
-
-            lastPlays = new List<List<CurrentlyPlayingContext>>();
+            eq = equalityChecker;
+            PollPeriod = pollPeriod;
         }
 
         public override async Task WatchOne() 
@@ -41,7 +38,7 @@ namespace Selector
             try{
                 var polledCurrent = await spotifyClient.GetCurrentPlayback();
 
-                if (polledCurrent != null) StoreCurrentPlaying(Live, polledCurrent);
+                if (polledCurrent != null) StoreCurrentPlaying(polledCurrent);
 
                 // swap new item into live and bump existing down to previous
                 CurrentlyPlayingContext previous;
@@ -78,15 +75,15 @@ namespace Selector
                         if(previous.Item is FullTrack previousTrack && Live.Item is FullTrack currentTrack)
                         {
 
-                            if(!eq.IsEqual<FullTrack>(previousTrack, currentTrack)) {
+                            if(!eq.IsEqual(previousTrack, currentTrack)) {
                                 OnItemChange(ListeningChangeEventArgs.From(previous, Live));
                             }
 
-                            if(!eq.IsEqual<SimpleAlbum>(previousTrack.Album, currentTrack.Album)) {
+                            if(!eq.IsEqual(previousTrack.Album, currentTrack.Album)) {
                                 OnAlbumChange(ListeningChangeEventArgs.From(previous, Live));
                             }
 
-                            if(!eq.IsEqual<SimpleArtist>(previousTrack.Artists[0], currentTrack.Artists[0])) {
+                            if(!eq.IsEqual(previousTrack.Artists[0], currentTrack.Artists[0])) {
                                 OnArtistChange(ListeningChangeEventArgs.From(previous, Live));
                             }
                         }
@@ -100,7 +97,7 @@ namespace Selector
                         // PODCASTS
                         else if(previous.Item is FullEpisode previousEp && Live.Item is FullEpisode currentEp)
                         {
-                            if(!eq.IsEqual<FullEpisode>(previousEp, currentEp)) {
+                            if(!eq.IsEqual(previousEp, currentEp)) {
                                 OnItemChange(ListeningChangeEventArgs.From(previous, Live));
                             }
                         }
@@ -109,12 +106,12 @@ namespace Selector
                         }
 
                         // CONTEXT
-                        if(!eq.IsEqual<Context>(previous.Context, Live.Context)) {
+                        if(!eq.IsEqual(previous.Context, Live.Context)) {
                             OnContextChange(ListeningChangeEventArgs.From(previous, Live));
                         }
 
                         // DEVICE
-                        if(!eq.IsEqual<Device>(previous?.Device, Live?.Device)) {
+                        if(!eq.IsEqual(previous?.Device, Live?.Device)) {
                             OnDeviceChange(ListeningChangeEventArgs.From(previous, Live));
                         }
 
@@ -148,53 +145,12 @@ namespace Selector
         /// Store currently playing in last plays. Determine whether new list or appending required
         /// </summary>
         /// <param name="current">New currently playing to store</param>
-        private void StoreCurrentPlaying(CurrentlyPlayingContext previous, CurrentlyPlayingContext current) 
+        private void StoreCurrentPlaying(CurrentlyPlayingContext current) 
         {
-            if(lastPlays.Count > 0)
-            {
-                bool matchesMostRecent;
-
-                try {
-                    var castItem = (FullTrack) current.Item;
-                    var castStoredItem = (FullTrack) lastPlays[0][0].Item;
-
-                    matchesMostRecent = eq.IsEqual<FullTrack>(castItem, castStoredItem);
-                }
-                catch(InvalidCastException)
-                {
-                    var castItem = (FullEpisode) current.Item;
-                    var castStoredItem = (FullEpisode) lastPlays[0][0].Item;
-
-                    matchesMostRecent = eq.IsEqual<FullEpisode>(castItem, castStoredItem);
-                }
-
-                if (matchesMostRecent)
-                {
-                    lastPlays[0].Add(current);
-                }
-                else 
-                {
-                    StoreNewTrack(previous, current);
-                }
-            }
-            else {
-                StoreNewTrack(previous, current);
-            }
+            Past?.Add(current);
         }
 
-        /// <summary>
-        /// Store currently playing at front of last plays list. Pushes new list to hold same track
-        /// </summary>
-        /// <param name="current">New currently playing to store</param>
-        private void StoreNewTrack(CurrentlyPlayingContext previous, CurrentlyPlayingContext current)
-        {
-            if (previous != null) {
-                var newPlayingList = new List<CurrentlyPlayingContext>();
-                newPlayingList.Add(previous);
-                lastPlays.Insert(0, newPlayingList);
-            }
-        }
-
+        #region Event Firers
         protected virtual void OnItemChange(ListeningChangeEventArgs args)
         {
             ItemChange?.Invoke(this, args); 
@@ -234,5 +190,7 @@ namespace Selector
         {
             PlayingChange?.Invoke(this, args); 
         }
+
+        #endregion
     }
 }
