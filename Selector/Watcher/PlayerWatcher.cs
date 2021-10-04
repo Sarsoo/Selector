@@ -59,12 +59,14 @@ namespace Selector
                 else
                 {
                     // STARTED PLAYBACK
-                    if(previous is null && (Live.Item is FullTrack || Live.Item is FullEpisode))
+                    if(previous is null 
+                        && (Live.Item is FullTrack || Live.Item is FullEpisode))
                     {
                         OnPlayingChange(ListeningChangeEventArgs.From(previous, Live));
                     }
                     // STOPPED PLAYBACK
-                    else if((previous.Item is FullTrack || previous.Item is FullEpisode) && Live is null)
+                    else if((previous.Item is FullTrack || previous.Item is FullEpisode) 
+                        && Live is null)
                     {
                         OnPlayingChange(ListeningChangeEventArgs.From(previous, Live));
                     }
@@ -72,7 +74,8 @@ namespace Selector
                     else {
 
                         // MUSIC
-                        if(previous.Item is FullTrack previousTrack && Live.Item is FullTrack currentTrack)
+                        if(previous.Item is FullTrack previousTrack 
+                            && Live.Item is FullTrack currentTrack)
                         {
 
                             if(!eq.IsEqual(previousTrack, currentTrack)) {
@@ -88,14 +91,15 @@ namespace Selector
                             }
                         }
                         // CHANGED CONTENT
-                        else if(previous.Item is FullTrack && Live.Item is FullEpisode
-                            || previous.Item is FullEpisode && Live.Item is FullTrack)
+                        else if((previous.Item is FullTrack && Live.Item is FullEpisode)
+                            || (previous.Item is FullEpisode && Live.Item is FullTrack))
                         {
                             OnContentChange(ListeningChangeEventArgs.From(previous, Live));
                             OnItemChange(ListeningChangeEventArgs.From(previous, Live));
                         }
                         // PODCASTS
-                        else if(previous.Item is FullEpisode previousEp && Live.Item is FullEpisode currentEp)
+                        else if(previous.Item is FullEpisode previousEp 
+                            && Live.Item is FullEpisode currentEp)
                         {
                             if(!eq.IsEqual(previousEp, currentEp)) {
                                 OnItemChange(ListeningChangeEventArgs.From(previous, Live));

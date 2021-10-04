@@ -1,16 +1,19 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using SpotifyAPI.Web;
 
 namespace Selector
 {
-    public class PlayerTimeline : ITimeline<CurrentlyPlayingContext>
+    public class PlayerTimeline 
+        : ITimeline<CurrentlyPlayingContext>, 
+          IEnumerable<TimelineItem<CurrentlyPlayingContext>>
     {
 
         private List<TimelineItem<CurrentlyPlayingContext>> recentlyPlayed = new List<TimelineItem<CurrentlyPlayingContext>>();
         public IEqual EqualityChecker { get; set; }
-        public bool SortOnBackDate { get; set; }
+        public bool SortOnBackDate { get; set; } = true;
         public int Count { get => recentlyPlayed.Count; }
 
         public void Add(CurrentlyPlayingContext item) => Add(item, DateHelper.FromUnixMilli(item.Timestamp));
@@ -42,7 +45,8 @@ namespace Selector
         public CurrentlyPlayingContext Get(DateTime at) 
             => GetTimelineItem(at)?.Item;
         public TimelineItem<CurrentlyPlayingContext> GetTimelineItem(DateTime at) 
-            => recentlyPlayed.Where(i => i.Time <= at).LastOrDefault();
+            => recentlyPlayed
+                .Where(i => i.Time <= at).LastOrDefault();
 
         public CurrentlyPlayingContext Get(FullTrack track) 
             => GetAll(track)
@@ -105,7 +109,8 @@ namespace Selector
                 .Select(t => t.Item);
 
         private IEnumerable<TimelineItem<CurrentlyPlayingContext>> GetAllTimelineItems(Device device) 
-            => recentlyPlayed.Where(i => EqualityChecker.IsEqual(i.Item.Device, device));
+            => recentlyPlayed
+                .Where(i => EqualityChecker.IsEqual(i.Item.Device, device));
 
         public CurrentlyPlayingContext Get(Context context)
             => GetAll(context)
@@ -116,7 +121,10 @@ namespace Selector
                 .Select(t => t.Item);
 
         private IEnumerable<TimelineItem<CurrentlyPlayingContext>> GetAllTimelineItems(Context context)
-            => recentlyPlayed.Where(i => EqualityChecker.IsEqual(i.Item.Context, context));
+            => recentlyPlayed
+                .Where(i => EqualityChecker.IsEqual(i.Item.Context, context));
 
+        public IEnumerator<TimelineItem<CurrentlyPlayingContext>> GetEnumerator() => recentlyPlayed.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
