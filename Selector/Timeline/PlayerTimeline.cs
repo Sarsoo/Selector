@@ -11,10 +11,25 @@ namespace Selector
           IEnumerable<TimelineItem<CurrentlyPlayingContext>>
     {
 
-        private List<TimelineItem<CurrentlyPlayingContext>> recentlyPlayed = new List<TimelineItem<CurrentlyPlayingContext>>();
+        private List<TimelineItem<CurrentlyPlayingContext>> recentlyPlayed = new();
         public IEqual EqualityChecker { get; set; }
         public bool SortOnBackDate { get; set; } = true;
         public int Count { get => recentlyPlayed.Count; }
+
+        private int? max = 1000;
+        public int? MaxSize { 
+            get => max; 
+            set {
+                if(value is null)
+                {
+                    max = value;
+                }
+                else 
+                {
+                    max = Math.Max(1, (int) value);   
+                }
+            }
+        }
 
         public void Add(CurrentlyPlayingContext item) => Add(item, DateHelper.FromUnixMilli(item.Timestamp));
         public void Add(CurrentlyPlayingContext item, DateTime timestamp)
@@ -28,6 +43,8 @@ namespace Selector
             {
                 Sort();
             }
+
+            CheckSize();
         }
 
         public void Sort()
@@ -35,6 +52,13 @@ namespace Selector
             recentlyPlayed = recentlyPlayed
                                 .OrderBy(i => i.Time)
                                 .ToList();
+        }
+
+        private void CheckSize()
+        {
+            if (MaxSize is int maxSize && Count > maxSize) {
+                recentlyPlayed.RemoveRange(0, Count - maxSize);
+            }
         }
 
         public void Clear() => recentlyPlayed.Clear();

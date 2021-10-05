@@ -9,5 +9,7 @@ namespace Selector
     {
         public Task WatchOne();
         public Task Watch(CancellationToken cancelToken);
+
+        public int PollPeriod { get; set; }
     }
 }

@@ -45,6 +45,70 @@ namespace Selector.Tests
             timeline.Count.Should().Be(currentlyPlaying.Length);
         }
 
+        public static IEnumerable<object[]> MaxSizeData => 
+        new List<object[]>
+        {
+            new object[] {
+                new CurrentlyPlayingContext[]
+                {
+                    Helper.CurrentPlayback(Helper.FullTrack("uri1"))
+                }, 5, 1
+            },
+            new object[] {
+                new CurrentlyPlayingContext[]
+                {
+                    Helper.CurrentPlayback(Helper.FullTrack("uri1")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri2")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri3"))
+                }, 1, 1
+            },
+            new object[] {
+                new CurrentlyPlayingContext[]
+                {
+                    Helper.CurrentPlayback(Helper.FullTrack("uri1")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri2")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri3")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri4")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri5")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri6")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri7")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri8")),
+                }, 5, 5
+            },
+            new object[] {
+                new CurrentlyPlayingContext[]
+                {
+                    Helper.CurrentPlayback(Helper.FullTrack("uri1")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri2")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri3")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri4")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri5")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri6")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri7")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri8")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri9")),
+                    Helper.CurrentPlayback(Helper.FullTrack("uri10"))
+                }, null, 10
+            }            
+        };
+
+        [Theory]
+        [MemberData(nameof(MaxSizeData))]
+        public void MaxSize(CurrentlyPlayingContext[] currentlyPlaying, int? maxSize, int finalCount)
+        {
+            var timeline = new PlayerTimeline
+            {
+                MaxSize = maxSize
+            };
+
+            foreach (var i in currentlyPlaying)
+            {
+                timeline.Add(i);
+            }
+
+            timeline.Count.Should().Be(finalCount);
+        }
+
         [Fact]
         public void Clear()
         {
