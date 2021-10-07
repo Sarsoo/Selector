@@ -6,6 +6,8 @@ using FluentAssertions;
 using SpotifyAPI.Web;
 
 using System.Threading;
+using System.Threading.Tasks;
+using Xunit.Sdk;
 
 namespace Selector.Tests
 {
@@ -203,11 +205,32 @@ namespace Selector.Tests
             toNotRaise.ForEach(r => monitoredWatcher.Should().NotRaise(r));
         }
 
+        [Theory]
+        [InlineData(1000, 3500, 4)]
+        [InlineData(500, 3800, 8)]
+        public async void Watch(int pollPeriod, int execTime, int numberOfCalls)
+        {
+            var spotMock = new Mock<IPlayerClient>();
+            var eq = new UriEqual();
+            var watch = new PlayerWatcher(spotMock.Object, eq)
+            {
+                PollPeriod = pollPeriod
+            };
+
+            var tokenSource = new CancellationTokenSource();
+            var task = watch.Watch(tokenSource.Token);
+            
+            await Task.Delay(execTime);
+            tokenSource.Cancel();
+
+            spotMock.Verify(s => s.GetCurrentPlayback(), Times.Exactly(numberOfCalls));
+        }
+
         // [Fact]
         // public async void Auth()
         // {
         //     var spot = new SpotifyClient("");
-        //     var eq = new UriEquality();
+        //     var eq = new UriEqual();
         //     var watch = new PlayerWatcher(spot.Player, eq);
 
         //     var token = new CancellationTokenSource();

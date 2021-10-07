@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,13 +9,13 @@ namespace Selector
 {
     public abstract class BaseWatcher: IWatcher
     {
-        public abstract Task WatchOne();
+        public abstract Task WatchOne(CancellationToken token);
 
         public async Task Watch(CancellationToken cancelToken)
         {
-            while (!cancelToken.IsCancellationRequested)
-            {
-                await WatchOne();
+            while (true) {
+                cancelToken.ThrowIfCancellationRequested();
+                await WatchOne(cancelToken);
                 await Task.Delay(PollPeriod);
             }
         }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using SpotifyAPI.Web;
 
 namespace Selector
@@ -15,5 +14,8 @@ namespace Selector
         public event EventHandler<ListeningChangeEventArgs> VolumeChange;
         public event EventHandler<ListeningChangeEventArgs> DeviceChange;
         public event EventHandler<ListeningChangeEventArgs> PlayingChange;
+
+        public CurrentlyPlayingContext Live { get; }
+        public PlayerTimeline Past { get; }
     }
 }

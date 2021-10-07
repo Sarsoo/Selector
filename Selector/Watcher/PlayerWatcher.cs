@@ -33,8 +33,10 @@ namespace Selector
             PollPeriod = pollPeriod;
         }
 
-        public override async Task WatchOne() 
+        public override async Task WatchOne(CancellationToken token = default) 
         {
+            token.ThrowIfCancellationRequested();
+            
             try{
                 var polledCurrent = await spotifyClient.GetCurrentPlayback();
 

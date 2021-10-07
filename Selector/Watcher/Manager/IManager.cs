@@ -6,9 +6,10 @@ namespace Selector
 {
     interface IManager
     {
+        public bool IsRunning { get; }
         public void Add(IWatcher watcher);
         
-        public bool Start();
-        public bool Stop();
+        public void Start();
+        public void Stop();
     }
 }

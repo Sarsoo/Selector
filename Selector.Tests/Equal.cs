@@ -63,7 +63,7 @@ namespace Selector.Tests
         public void TrackEquality(FullTrack track1, FullTrack track2, bool shouldEqual)
         {
             var eq = Equal.String();
-            eq.IsEqual<FullTrack>(track1, track2).Should().Be(shouldEqual);
+            eq.IsEqual(track1, track2).Should().Be(shouldEqual);
         }
 
         public static IEnumerable<object[]> AlbumData =>
@@ -106,7 +106,7 @@ namespace Selector.Tests
         public void AlbumEquality(SimpleAlbum album1, SimpleAlbum album2, bool shouldEqual)
         {
             var eq = Equal.String();
-            eq.IsEqual<SimpleAlbum>(album1, album2).Should().Be(shouldEqual);
+            eq.IsEqual(album1, album2).Should().Be(shouldEqual);
         }
 
         public static IEnumerable<object[]> ArtistData =>
@@ -131,7 +131,7 @@ namespace Selector.Tests
         public void ArtistEquality(SimpleArtist artist1, SimpleArtist artist2, bool shouldEqual)
         {
             var eq = Equal.String();
-            eq.IsEqual<SimpleArtist>(artist1, artist2).Should().Be(shouldEqual);
+            eq.IsEqual(artist1, artist2).Should().Be(shouldEqual);
         }
 
         public static IEnumerable<object[]> EpisodeData =>
@@ -156,7 +156,7 @@ namespace Selector.Tests
         public void EpisodeEquality(FullEpisode episode1, FullEpisode episode2, bool shouldEqual)
         {
             var eq = Equal.String();
-            eq.IsEqual<FullEpisode>(episode1, episode2).Should().Be(shouldEqual);
+            eq.IsEqual(episode1, episode2).Should().Be(shouldEqual);
         }
     }
 }

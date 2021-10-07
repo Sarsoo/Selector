@@ -34,10 +34,7 @@ namespace Selector
         public void Add(CurrentlyPlayingContext item) => Add(item, DateHelper.FromUnixMilli(item.Timestamp));
         public void Add(CurrentlyPlayingContext item, DateTime timestamp)
         {
-            recentlyPlayed.Add(new TimelineItem<CurrentlyPlayingContext>(){
-                Item = item,
-                Time = timestamp
-            });
+            recentlyPlayed.Add(TimelineItem<CurrentlyPlayingContext>.From(item, timestamp));
 
             if (timestamp < recentlyPlayed.Last().Time && SortOnBackDate)
             {
