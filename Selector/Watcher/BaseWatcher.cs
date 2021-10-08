@@ -16,7 +16,7 @@ namespace Selector
             while (true) {
                 cancelToken.ThrowIfCancellationRequested();
                 await WatchOne(cancelToken);
-                await Task.Delay(PollPeriod);
+                await Task.Delay(PollPeriod, cancelToken);
             }
         }
 

@@ -208,6 +208,7 @@ namespace Selector.Tests
         [Theory]
         [InlineData(1000, 3500, 4)]
         [InlineData(500, 3800, 8)]
+        [InlineData(100, 250, 3)]
         public async void Watch(int pollPeriod, int execTime, int numberOfCalls)
         {
             var spotMock = new Mock<IPlayerClient>();

@@ -5,7 +5,12 @@ VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Selector", "Selector\Selector.csproj", "{05B22ACE-2EA1-46AA-8483-A625B08A0D01}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Selector.Tests", "Selector.Tests\Selector.Tests.csproj", "{2C33766F-FFEB-4A91-9509-7B543EDB6F93}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Selector.Tests", "Selector.Tests\Selector.Tests.csproj", "{2C33766F-FFEB-4A91-9509-7B543EDB6F93}"
+	ProjectSection(ProjectDependencies) = postProject
+		{05B22ACE-2EA1-46AA-8483-A625B08A0D01} = {05B22ACE-2EA1-46AA-8483-A625B08A0D01}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Selector.CLI", "Selector.CLI\Selector.CLI.csproj", "{AB0C1359-2A4D-4013-BC5A-79C55203C15E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{05B22ACE-2EA1-46AA-8483-A625B08A0D01} = {05B22ACE-2EA1-46AA-8483-A625B08A0D01}
 	EndProjectSection
@@ -24,6 +29,10 @@ Global
 		{2C33766F-FFEB-4A91-9509-7B543EDB6F93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C33766F-FFEB-4A91-9509-7B543EDB6F93}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C33766F-FFEB-4A91-9509-7B543EDB6F93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB0C1359-2A4D-4013-BC5A-79C55203C15E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB0C1359-2A4D-4013-BC5A-79C55203C15E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB0C1359-2A4D-4013-BC5A-79C55203C15E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB0C1359-2A4D-4013-BC5A-79C55203C15E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

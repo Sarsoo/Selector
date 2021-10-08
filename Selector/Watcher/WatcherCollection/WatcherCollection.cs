@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,10 +8,16 @@ using System.Threading.Tasks;
 
 namespace Selector
 {
-    public class Manager: IManager, IDisposable
+    public class WatcherCollection: IWatcherCollection, IDisposable, IEnumerable<WatcherContext>
     {
         public bool IsRunning { get; private set; } = true;
         private List<WatcherContext> Watchers { get; set; } = new();
+
+        public WatcherCollection()
+        {
+
+        }
+
         public int Count => Watchers.Count;
         public IEnumerable<Task> Tasks 
             => Watchers
@@ -58,6 +65,9 @@ namespace Selector
             {
                 watcher.Dispose();
             }
-        }        
+        }
+
+        public IEnumerator<WatcherContext> GetEnumerator() => Watchers.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

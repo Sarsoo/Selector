@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Selector
 {
-    interface IManager
+    public interface IWatcherCollection
     {
         public bool IsRunning { get; }
         public void Add(IWatcher watcher);
