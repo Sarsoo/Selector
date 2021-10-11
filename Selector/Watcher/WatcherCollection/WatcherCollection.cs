@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,12 +12,13 @@ namespace Selector
 {
     public class WatcherCollection: IWatcherCollection, IDisposable, IEnumerable<WatcherContext>
     {
+        private readonly ILogger<WatcherCollection> Logger;
         public bool IsRunning { get; private set; } = true;
         private List<WatcherContext> Watchers { get; set; } = new();
 
-        public WatcherCollection()
+        public WatcherCollection(ILogger<WatcherCollection> logger = null)
         {
-
+            Logger = logger ?? NullLogger<WatcherCollection>.Instance;
         }
 
         public int Count => Watchers.Count;
@@ -42,6 +45,7 @@ namespace Selector
 
         public void Start()
         {
+            Logger.LogDebug($"Starting {Count} watchers");
             foreach(var watcher in Watchers)
             {
                 watcher.Start();
@@ -51,7 +55,8 @@ namespace Selector
         
         public void Stop()
         {
-            foreach(var watcher in Watchers)
+            Logger.LogDebug($"Stopping {Count} watchers");
+            foreach (var watcher in Watchers)
             {
                 watcher.Stop();
             }

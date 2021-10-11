@@ -7,34 +7,24 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Selector.CLI
 {
     class WatcherService : IHostedService
     {
         private readonly ILogger<WatcherService> Logger;
-        private readonly IConfiguration Config;
+        private readonly RootOptions Config;
 
-        public WatcherService(ILogger<WatcherService> logger, IConfiguration config)
+        public WatcherService(ILogger<WatcherService> logger, IOptions<RootOptions> config)
         {
             Logger = logger;
-            Config = config;
+            Config = config.Value;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             Logger.LogInformation("Starting up");
-
-            foreach ((var key, var pair) in Config.AsEnumerable())
-            //foreach ((var key, var pair) in Config.GetSection("Selector").AsEnumerable())
-            {
-                Logger.LogInformation($"{key} => {pair}");
-            }
-
-            using(Logger.BeginScope("A New Scope!"))
-            {
-                Logger.LogError("From the scope!");
-            }
 
             return Task.CompletedTask;
         }
