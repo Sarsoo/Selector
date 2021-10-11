@@ -16,6 +16,8 @@ namespace Selector.CLI
         private readonly ILogger<WatcherService> Logger;
         private readonly RootOptions Config;
 
+        private Dictionary<string, IWatcherCollection> Watchers { get; set; } = new();
+
         public WatcherService(ILogger<WatcherService> logger, IOptions<RootOptions> config)
         {
             Logger = logger;
@@ -26,12 +28,21 @@ namespace Selector.CLI
         {
             Logger.LogInformation("Starting up");
 
+            Config.WatcherOptions.Instances.ForEach(i => Logger.LogInformation($"Config: {i.Type}"));
+
             return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
             Logger.LogInformation("Shutting down");
+
+            foreach((var key, var watcher) in Watchers)
+            {
+                Logger.LogInformation($"Stopping watcher collection: {key}");
+                watcher.Stop();
+            }
+
             return Task.CompletedTask;
         }
     }

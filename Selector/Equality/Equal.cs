@@ -7,25 +7,7 @@ namespace Selector
 {
     public class Equal : IEqual
     {
-        private Dictionary<Type, object> comps;
-
-        public static Equal String() {
-            return new Equal(){
-                comps = new Dictionary<Type, object>(){
-                    {typeof(FullTrack), new FullTrackStringComparer()},
-                    {typeof(FullEpisode), new FullEpisodeStringComparer()},
-                    {typeof(FullAlbum), new FullAlbumStringComparer()},
-                    {typeof(FullShow), new FullShowStringComparer()},
-                    {typeof(FullArtist), new FullArtistStringComparer()},
-                    
-                    {typeof(SimpleTrack), new SimpleTrackStringComparer()},
-                    {typeof(SimpleEpisode), new SimpleEpisodeStringComparer()},
-                    {typeof(SimpleAlbum), new SimpleAlbumStringComparer()},
-                    {typeof(SimpleShow), new SimpleShowStringComparer()},
-                    {typeof(SimpleArtist), new SimpleArtistStringComparer()},
-                }
-            };
-        }
+        protected Dictionary<Type, object> comps;
 
         public bool IsEqual<T>(T item, T other)
         {

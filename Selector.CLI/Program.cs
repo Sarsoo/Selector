@@ -21,14 +21,24 @@ namespace Selector.CLI
                 .ConfigureServices((context, services) => {
 
                     // CONFIG
-                    services.Configure<RootOptions>(options =>
-                        context.Configuration.GetSection(RootOptions.Key).Bind(options)
-                    );
+                    services.Configure<RootOptions>(options => {
+                        context.Configuration.GetSection(RootOptions.Key).Bind(options);
+                        context.Configuration.GetSection($"{RootOptions.Key}:{WatcherOptions.Key}").Bind(options.WatcherOptions);
+                    });
 
                     // SERVICES
-                    services.AddTransient<IPlayerWatcher, PlayerWatcher>();
-                    services.AddTransient<IWatcherCollection, WatcherCollection>();
-                    services.AddTransient<IEqual, UriEqual>();
+                    //services.AddTransient<IWatcherFactory, PlayerWatcher>();
+                    //services.AddTransient<IWatcherCollection, WatcherCollection>();
+
+                    switch(context.Configuration.GetValue<EqualityChecker>("selector:equality"))
+                    {
+                        case EqualityChecker.Uri:
+                            services.AddTransient<IEqual, UriEqual>();
+                            break;
+                        case EqualityChecker.String:
+                            services.AddTransient<IEqual, StringEqual>();
+                            break;
+                    }
 
                     // HOSTED SERVICES
                     services.AddHostedService<WatcherService>();
