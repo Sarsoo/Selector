@@ -31,6 +31,10 @@ namespace Selector
             IsRunning = true;
             TokenSource = new();
             Task = Watcher.Watch(TokenSource.Token);
+            Task.ContinueWith(t =>
+            {
+                if (t.Exception != null) throw t.Exception;
+            }, TaskContinuationOptions.OnlyOnFaulted);
         }
 
         public void Stop()

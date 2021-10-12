@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Selector.CLI": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

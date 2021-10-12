@@ -20,7 +20,7 @@ namespace Selector
             ClientSecret = clientSecret;
         }
 
-        public bool Initialised => string.IsNullOrWhiteSpace(ClientId) || string.IsNullOrWhiteSpace(ClientSecret);
+        public bool Initialised => !string.IsNullOrWhiteSpace(ClientId) && !string.IsNullOrWhiteSpace(ClientSecret);
 
         public Task<RefreshTokenFactory> GetFactory(string refreshToken)
         {

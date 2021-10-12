@@ -27,8 +27,9 @@ namespace Selector.CLI
                     });
 
                     // SERVICES
-                    //services.AddTransient<IWatcherFactory, PlayerWatcher>();
-                    //services.AddTransient<IWatcherCollection, WatcherCollection>();
+                    services.AddSingleton<IWatcherFactory, WatcherFactory>();
+                    services.AddSingleton<IWatcherCollectionFactory, WatcherCollectionFactory>();
+                    // For generating spotify clients
                     services.AddSingleton<IRefreshTokenFactoryProvider, RefreshTokenFactoryProvider>();
 
                     switch(context.Configuration.GetValue<EqualityChecker>("selector:equality"))

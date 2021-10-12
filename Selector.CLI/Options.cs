@@ -41,6 +41,7 @@ namespace Selector.CLI
         public WatcherType Type { get; set; } = WatcherType.Player;
 #nullable enable
         public string? PlaylistUri { get; set; }
+        public string? WatcherCollection { get; set; }
 #nullable disable
     }
 
