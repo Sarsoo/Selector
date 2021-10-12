@@ -8,7 +8,7 @@ namespace Selector
     /// <summary>
     /// Get config from a refresh token
     /// </summary>
-    public class RefreshTokenFactory : ISpotifyClientFactory
+    public class RefreshTokenFactory : ISpotifyConfigFactory
     {
         private string ClientId { get; set; }
         private string ClientSecret { get; set; }

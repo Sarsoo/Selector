@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Selector.CLI
 {
@@ -40,7 +39,9 @@ namespace Selector.CLI
         public string RefreshKey { get; set; }
         public int PollPeriod { get; set; } = 5000;
         public WatcherType Type { get; set; } = WatcherType.Player;
+#nullable enable
         public string? PlaylistUri { get; set; }
+#nullable disable
     }
 
     enum WatcherType

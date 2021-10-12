@@ -15,13 +15,17 @@ namespace Selector.CLI
     {
         private readonly ILogger<WatcherService> Logger;
         private readonly RootOptions Config;
+        private readonly IRefreshTokenFactoryProvider TokenFactoryProvider;
 
         private Dictionary<string, IWatcherCollection> Watchers { get; set; } = new();
 
-        public WatcherService(ILogger<WatcherService> logger, IOptions<RootOptions> config)
+        public WatcherService(IRefreshTokenFactoryProvider tokenFactoryProvider, ILogger<WatcherService> logger, IOptions<RootOptions> config)
         {
             Logger = logger;
             Config = config.Value;
+            TokenFactoryProvider = tokenFactoryProvider;
+
+            TokenFactoryProvider.Initialise(Config.ClientId, Config.ClientSecret);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
