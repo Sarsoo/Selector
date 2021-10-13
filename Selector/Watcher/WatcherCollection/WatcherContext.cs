@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace Selector
     public class WatcherContext: IDisposable
     {
         public IWatcher Watcher { get; set; }
+        private List<IConsumer> Consumers { get; set; } = new();
         public bool IsRunning { get; private set; }
         public Task Task { get; set; }
         public CancellationTokenSource TokenSource { get; set; }
@@ -18,9 +20,28 @@ namespace Selector
             Watcher = watcher;
         }
 
+        public WatcherContext(IWatcher watcher, List<IConsumer> consumers)
+        {
+            Watcher = watcher;
+            Consumers = consumers ?? new();
+        }
+
         public static WatcherContext From(IWatcher watcher)
         {
             return new(watcher);
+        }
+
+        public static WatcherContext From(IWatcher watcher, List<IConsumer> consumers)
+        {
+            return new(watcher, consumers);
+        }
+
+        public void AddConsumer(IConsumer consumer)
+        {
+            if (IsRunning)
+                consumer.Subscribe(Watcher);
+
+            Consumers.Add(consumer);
         }
 
         public void Start()
@@ -30,6 +51,9 @@ namespace Selector
             
             IsRunning = true;
             TokenSource = new();
+
+            Consumers.ForEach(c => c.Subscribe(Watcher));
+
             Task = Watcher.Watch(TokenSource.Token);
             Task.ContinueWith(t =>
             {
@@ -39,6 +63,8 @@ namespace Selector
 
         public void Stop()
         {
+            Consumers.ForEach(c => c.Unsubscribe(Watcher));
+
             TokenSource.Cancel();
             IsRunning = false;
         }

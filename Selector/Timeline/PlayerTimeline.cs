@@ -7,67 +7,11 @@ using SpotifyAPI.Web;
 namespace Selector
 {
     public class PlayerTimeline 
-        : ITimeline<CurrentlyPlayingContext>, 
-          IEnumerable<TimelineItem<CurrentlyPlayingContext>>
+        : BaseTimeline<CurrentlyPlayingContext>, ITrackTimeline<CurrentlyPlayingContext>
     {
-
-        private List<TimelineItem<CurrentlyPlayingContext>> recentlyPlayed = new();
         public IEqual EqualityChecker { get; set; }
-        public bool SortOnBackDate { get; set; } = true;
-        public int Count { get => recentlyPlayed.Count; }
 
-        private int? max = 1000;
-        public int? MaxSize { 
-            get => max; 
-            set {
-                if(value is null)
-                {
-                    max = value;
-                }
-                else 
-                {
-                    max = Math.Max(1, (int) value);   
-                }
-            }
-        }
-
-        public void Add(CurrentlyPlayingContext item) => Add(item, DateHelper.FromUnixMilli(item.Timestamp));
-        public void Add(CurrentlyPlayingContext item, DateTime timestamp)
-        {
-            recentlyPlayed.Add(TimelineItem<CurrentlyPlayingContext>.From(item, timestamp));
-
-            if (timestamp < recentlyPlayed.Last().Time && SortOnBackDate)
-            {
-                Sort();
-            }
-
-            CheckSize();
-        }
-
-        public void Sort()
-        {
-            recentlyPlayed = recentlyPlayed
-                                .OrderBy(i => i.Time)
-                                .ToList();
-        }
-
-        private void CheckSize()
-        {
-            if (MaxSize is int maxSize && Count > maxSize) {
-                recentlyPlayed.RemoveRange(0, Count - maxSize);
-            }
-        }
-
-        public void Clear() => recentlyPlayed.Clear();
-
-        public CurrentlyPlayingContext Get() 
-            => recentlyPlayed.Last().Item;
-
-        public CurrentlyPlayingContext Get(DateTime at) 
-            => GetTimelineItem(at)?.Item;
-        public TimelineItem<CurrentlyPlayingContext> GetTimelineItem(DateTime at) 
-            => recentlyPlayed
-                .Where(i => i.Time <= at).LastOrDefault();
+        public override void Add(CurrentlyPlayingContext item) => Add(item, DateHelper.FromUnixMilli(item.Timestamp));
 
         public CurrentlyPlayingContext Get(FullTrack track) 
             => GetAll(track)
@@ -77,8 +21,8 @@ namespace Selector
             => GetAllTimelineItems(track)
                 .Select(t => t.Item);
 
-        private IEnumerable<TimelineItem<CurrentlyPlayingContext>> GetAllTimelineItems(FullTrack track)
-            => recentlyPlayed
+        public IEnumerable<TimelineItem<CurrentlyPlayingContext>> GetAllTimelineItems(FullTrack track)
+            => Recent
                 .Where(i => i.Item.Item is FullTrack iterTrack
                         && EqualityChecker.IsEqual(iterTrack, track));
 
@@ -90,8 +34,8 @@ namespace Selector
             => GetAllTimelineItems(ep)
                 .Select(t => t.Item);
 
-        private IEnumerable<TimelineItem<CurrentlyPlayingContext>> GetAllTimelineItems(FullEpisode ep)
-            => recentlyPlayed
+        public IEnumerable<TimelineItem<CurrentlyPlayingContext>> GetAllTimelineItems(FullEpisode ep)
+            => Recent
                 .Where(i => i.Item.Item is FullEpisode iterEp
                         && EqualityChecker.IsEqual(iterEp, ep));
 
@@ -103,8 +47,8 @@ namespace Selector
             => GetAllTimelineItems(album)
                 .Select(t => t.Item);
 
-        private IEnumerable<TimelineItem<CurrentlyPlayingContext>> GetAllTimelineItems(SimpleAlbum album)
-            => recentlyPlayed
+        public IEnumerable<TimelineItem<CurrentlyPlayingContext>> GetAllTimelineItems(SimpleAlbum album)
+            => Recent
                 .Where(i => i.Item.Item is FullTrack iterTrack
                         && EqualityChecker.IsEqual(iterTrack.Album, album));
 
@@ -116,8 +60,8 @@ namespace Selector
             => GetAllTimelineItems(artist)
                 .Select(t => t.Item);
 
-        private IEnumerable<TimelineItem<CurrentlyPlayingContext>> GetAllTimelineItems(SimpleArtist artist)
-            => recentlyPlayed
+        public IEnumerable<TimelineItem<CurrentlyPlayingContext>> GetAllTimelineItems(SimpleArtist artist)
+            => Recent
                 .Where(i => i.Item.Item is FullTrack iterTrack
                         && EqualityChecker.IsEqual(iterTrack.Artists[0], artist));
 
@@ -129,8 +73,8 @@ namespace Selector
             => GetAllTimelineItems(device)
                 .Select(t => t.Item);
 
-        private IEnumerable<TimelineItem<CurrentlyPlayingContext>> GetAllTimelineItems(Device device) 
-            => recentlyPlayed
+        public IEnumerable<TimelineItem<CurrentlyPlayingContext>> GetAllTimelineItems(Device device) 
+            => Recent
                 .Where(i => EqualityChecker.IsEqual(i.Item.Device, device));
 
         public CurrentlyPlayingContext Get(Context context)
@@ -141,11 +85,8 @@ namespace Selector
             => GetAllTimelineItems(context)
                 .Select(t => t.Item);
 
-        private IEnumerable<TimelineItem<CurrentlyPlayingContext>> GetAllTimelineItems(Context context)
-            => recentlyPlayed
+        public IEnumerable<TimelineItem<CurrentlyPlayingContext>> GetAllTimelineItems(Context context)
+            => Recent
                 .Where(i => EqualityChecker.IsEqual(i.Item.Context, context));
-
-        public IEnumerator<TimelineItem<CurrentlyPlayingContext>> GetEnumerator() => recentlyPlayed.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

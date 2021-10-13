@@ -34,9 +34,14 @@ namespace Selector
 
         public void Add(IWatcher watcher)
         {
-            var context = WatcherContext.From(watcher);
+            Add(watcher, default);
+        }
+
+        public void Add(IWatcher watcher, List<IConsumer> consumers)
+        {
+            var context = WatcherContext.From(watcher, consumers);
             if (IsRunning) context.Start();
-            
+
             Watchers.Add(context);
         }
 
@@ -45,7 +50,7 @@ namespace Selector
 
         public void Start()
         {
-            Logger.LogDebug($"Starting {Count} watchers");
+            Logger.LogDebug($"Starting {Count} watcher(s)");
             foreach(var watcher in Watchers)
             {
                 watcher.Start();
@@ -55,7 +60,7 @@ namespace Selector
         
         public void Stop()
         {
-            Logger.LogDebug($"Stopping {Count} watchers");
+            Logger.LogDebug($"Stopping {Count} watcher(s)");
             foreach (var watcher in Watchers)
             {
                 watcher.Stop();

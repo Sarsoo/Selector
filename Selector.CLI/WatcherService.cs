@@ -17,6 +17,7 @@ namespace Selector.CLI
         private const string ConfigInstanceKey = "localconfig";
 
         private readonly ILogger<WatcherService> Logger;
+        private readonly ILoggerFactory LoggerFactory;
         private readonly RootOptions Config;
         private readonly IWatcherFactory WatcherFactory;
         private readonly IWatcherCollectionFactory WatcherCollectionFactory;
@@ -28,10 +29,11 @@ namespace Selector.CLI
             IWatcherFactory watcherFactory,
             IWatcherCollectionFactory watcherCollectionFactory,
             IRefreshTokenFactoryProvider spotifyFactory,
-            ILogger<WatcherService> logger,
+            ILoggerFactory loggerFactory,
             IOptions<RootOptions> config
         ) {
-            Logger = logger;
+            Logger = loggerFactory.CreateLogger<WatcherService>();
+            LoggerFactory = loggerFactory;
             Config = config.Value;
             WatcherFactory = watcherFactory;
             WatcherCollectionFactory = watcherCollectionFactory;
@@ -42,7 +44,7 @@ namespace Selector.CLI
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            Logger.LogInformation("Starting up");
+            Logger.LogInformation("Starting watcher service...");
 
             Logger.LogInformation("Loading config instances...");
             var watcherIndices = await InitialiseConfigInstances();
@@ -60,11 +62,11 @@ namespace Selector.CLI
                 var logMsg = new StringBuilder();
                 if (!string.IsNullOrWhiteSpace(watcherOption.Name))
                 {
-                    logMsg.Append($"Creating {watcherOption.Name} watcher [{watcherOption.Type}]");
+                    logMsg.Append($"Creating [{watcherOption.Name}] watcher [{watcherOption.Type}]");
                 }
                 else
                 {
-                    logMsg.Append($"Creating new {watcherOption.Type} watcher");
+                    logMsg.Append($"Creating new [{watcherOption.Type}] watcher");
                 }
 
                 if (!string.IsNullOrWhiteSpace(watcherOption.PlaylistUri)) logMsg.Append($" [{ watcherOption.PlaylistUri}]");
@@ -92,7 +94,19 @@ namespace Selector.CLI
                         break;
                 }
 
-                watcherCollection.Add(watcher);
+                List<IConsumer> consumers = new();
+                foreach(var consumer in watcherOption.Consumers)
+                {
+                    switch(consumer)
+                    {
+                        case Consumers.AudioFeatures:
+                            var factory = new AudioFeatureInjectorFactory(LoggerFactory);
+                            consumers.Add(await factory.Get(spotifyFactory));
+                            break;
+                    }
+                }
+
+                watcherCollection.Add(watcher, consumers);
             }
 
             return indices;
@@ -104,6 +118,7 @@ namespace Selector.CLI
             {
                 try
                 {
+                    Logger.LogInformation($"Starting watcher collection [{index}]");
                     Watchers[index].Start();
                 }
                 catch (KeyNotFoundException)
@@ -119,7 +134,7 @@ namespace Selector.CLI
 
             foreach((var key, var watcher) in Watchers)
             {
-                Logger.LogInformation($"Stopping watcher collection: {key}");
+                Logger.LogInformation($"Stopping watcher collection [{key}]");
                 watcher.Stop();
             }
 

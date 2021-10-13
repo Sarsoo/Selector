@@ -27,6 +27,7 @@ namespace Selector.CLI
     {
         public const string Key = "Watcher";
 
+        public bool Enabled { get; set; } = true;
         public List<WatcherInstanceOptions> Instances { get; set; } = new();
     }
 
@@ -39,6 +40,7 @@ namespace Selector.CLI
         public string RefreshKey { get; set; }
         public int PollPeriod { get; set; } = 5000;
         public WatcherType Type { get; set; } = WatcherType.Player;
+        public List<Consumers> Consumers { get; set; } = default;
 #nullable enable
         public string? PlaylistUri { get; set; }
         public string? WatcherCollection { get; set; }
@@ -48,5 +50,10 @@ namespace Selector.CLI
     enum WatcherType
     {
         Player, Playlist
+    }
+
+    enum Consumers
+    {
+        AudioFeatures
     }
 }

@@ -11,7 +11,7 @@ namespace Selector
 {
     public class PlayerWatcher: BaseWatcher, IPlayerWatcher
     {
-        private readonly ILogger<PlayerWatcher> Logger;
+        new private readonly ILogger<PlayerWatcher> Logger;
         private readonly IPlayerClient spotifyClient;
         private readonly IEqual eq;
 
@@ -26,12 +26,13 @@ namespace Selector
         public event EventHandler<ListeningChangeEventArgs> PlayingChange;
 
         public CurrentlyPlayingContext Live { get; private set; }
-        public PlayerTimeline Past { get; private set; }
+        public PlayerTimeline Past { get; set; }
 
         public PlayerWatcher(IPlayerClient spotifyClient, 
                 IEqual equalityChecker,
                 ILogger<PlayerWatcher> logger = null,
-                int pollPeriod = 3000) {
+                int pollPeriod = 3000
+        ) : base(logger) {
 
             this.spotifyClient = spotifyClient;
             eq = equalityChecker;
@@ -44,7 +45,9 @@ namespace Selector
             token.ThrowIfCancellationRequested();
             
             try{
+                Logger.LogTrace("Making Spotify call");
                 var polledCurrent = await spotifyClient.GetCurrentPlayback();
+                Logger.LogTrace($"Received Spotify call [{polledCurrent?.DisplayString()}]");
 
                 if (polledCurrent != null) StoreCurrentPlaying(polledCurrent);
 
@@ -70,14 +73,14 @@ namespace Selector
                     if(previous is null 
                         && (Live.Item is FullTrack || Live.Item is FullEpisode))
                     {
-                        Logger.LogDebug($"Playback started: {Live}");
+                        Logger.LogDebug($"Playback started: {Live.DisplayString()}");
                         OnPlayingChange(ListeningChangeEventArgs.From(previous, Live));
                     }
                     // STOPPED PLAYBACK
                     else if((previous.Item is FullTrack || previous.Item is FullEpisode) 
                         && Live is null)
                     {
-                        Logger.LogDebug($"Playback stopped: {previous}");
+                        Logger.LogDebug($"Playback stopped: {previous.DisplayString()}");
                         OnPlayingChange(ListeningChangeEventArgs.From(previous, Live));
                     }
                     // CONTINUING PLAYBACK
@@ -88,17 +91,17 @@ namespace Selector
                             && Live.Item is FullTrack currentTrack)
                         {
                             if(!eq.IsEqual(previousTrack, currentTrack)) {
-                                Logger.LogDebug($"Track changed: {previousTrack} -> {currentTrack}");
+                                Logger.LogDebug($"Track changed: {previousTrack.DisplayString()} -> {currentTrack.DisplayString()}");
                                 OnItemChange(ListeningChangeEventArgs.From(previous, Live));
                             }
 
                             if(!eq.IsEqual(previousTrack.Album, currentTrack.Album)) {
-                                Logger.LogDebug($"Album changed: {previousTrack.Album} -> {currentTrack.Album}");
+                                Logger.LogDebug($"Album changed: {previousTrack.Album.DisplayString()} -> {currentTrack.Album.DisplayString()}");
                                 OnAlbumChange(ListeningChangeEventArgs.From(previous, Live));
                             }
 
                             if(!eq.IsEqual(previousTrack.Artists[0], currentTrack.Artists[0])) {
-                                Logger.LogDebug($"Artist changed: {previousTrack.Artists[0]} -> {currentTrack.Artists[0]}");
+                                Logger.LogDebug($"Artist changed: {previousTrack.Artists.DisplayString()} -> {currentTrack.Artists.DisplayString()}");
                                 OnArtistChange(ListeningChangeEventArgs.From(previous, Live));
                             }
                         }
@@ -115,7 +118,7 @@ namespace Selector
                             && Live.Item is FullEpisode currentEp)
                         {
                             if(!eq.IsEqual(previousEp, currentEp)) {
-                                Logger.LogDebug($"Podcast changed: {previousEp} -> {currentEp}");
+                                Logger.LogDebug($"Podcast changed: {previousEp.DisplayString()} -> {currentEp.DisplayString()}");
                                 OnItemChange(ListeningChangeEventArgs.From(previous, Live));
                             }
                         }
@@ -125,13 +128,13 @@ namespace Selector
 
                         // CONTEXT
                         if(!eq.IsEqual(previous.Context, Live.Context)) {
-                            Logger.LogDebug($"Context changed: {previous.Context} -> {Live.Context}");
+                            Logger.LogDebug($"Context changed: {previous.Context.DisplayString()} -> {Live.Context.DisplayString()}");
                             OnContextChange(ListeningChangeEventArgs.From(previous, Live));
                         }
 
                         // DEVICE
                         if(!eq.IsEqual(previous?.Device, Live?.Device)) {
-                            Logger.LogDebug($"Device changed: {previous?.Device} -> {Live?.Device}");
+                            Logger.LogDebug($"Device changed: {previous?.Device.DisplayString()} -> {Live?.Device.DisplayString()}");
                             OnDeviceChange(ListeningChangeEventArgs.From(previous, Live));
                         }
 
