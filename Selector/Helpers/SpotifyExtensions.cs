@@ -9,11 +9,11 @@ namespace Selector
 {
     public static class SpotifyExtensions
     {
-        public static string DisplayString(this FullTrack track) => $"{track.Name} / {track.Album.Name} / {track.Artists.DisplayString()}";
-        public static string DisplayString(this SimpleAlbum album) => $"{album.Name} / {album.Artists.DisplayString()}";
+        public static string DisplayString(this FullTrack track) => $"{track.Name} / {track.Album?.Name} / {track.Artists?.DisplayString()}";
+        public static string DisplayString(this SimpleAlbum album) => $"{album.Name} / {album.Artists?.DisplayString()}";
         public static string DisplayString(this SimpleArtist artist) => artist.Name;
 
-        public static string DisplayString(this FullEpisode ep) => $"{ep.Name} / {ep.Show.DisplayString()}";
+        public static string DisplayString(this FullEpisode ep) => $"{ep.Name} / {ep.Show?.DisplayString()}";
         public static string DisplayString(this SimpleShow show) => $"{show.Name} / {show.Publisher}";
 
 
@@ -21,11 +21,11 @@ namespace Selector
             
             if (currentPlaying.Item is FullTrack track)
             {
-                return $"{currentPlaying.IsPlaying}, {track.DisplayString()}, {currentPlaying.Device.DisplayString()}";
+                return $"{currentPlaying.IsPlaying}, {track.DisplayString()}, {currentPlaying.Device?.DisplayString()}";
             }
             else if (currentPlaying.Item is FullEpisode episode)
             {
-                return $"{currentPlaying.IsPlaying}, {episode.DisplayString()}, {currentPlaying.Device.DisplayString()}";
+                return $"{currentPlaying.IsPlaying}, {episode.DisplayString()}, {currentPlaying.Device?.DisplayString()}";
             }
             else
             {

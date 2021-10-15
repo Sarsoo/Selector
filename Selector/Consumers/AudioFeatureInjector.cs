@@ -38,7 +38,7 @@ namespace Selector
             Task.Run(() => { return AsyncCallback(e); }, CancelToken);
         }
 
-        private async Task AsyncCallback(ListeningChangeEventArgs e)
+        public async Task AsyncCallback(ListeningChangeEventArgs e)
         {
             if (e.Current.Item is FullTrack track)
             {
