@@ -26,7 +26,7 @@ namespace Selector
         public event EventHandler<ListeningChangeEventArgs> PlayingChange;
 
         public CurrentlyPlayingContext Live { get; private set; }
-        public PlayerTimeline Past { get; set; }
+        public PlayerTimeline Past { get; set; } = new();
 
         public PlayerWatcher(IPlayerClient spotifyClient, 
                 IEqual equalityChecker,
@@ -154,14 +154,17 @@ namespace Selector
             }
             catch(APIUnauthorizedException e)
             {
-                throw e;
+                Logger.LogDebug($"Unauthorised error: [{e.Message}] (should be refreshed and retried?)");
+                //throw e;
             }
             catch(APITooManyRequestsException e)
             {
+                Logger.LogDebug($"Too many requests error: [{e.Message}]");
                 throw e;
             }
             catch(APIException e)
             {
+                Logger.LogDebug($"API error: [{e.Message}]");
                 throw e;
             }
         }

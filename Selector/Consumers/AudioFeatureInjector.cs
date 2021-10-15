@@ -42,11 +42,28 @@ namespace Selector
         {
             if (e.Current.Item is FullTrack track)
             {
-                Logger.LogTrace("Making Spotify call");
-                var audioFeatures = await TrackClient.GetAudioFeatures(track.Id);
-                Logger.LogDebug($"Adding audio features [{track.DisplayString()}]: [{audioFeatures.DisplayString()}]");
+                try {
+                    Logger.LogTrace("Making Spotify call");
+                    var audioFeatures = await TrackClient.GetAudioFeatures(track.Id);
+                    Logger.LogDebug($"Adding audio features [{track.DisplayString()}]: [{audioFeatures.DisplayString()}]");
 
-                Timeline.Add(AnalysedTrack.From(track, audioFeatures));
+                    Timeline.Add(AnalysedTrack.From(track, audioFeatures), DateHelper.FromUnixMilli(e.Current.Timestamp));
+                }
+                catch (APIUnauthorizedException ex)
+                {
+                    Logger.LogDebug($"Unauthorised error: [{ex.Message}] (should be refreshed and retried?)");
+                    //throw ex;
+                }
+                catch (APITooManyRequestsException ex)
+                {
+                    Logger.LogDebug($"Too many requests error: [{ex.Message}]");
+                    throw ex;
+                }
+                catch (APIException ex)
+                {
+                    Logger.LogDebug($"API error: [{ex.Message}]");
+                    throw ex;
+                }
             }
             else if (e.Current.Item is FullEpisode episode)
             {

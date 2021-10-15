@@ -22,7 +22,7 @@ namespace Selector
 
         public bool Initialised => !string.IsNullOrWhiteSpace(ClientId) && !string.IsNullOrWhiteSpace(ClientSecret);
 
-        public Task<RefreshTokenFactory> GetFactory(string refreshToken)
+        public virtual Task<RefreshTokenFactory> GetFactory(string refreshToken)
         {
             if(!Initialised) throw new InvalidOperationException("Factory not initialised");
             if(string.IsNullOrEmpty(refreshToken)) throw new ArgumentException("Null or empty refresh key provided");

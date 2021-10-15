@@ -9,11 +9,18 @@ namespace Selector
 {
     public class CachingRefreshTokenFactoryProvider : RefreshTokenFactoryProvider
     {
+        protected readonly ILogger<CachingRefreshTokenFactoryProvider> Logger;
+
+        public CachingRefreshTokenFactoryProvider(ILogger<CachingRefreshTokenFactoryProvider> logger)
+        {
+            Logger = logger;
+        }
+
         protected Dictionary<string, RefreshTokenFactory> Configs = new();
 
         public RefreshTokenFactory GetUserConfig(string userId) => Configs.ContainsKey(userId) ? Configs[userId] : null;
 
-        new public async Task<RefreshTokenFactory> GetFactory(string refreshToken)
+        public override async Task<RefreshTokenFactory> GetFactory(string refreshToken)
         {
             var configProvider = await base.GetFactory(refreshToken);
             var newConfig = await configProvider.GetConfig();
@@ -27,6 +34,7 @@ namespace Selector
             }
             else 
             {
+                Logger.LogDebug($"New user token factory added [{userDetails.DisplayName}]");
                 Configs[userDetails.Id] = configProvider;
                 return configProvider;
             }

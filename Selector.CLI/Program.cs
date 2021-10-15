@@ -23,40 +23,39 @@ namespace Selector.CLI
                     Console.WriteLine("~~~ Selector CLI ~~~");
                     Console.WriteLine("");
 
-                    Console.WriteLine("Configuring...");
+                    Console.WriteLine("> Configuring...");
                     // CONFIG
                     services.Configure<RootOptions>(options => {
                         context.Configuration.GetSection(RootOptions.Key).Bind(options);
                         context.Configuration.GetSection($"{RootOptions.Key}:{WatcherOptions.Key}").Bind(options.WatcherOptions);
                     });
+                    var config = context.Configuration.GetSection(RootOptions.Key).Get<RootOptions>();
 
-                    Console.WriteLine("Adding Services...");
+                    Console.WriteLine("> Adding Services...");
                     // SERVICES
                     services.AddSingleton<IWatcherFactory, WatcherFactory>();
                     services.AddSingleton<IConsumerFactory, AudioFeatureInjectorFactory>();
                     services.AddSingleton<IWatcherCollectionFactory, WatcherCollectionFactory>();
                     // For generating spotify clients
-                    services.AddSingleton<IRefreshTokenFactoryProvider, RefreshTokenFactoryProvider>();
+                    //services.AddSingleton<IRefreshTokenFactoryProvider, RefreshTokenFactoryProvider>();
+                    services.AddSingleton<IRefreshTokenFactoryProvider, CachingRefreshTokenFactoryProvider>();
 
-                    switch(context.Configuration.GetValue<EqualityChecker>("selector:equality"))
+                    switch(config.Equality)
                     {
                         case EqualityChecker.Uri:
-                            Console.WriteLine("Using Uri Equality");
+                            Console.WriteLine("> Using Uri Equality");
                             services.AddTransient<IEqual, UriEqual>();
                             break;
                         case EqualityChecker.String:
-                            Console.WriteLine("Using String Equality");
+                            Console.WriteLine("> Using String Equality");
                             services.AddTransient<IEqual, StringEqual>();
                             break;
                     }
 
                     // HOSTED SERVICES
-                    if(context.Configuration
-                        .GetSection($"{RootOptions.Key}:{WatcherOptions.Key}")
-                        .Get<WatcherOptions>()
-                        .Enabled)
+                    if(config.WatcherOptions.Enabled)
                     {
-                        Console.WriteLine("Adding Watcher Service");
+                        Console.WriteLine("> Adding Watcher Service");
                         services.AddHostedService<WatcherService>();
                     }
                         

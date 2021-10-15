@@ -32,7 +32,7 @@ namespace Selector
                     TokenType = refreshed.TokenType,
                     ExpiresIn = refreshed.ExpiresIn,
                     Scope = refreshed.Scope,
-                    RefreshToken = refreshed.RefreshToken,
+                    RefreshToken = refreshed.RefreshToken ?? RefreshToken,
                     CreatedAt = refreshed.CreatedAt
                 }));
 
