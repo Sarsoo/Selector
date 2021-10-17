@@ -7,7 +7,7 @@ using SpotifyAPI.Web;
 namespace Selector
 {
     public class PlayerTimeline 
-        : BaseTimeline<CurrentlyPlayingContext>, ITrackTimeline<CurrentlyPlayingContext>
+        : Timeline<CurrentlyPlayingContext>, ITrackTimeline<CurrentlyPlayingContext>
     {
         public IEqual EqualityChecker { get; set; }
 

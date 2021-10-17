@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Selector
 {
-    public abstract class BaseTimeline<T> : ITimeline<T>, IEnumerable<TimelineItem<T>> where T : class
+    public class Timeline<T> : ITimeline<T>, IEnumerable<TimelineItem<T>> where T : class
     {
         protected List<TimelineItem<T>> Recent = new();
         public int Count { get => Recent.Count; }

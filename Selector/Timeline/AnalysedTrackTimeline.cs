@@ -7,7 +7,7 @@ using SpotifyAPI.Web;
 namespace Selector
 {
     public class AnalysedTrackTimeline 
-        : BaseTimeline<AnalysedTrack>, ITrackTimeline<AnalysedTrack>
+        : Timeline<AnalysedTrack>, ITrackTimeline<AnalysedTrack>
     {
         public IEqual EqualityChecker { get; set; }
 
