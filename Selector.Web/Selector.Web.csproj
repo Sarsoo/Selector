@@ -10,4 +10,12 @@
     <ProjectReference Include="..\Selector.Model\Selector.Model.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Frontend\**" />
+    <Content Remove="Frontend\**" />
+    <Content Remove="wwwroot\**\*" />
+    <EmbeddedResource Remove="Frontend\**" />
+    <None Remove="Frontend\**" />
+  </ItemGroup>
+
 </Project>

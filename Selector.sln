@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Selector.CLI", "Selector.CL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Selector.Model", "Selector.Model\Selector.Model.csproj", "{B609975D-7CA6-422E-8461-E837C9EDB104}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Selector.Web", "Selector.Web\Selector.Web.csproj", "{ABC6EEBB-4C0D-45BD-8DDC-0B0304EAF34F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{B609975D-7CA6-422E-8461-E837C9EDB104}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B609975D-7CA6-422E-8461-E837C9EDB104}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B609975D-7CA6-422E-8461-E837C9EDB104}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABC6EEBB-4C0D-45BD-8DDC-0B0304EAF34F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABC6EEBB-4C0D-45BD-8DDC-0B0304EAF34F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABC6EEBB-4C0D-45BD-8DDC-0B0304EAF34F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABC6EEBB-4C0D-45BD-8DDC-0B0304EAF34F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
