@@ -24,7 +24,7 @@ jobs:
       - name: Test
         run: dotnet test --no-restore --verbosity normal
 
-  build Js:
+  build-Js:
 
     runs-on: ubuntu-latest
     strategy:
