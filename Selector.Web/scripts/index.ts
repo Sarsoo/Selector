@@ -1,6 +1,7 @@
 
-namespace Selector.Web {awdawd
-    class Watcher {ada
+namespace Selector.Web {
+    class Watcher {
         static example: string = "string";
-    }awdw
+        static ex2: string = "awdwad";
+    }
 }
