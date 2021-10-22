@@ -20,6 +20,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Selector.Model", "Selector.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Selector.Web", "Selector.Web\Selector.Web.csproj", "{ABC6EEBB-4C0D-45BD-8DDC-0B0304EAF34F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Selector.Cache", "Selector.Cache\Selector.Cache.csproj", "{D8761D46-EF2B-4323-894F-E67C3EB0D0BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{ABC6EEBB-4C0D-45BD-8DDC-0B0304EAF34F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABC6EEBB-4C0D-45BD-8DDC-0B0304EAF34F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABC6EEBB-4C0D-45BD-8DDC-0B0304EAF34F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8761D46-EF2B-4323-894F-E67C3EB0D0BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8761D46-EF2B-4323-894F-E67C3EB0D0BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8761D46-EF2B-4323-894F-E67C3EB0D0BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8761D46-EF2B-4323-894F-E67C3EB0D0BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
