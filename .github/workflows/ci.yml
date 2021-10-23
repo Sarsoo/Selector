@@ -24,26 +24,26 @@ jobs:
       - name: Test
         run: dotnet test --no-restore --verbosity normal
 
-  # build-Js:
+  build-Js:
 
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       node: [16]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [16]
     
-  #   steps:
-  #     - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
       
-  #     - name: Install Node ${{ matrix.node }}
-  #       uses: actions/setup-node@v2
-  #       with:
-  #         node-version: ${{ matrix.node }}
+      - name: Install Node ${{ matrix.node }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
 
-  #     - name: Install Node Packages
-  #       working-directory: ./Selector.Web
-  #       run: npm ci
+      - name: Install Node Packages
+        working-directory: ./Selector.Web
+        run: npm ci
       
-  #     - name: Compile Front-end
-  #       working-directory: ./Selector.Web
-  #       run: npm run build --if-present
+      - name: Compile Front-end
+        working-directory: ./Selector.Web
+        run: npm run build --if-present
