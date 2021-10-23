@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using NLog.Extensions.Logging;
+
 namespace Selector.Web
 {
     public class Program
@@ -21,6 +23,11 @@ namespace Selector.Web
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                })
+                .ConfigureLogging((context, builder) => {
+                    builder.ClearProviders();
+                    builder.SetMinimumLevel(LogLevel.Trace);
+                    builder.AddNLog(context.Configuration);
                 });
     }
 }

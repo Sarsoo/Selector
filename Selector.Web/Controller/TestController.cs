@@ -1,5 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Selector.Model;
 
 namespace Selector.Web.Controller {
     
@@ -7,10 +12,18 @@ namespace Selector.Web.Controller {
     [Route("api/[controller]")]
     public class TestController {
 
-        [HttpGet]
-        public ActionResult<string> Get()
+        private readonly SelectorContext db;
+
+        public TestController(SelectorContext context)
         {
-            return "Hello World!";
+            db = context;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Watcher>>> Get()
+        {
+            // var watchers = ;
+            return await db.Watcher.ToListAsync();
         }
     }
 }

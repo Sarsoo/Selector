@@ -3,7 +3,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     entry: {
-        app: './scripts/index.ts',
+        index: './scripts/index.ts',
     },
     module: {
         rules: [
