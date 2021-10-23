@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Selector\Selector.csproj" />
     <ProjectReference Include="..\Selector.Model\Selector.Model.csproj" />
+    <ProjectReference Include="..\Selector.Cache\Selector.Cache.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,6 +17,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>
