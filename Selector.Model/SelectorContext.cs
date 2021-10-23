@@ -5,10 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
 namespace Selector.Model
 {
 
-    public class SelectorContext : DbContext
+    public class SelectorContext : IdentityDbContext
     {
         public DbSet<Watcher> Watcher { get; set; }
 
@@ -24,6 +26,7 @@ namespace Selector.Model
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
         }
     }
 
