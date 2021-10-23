@@ -1,0 +1,24 @@
+{
+  "name": "selector.web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sarsoo/Selector.git"
+  },
+  "author": "Sarsoo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sarsoo/Selector/issues"
+  },
+  "homepage": "https://github.com/Sarsoo/Selector#readme",
+  "devDependencies": {
+    "del": "^6.0.0",
+    "gulp": "^4.0.2"
+  }
+}

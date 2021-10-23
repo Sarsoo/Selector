@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Selector\Selector.csproj" />
+    <ProjectReference Include="..\Selector.Model\Selector.Model.csproj" />
   </ItemGroup>
 
   <ItemGroup>
