@@ -21,12 +21,17 @@ namespace Selector.Model
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
+            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Watcher>()
+                .HasOne(w => w.User)
+                .WithMany(u => u.Watchers)
+                .HasForeignKey(w => w.UserId);
         }
     }
 

@@ -67,11 +67,6 @@ namespace Selector.CLI
 #nullable disable
     }
 
-    enum WatcherType
-    {
-        Player, Playlist
-    }
-
     enum Consumers
     {
         AudioFeatures
