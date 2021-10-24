@@ -4,7 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 using NLog.Extensions.Logging;
+
+using Selector.Model;
 
 namespace Selector.CLI
 {
@@ -18,18 +21,19 @@ namespace Selector.CLI
 
         static IHostBuilder CreateHostBuilder(string[] args)
             => Host.CreateDefaultBuilder(args)
-                .ConfigureServices((context, services) => {
-
+                .ConfigureServices((context, services) =>
+                {
                     Console.WriteLine("~~~ Selector CLI ~~~");
-                    Console.WriteLine("");
+                    Console.WriteLine();
 
                     Console.WriteLine("> Configuring...");
                     // CONFIG
-                    services.Configure<RootOptions>(options => {
-                        context.Configuration.GetSection(RootOptions.Key).Bind(options);
-                        context.Configuration.GetSection($"{RootOptions.Key}:{WatcherOptions.Key}").Bind(options.WatcherOptions);
+                    services.Configure<RootOptions>(options =>
+                    {
+
+                        OptionsHelper.ConfigureOptions(options, context.Configuration);
                     });
-                    var config = context.Configuration.GetSection(RootOptions.Key).Get<RootOptions>();
+                    var config = OptionsHelper.ConfigureOptions(context.Configuration);
 
                     Console.WriteLine("> Adding Services...");
                     // SERVICES
@@ -40,7 +44,15 @@ namespace Selector.CLI
                     //services.AddSingleton<IRefreshTokenFactoryProvider, RefreshTokenFactoryProvider>();
                     services.AddSingleton<IRefreshTokenFactoryProvider, CachingRefreshTokenFactoryProvider>();
 
-                    switch(config.Equality)
+                    if (config.DatabaseOptions.Enabled)
+                    {
+                        Console.WriteLine("> Adding Databse Context...");
+                        services.AddDbContext<SelectorContext>(options =>
+                            options.UseNpgsql(config.DatabaseOptions.ConnectionString)
+                        );
+                    }
+
+                    switch (config.Equality)
                     {
                         case EqualityChecker.Uri:
                             Console.WriteLine("> Using Uri Equality");
@@ -53,14 +65,15 @@ namespace Selector.CLI
                     }
 
                     // HOSTED SERVICES
-                    if(config.WatcherOptions.Enabled)
+                    if (config.WatcherOptions.Enabled)
                     {
                         Console.WriteLine("> Adding Watcher Service");
                         services.AddHostedService<WatcherService>();
                     }
-                        
+
                 })
-                .ConfigureLogging((context, builder) => {
+                .ConfigureLogging((context, builder) =>
+                {
                     builder.ClearProviders();
                     builder.SetMinimumLevel(LogLevel.Trace);
                     builder.AddNLog(context.Configuration);

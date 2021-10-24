@@ -1,7 +1,26 @@
 ﻿using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 
 namespace Selector.CLI
 {
+    static class OptionsHelper {
+        public static void ConfigureOptions(RootOptions options, IConfiguration config)
+        {
+            config.GetSection(RootOptions.Key).Bind(options);
+            config.GetSection(FormatKeys( new[] { RootOptions.Key, WatcherOptions.Key})).Bind(options.WatcherOptions);
+            config.GetSection(FormatKeys( new[] { RootOptions.Key, DatabaseOptions.Key})).Bind(options.DatabaseOptions);
+        }  
+
+        public static RootOptions ConfigureOptions(IConfiguration config)
+        {
+            var options = config.GetSection(RootOptions.Key).Get<RootOptions>();
+            ConfigureOptions(options, config);
+            return options;
+        }  
+
+        public static string FormatKeys(string[] args) => string.Join(":", args);
+    }
+
     class RootOptions
     {
         public const string Key = "Selector";
@@ -15,6 +34,7 @@ namespace Selector.CLI
         /// </summary>
         public string ClientSecret { get; set; }
         public WatcherOptions WatcherOptions { get; set; } = new();
+        public DatabaseOptions DatabaseOptions { get; set; } = new();
         public EqualityChecker Equality { get; set; } = EqualityChecker.Uri;
     }
 
@@ -55,5 +75,12 @@ namespace Selector.CLI
     enum Consumers
     {
         AudioFeatures
+    }
+
+    class DatabaseOptions {
+        public const string Key = "Database";
+
+        public bool Enabled { get; set; } = false;
+        public string ConnectionString { get; set; }
     }
 }
