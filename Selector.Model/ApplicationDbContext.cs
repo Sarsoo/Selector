@@ -10,11 +10,11 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 namespace Selector.Model
 {
 
-    public class SelectorContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<Watcher> Watcher { get; set; }
 
-        public SelectorContext(DbContextOptions<SelectorContext> options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
         }
@@ -30,19 +30,19 @@ namespace Selector.Model
         }
     }
 
-    public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<SelectorContext>
+    public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
     {
-        public SelectorContext CreateDbContext(string[] args)
+        public ApplicationDbContext CreateDbContext(string[] args)
         {
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile(@Directory.GetCurrentDirectory() + "/../Selector.Web/appsettings.Development.json")
                 .Build();
 
-            var builder = new DbContextOptionsBuilder<SelectorContext>();
+            var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
             builder.UseNpgsql(configuration.GetConnectionString("Default"));
             
-            return new SelectorContext(builder.Options);
+            return new ApplicationDbContext(builder.Options);
         }
     }
 }

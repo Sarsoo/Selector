@@ -47,7 +47,7 @@ namespace Selector.CLI
                     if (config.DatabaseOptions.Enabled)
                     {
                         Console.WriteLine("> Adding Databse Context...");
-                        services.AddDbContext<SelectorContext>(options =>
+                        services.AddDbContext<ApplicationDbContext>(options =>
                             options.UseNpgsql(config.DatabaseOptions.ConnectionString)
                         );
                     }
