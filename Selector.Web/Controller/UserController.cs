@@ -4,46 +4,91 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Selector.Model;
 
-namespace Selector.Web.Controller {
-    
+using Selector.Model;
+using Selector.Model.Authorisation;
+using Microsoft.Extensions.Logging;
+
+namespace Selector.Web.Controller
+{
+
     [ApiController]
     [Route("api/[controller]")]
-    public class UsersController {
+    public class UsersController : BaseAuthController
+    {
+        public UsersController(
+            ApplicationDbContext context,
+            IAuthorizationService auth,
+            UserManager<ApplicationUser> userManager,
+            ILogger<UsersController> logger
+        ) : base(context, auth, userManager, logger) { }
 
-        private readonly ApplicationDbContext db;
-
-        public UsersController(ApplicationDbContext context)
-        {
-            db = context;
-        }
-
-        [HttpGet()]
-        public async Task<ActionResult<IEnumerable<ApplicationUser>>> Get(string username)
+        [HttpGet]
+        [Authorize(Roles = Constants.AdminRole)]
+        public async Task<ActionResult<IEnumerable<ApplicationUserDTO>>> Get()
         {
             // TODO: Authorise
-            return await db.Users.ToListAsync();
+            return await Context.Users.AsNoTracking().Select(u => (ApplicationUserDTO)u).ToListAsync();
         }
     }
 
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController {
+    public class UserController : BaseAuthController
+    {
+        public UserController(
+            ApplicationDbContext context,
+            IAuthorizationService auth,
+            UserManager<ApplicationUser> userManager,
+            ILogger<UserController> logger
+        ) : base(context, auth, userManager, logger) { }
 
-        private readonly ApplicationDbContext db;
-
-        public UserController(ApplicationDbContext context)
+        [HttpGet]
+        public async Task<ActionResult<ApplicationUserDTO>> Get()
         {
-            db = context;
+            var userId = UserManager.GetUserId(User);
+            var user = await Context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user is null)
+            {
+                Logger.LogWarning($"No user found for [{userId}], even though the 'me' route was used");
+                return NotFound();
+            }
+
+            var isAuthed = await AuthorizationService.AuthorizeAsync(User, user, UserOperations.Read);
+
+            if (!isAuthed.Succeeded)
+            {
+                Logger.LogWarning($"User [{user.UserName}] not authorised to view themselves?");
+                return Unauthorized();
+            }
+
+            return (ApplicationUserDTO)user;
         }
 
-        [HttpGet("{username}")]
-        public async Task<ActionResult<ApplicationUser>> Get(string username)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ApplicationUserDTO>> GetById(string id)
         {
-            // TODO: Implement
-            return await db.Users.SingleAsync();
+            var usernameUpper = id.ToUpperInvariant();
+
+            var user = await Context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id)
+                    ?? await Context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.NormalizedUserName == usernameUpper);
+
+            if (user is null)
+            {
+                return NotFound();
+            }
+
+            var isAuthed = await AuthorizationService.AuthorizeAsync(User, user, UserOperations.Read);
+
+            if (!isAuthed.Succeeded)
+            {
+                return Unauthorized();
+            }
+
+            return (ApplicationUserDTO)user;
         }
     }
 }

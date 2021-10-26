@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 using Selector.Model;
+using Selector.Model.Authorisation;
 
 namespace Selector.Web
 {
@@ -80,6 +81,12 @@ namespace Selector.Web
                     .RequireAuthenticatedUser()
                     .Build();
             });
+
+            services.AddScoped<IAuthorizationHandler, WatcherIsOwnerAuthHandler>();
+            services.AddSingleton<IAuthorizationHandler, WatcherIsAdminAuthHandler>();
+
+            services.AddScoped<IAuthorizationHandler, UserIsSelfAuthHandler>();
+            services.AddSingleton<IAuthorizationHandler, UserIsAdminAuthHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

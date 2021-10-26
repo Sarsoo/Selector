@@ -32,6 +32,8 @@ namespace Selector.Model
                 .HasOne(w => w.User)
                 .WithMany(u => u.Watchers)
                 .HasForeignKey(w => w.UserId);
+
+            SeedData.Seed(modelBuilder);
         }
     }
 
