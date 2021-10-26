@@ -1,0 +1,27 @@
+@page
+@model SpotifyModel
+@{
+    ViewData["Title"] = "Spotify";
+    ViewData["ActivePage"] = ManageNavPages.Spotify;
+}
+
+<h4>@ViewData["Title"]</h4>
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<div class="row">
+    <div class="col-md-6">
+        <form id="spotify-form" method="post">
+            @if (Model.SpotifyIsLinked)
+            {
+                <button id="unlink-button" type="submit" asp-page-handler="Unlink" class="btn btn-primary">Unlink</button>
+            }
+            else
+            {
+                <button id="link-button" type="submit" asp-page-handler="Link" class="btn btn-primary">Link</button>
+            }
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

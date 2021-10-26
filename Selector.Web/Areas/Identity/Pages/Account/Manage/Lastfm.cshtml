@@ -1,0 +1,26 @@
+@page
+@model LastFmModel
+@{
+    ViewData["Title"] = "Last.fm";
+    ViewData["ActivePage"] = ManageNavPages.LastFm;
+}
+
+<h4>@ViewData["Title"]</h4>
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<div class="row">
+    <div class="col-md-6">
+        <form id="lastfm-form" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Input.Username"></label>
+                <input asp-for="Input.Username" class="form-control" />
+                <span asp-validation-for="Input.Username" class="text-danger"></span>
+            </div>
+            <button id="change-username-button" type="submit" asp-page-handler="ChangeUsername" class="btn btn-primary">Change Username</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
