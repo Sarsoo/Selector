@@ -3,11 +3,12 @@ using Microsoft.Extensions.Configuration;
 
 namespace Selector.Web
 {
-    public static class OptionsHelper {
+    static class OptionsHelper {
         public static void ConfigureOptions(RootOptions options, IConfiguration config)
         {
             config.GetSection(RootOptions.Key).Bind(options);
-        }  
+            config.GetSection(FormatKeys(new[] { RootOptions.Key, RedisOptions.Key })).Bind(options.RedisOptions);
+        }
 
         public static RootOptions ConfigureOptions(IConfiguration config)
         {
@@ -35,5 +36,16 @@ namespace Selector.Web
         /// Spotify callback for authentication
         /// </summary>
         public string SpotifyCallback { get; set; }
+
+        public RedisOptions RedisOptions { get; set; } = new();
+
+    }
+
+    public class RedisOptions
+    {
+        public const string Key = "Redis";
+
+        public bool Enabled { get; set; } = false;
+        public string ConnectionString { get; set; }
     }
 }

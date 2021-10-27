@@ -13,8 +13,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
+using StackExchange.Redis;
+
 using Selector.Model;
 using Selector.Model.Authorisation;
+using Selector.Cache;
 
 namespace Selector.Web
 {
@@ -34,6 +37,7 @@ namespace Selector.Web
             {
                 OptionsHelper.ConfigureOptions(options, Configuration);
             });
+            var config = OptionsHelper.ConfigureOptions(Configuration);
 
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddControllers();
@@ -92,6 +96,23 @@ namespace Selector.Web
 
             services.AddScoped<IAuthorizationHandler, UserIsSelfAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, UserIsAdminAuthHandler>();
+
+            if (config.RedisOptions.Enabled)
+            {
+                Console.WriteLine("> Configuring Redis...");
+
+                if (string.IsNullOrWhiteSpace(config.RedisOptions.ConnectionString))
+                {
+                    Console.WriteLine("> No Redis configuration string provided, exiting...");
+                    Environment.Exit(1);
+                }
+
+                var connMulti = ConnectionMultiplexer.Connect(config.RedisOptions.ConnectionString);
+                services.AddSingleton(connMulti);
+                services.AddSingleton<IDatabaseAsync>(connMulti.GetDatabase());
+
+                services.AddSingleton<ICache<string>, RedisCache>();
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

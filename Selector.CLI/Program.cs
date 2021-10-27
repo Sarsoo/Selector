@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using NLog.Extensions.Logging;
 
 using Selector.Model;
+using Selector.Cache;
+using StackExchange.Redis;
 
 namespace Selector.CLI
 {
@@ -49,6 +51,23 @@ namespace Selector.CLI
                         services.AddDbContext<ApplicationDbContext>(options =>
                             options.UseNpgsql(config.DatabaseOptions.ConnectionString)
                         );
+                    }
+
+                    if (config.RedisOptions.Enabled)
+                    {
+                        Console.WriteLine("> Configuring Redis...");
+                        
+                        if(string.IsNullOrWhiteSpace(config.RedisOptions.ConnectionString))
+                        {
+                            Console.WriteLine("> No Redis configuration string provided, exiting...");
+                            Environment.Exit(1);
+                        }
+
+                        var connMulti = ConnectionMultiplexer.Connect(config.RedisOptions.ConnectionString);
+                        services.AddSingleton(connMulti);
+                        services.AddSingleton<IDatabaseAsync>(connMulti.GetDatabase());
+
+                        services.AddSingleton<ICache<string>, RedisCache>();
                     }
 
                     switch (config.Equality)
