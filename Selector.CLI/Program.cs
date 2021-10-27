@@ -30,7 +30,6 @@ namespace Selector.CLI
                     // CONFIG
                     services.Configure<RootOptions>(options =>
                     {
-
                         OptionsHelper.ConfigureOptions(options, context.Configuration);
                     });
                     var config = OptionsHelper.ConfigureOptions(context.Configuration);

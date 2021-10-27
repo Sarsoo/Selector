@@ -38,12 +38,14 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
             public string Username { get; set; }
         }
 
-        private async Task LoadAsync(ApplicationUser user)
+        private Task LoadAsync(ApplicationUser user)
         {
             Input = new InputModel
             {
                 Username = user.LastFmUsername,
             };
+
+            return Task.CompletedTask;
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -74,8 +76,8 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
 
             if (Input.Username != user.LastFmUsername)
             {
-                user.LastFmUsername = Input.Username;
-                _userManager.UpdateAsync(user);
+                user.LastFmUsername = Input.Username.Trim();
+                await _userManager.UpdateAsync(user);
 
                 StatusMessage = "Username changed";
                 return RedirectToPage();
