@@ -39,7 +39,7 @@ namespace Selector.CLI
                     Console.WriteLine("> Adding Services...");
                     // SERVICES
                     services.AddSingleton<IWatcherFactory, WatcherFactory>();
-                    services.AddSingleton<IConsumerFactory, AudioFeatureInjectorFactory>();
+                    services.AddSingleton<IAudioFeatureInjectorFactory, AudioFeatureInjectorFactory>();
                     services.AddSingleton<IWatcherCollectionFactory, WatcherCollectionFactory>();
                     // For generating spotify clients
                     //services.AddSingleton<IRefreshTokenFactoryProvider, RefreshTokenFactoryProvider>();
@@ -68,6 +68,7 @@ namespace Selector.CLI
                         var connMulti = ConnectionMultiplexer.Connect(config.RedisOptions.ConnectionString);
                         services.AddSingleton(connMulti);
                         services.AddTransient<IDatabaseAsync>(services => services.GetService<ConnectionMultiplexer>().GetDatabase());
+                        services.AddTransient<ISubscriber>(services => services.GetService<ConnectionMultiplexer>().GetSubscriber());
                     }
 
                     // EQUAL

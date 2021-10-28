@@ -8,7 +8,12 @@ using SpotifyAPI.Web;
 
 namespace Selector
 {
-    public class AudioFeatureInjectorFactory: IConsumerFactory {
+    public interface IAudioFeatureInjectorFactory
+    {
+        public Task<IConsumer> Get(ISpotifyConfigFactory spotifyFactory, IPlayerWatcher watcher);
+    }
+    
+    public class AudioFeatureInjectorFactory: IAudioFeatureInjectorFactory {
 
         private readonly ILoggerFactory LoggerFactory;
 

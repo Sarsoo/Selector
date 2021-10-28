@@ -71,7 +71,7 @@ namespace Selector.CLI
 
     enum Consumers
     {
-        AudioFeatures
+        AudioFeatures, CacheWriter, Publisher
     }
 
     class DatabaseOptions {

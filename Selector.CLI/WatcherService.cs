@@ -10,6 +10,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using Selector.Cache;
+using StackExchange.Redis;
+
 namespace Selector.CLI
 {
     class WatcherService : IHostedService
@@ -22,6 +25,9 @@ namespace Selector.CLI
         private readonly IWatcherFactory WatcherFactory;
         private readonly IWatcherCollectionFactory WatcherCollectionFactory;
         private readonly IRefreshTokenFactoryProvider SpotifyFactory;
+        
+        private readonly IDatabaseAsync Cache; 
+        private readonly ISubscriber Subscriber; 
 
         private Dictionary<string, IWatcherCollection> Watchers { get; set; } = new();
 
@@ -30,7 +36,9 @@ namespace Selector.CLI
             IWatcherCollectionFactory watcherCollectionFactory,
             IRefreshTokenFactoryProvider spotifyFactory,
             ILoggerFactory loggerFactory,
-            IOptions<RootOptions> config
+            IOptions<RootOptions> config,
+            IDatabaseAsync cache = null,
+            ISubscriber subscriber = null
         ) {
             Logger = loggerFactory.CreateLogger<WatcherService>();
             LoggerFactory = loggerFactory;
@@ -38,6 +46,8 @@ namespace Selector.CLI
             WatcherFactory = watcherFactory;
             WatcherCollectionFactory = watcherCollectionFactory;
             SpotifyFactory = spotifyFactory;
+            Cache = cache;
+            Subscriber = subscriber;
 
             SpotifyFactory.Initialise(Config.ClientId, Config.ClientSecret);
         }
@@ -100,8 +110,18 @@ namespace Selector.CLI
                     switch(consumer)
                     {
                         case Consumers.AudioFeatures:
-                            var factory = new AudioFeatureInjectorFactory(LoggerFactory);
-                            consumers.Add(await factory.Get(spotifyFactory));
+                            var featureInjector = new AudioFeatureInjectorFactory(LoggerFactory);
+                            consumers.Add(await featureInjector.Get(spotifyFactory));
+                            break;
+
+                        case Consumers.CacheWriter:
+                            var cacheWriter = new CacheWriterFactory(Cache, LoggerFactory);
+                            consumers.Add(await cacheWriter.Get());
+                            break;
+
+                        case Consumers.Publisher:
+                            var pub = new PublisherFactory(Subscriber, LoggerFactory);
+                            consumers.Add(await pub.Get());
                             break;
                     }
                 }

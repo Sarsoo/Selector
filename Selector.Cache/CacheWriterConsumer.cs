@@ -1,28 +1,32 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using SpotifyAPI.Web;
+using StackExchange.Redis;
 
 namespace Selector.Cache
 {
-    public class CacheUpdater : IConsumer
+    public class CacheWriter : IConsumer
     {
         private readonly IPlayerWatcher Watcher;
-        private readonly ILogger<CacheUpdater> Logger;
+        private readonly IDatabaseAsync Db;
+        private readonly ILogger<CacheWriter> Logger;
 
         public CancellationToken CancelToken { get; set; }
 
-        public CacheUpdater(
+        public CacheWriter(
             IPlayerWatcher watcher,
-            ILogger<CacheUpdater> logger = null,
+            IDatabaseAsync db,
+            ILogger<CacheWriter> logger = null,
             CancellationToken token = default
         ){
             Watcher = watcher;
-            Logger = logger ?? NullLogger<CacheUpdater>.Instance;
+            Db = db;
+            Logger = logger ?? NullLogger<CacheWriter>.Instance;
             CancelToken = token;
         }
 
@@ -35,18 +39,8 @@ namespace Selector.Cache
 
         public async Task AsyncCallback(ListeningChangeEventArgs e)
         {
-            if (e.Current.Item is FullTrack track)
-            {
-                
-            }
-            else if (e.Current.Item is FullEpisode episode)
-            {
-                
-            }
-            else
-            {
-                Logger.LogError($"Unknown item pulled from API [{e.Current.Item}]");
-            }
+            var payload = JsonSerializer.Serialize(e);
+            await Db.StringSetAsync(Key.CurrentlyPlaying(e.Username), payload);
         }
 
         public void Subscribe(IWatcher watch = null)
