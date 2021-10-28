@@ -109,9 +109,7 @@ namespace Selector.Web
 
                 var connMulti = ConnectionMultiplexer.Connect(config.RedisOptions.ConnectionString);
                 services.AddSingleton(connMulti);
-                services.AddSingleton<IDatabaseAsync>(connMulti.GetDatabase());
-
-                services.AddSingleton<ICache<string>, RedisCache>();
+                services.AddTransient<IDatabaseAsync>(services => services.GetService<ConnectionMultiplexer>().GetDatabase());
             }
         }
 

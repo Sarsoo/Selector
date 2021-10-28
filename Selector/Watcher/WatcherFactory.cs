@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-
+using Microsoft.Extensions.Logging.Abstractions;
 using SpotifyAPI.Web;
 
 namespace Selector
@@ -27,12 +27,16 @@ namespace Selector
                 var config = await spotifyFactory.GetConfig();
                 var client = new SpotifyClient(config);
 
+                var user = await client.UserProfile.Current();
+
                 return new PlayerWatcher(
                     client.Player, 
                     Equal, 
-                    LoggerFactory?.CreateLogger<PlayerWatcher>(), 
+                    LoggerFactory?.CreateLogger<PlayerWatcher>() ?? NullLogger<PlayerWatcher>.Instance, 
                     pollPeriod: pollPeriod
-                );
+                ) {
+                    Username = user.DisplayName
+                };
             }
             //else if (typeof(T).IsAssignableFrom(typeof(PlaylistWatcher)))
             //{

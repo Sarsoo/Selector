@@ -13,6 +13,7 @@ namespace Selector
     public abstract class BaseWatcher: IWatcher
     {
         protected readonly ILogger<BaseWatcher> Logger;
+        public string Username { get; set; }
 
         public BaseWatcher(ILogger<BaseWatcher> logger = null)
         {

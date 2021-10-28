@@ -45,6 +45,7 @@ namespace Selector.CLI
                     //services.AddSingleton<IRefreshTokenFactoryProvider, RefreshTokenFactoryProvider>();
                     services.AddSingleton<IRefreshTokenFactoryProvider, CachingRefreshTokenFactoryProvider>();
 
+                    // DB
                     if (config.DatabaseOptions.Enabled)
                     {
                         Console.WriteLine("> Adding Databse Context...");
@@ -53,6 +54,7 @@ namespace Selector.CLI
                         );
                     }
 
+                    // REDIS
                     if (config.RedisOptions.Enabled)
                     {
                         Console.WriteLine("> Configuring Redis...");
@@ -65,11 +67,10 @@ namespace Selector.CLI
 
                         var connMulti = ConnectionMultiplexer.Connect(config.RedisOptions.ConnectionString);
                         services.AddSingleton(connMulti);
-                        services.AddSingleton<IDatabaseAsync>(connMulti.GetDatabase());
-
-                        services.AddSingleton<ICache<string>, RedisCache>();
+                        services.AddTransient<IDatabaseAsync>(services => services.GetService<ConnectionMultiplexer>().GetDatabase());
                     }
 
+                    // EQUAL
                     switch (config.Equality)
                     {
                         case EqualityChecker.Uri:
