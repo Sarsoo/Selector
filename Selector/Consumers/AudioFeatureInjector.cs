@@ -11,9 +11,11 @@ namespace Selector
 {
     public class AudioFeatureInjector : IConsumer
     {
-        private readonly IPlayerWatcher Watcher;
-        private readonly ITracksClient TrackClient;
-        private readonly ILogger<AudioFeatureInjector> Logger;
+        protected readonly IPlayerWatcher Watcher;
+        protected readonly ITracksClient TrackClient;
+        protected readonly ILogger<AudioFeatureInjector> Logger;
+
+        protected event EventHandler<AnalysedTrack> NewFeature;
 
         public CancellationToken CancelToken { get; set; }
 
@@ -47,7 +49,10 @@ namespace Selector
                     var audioFeatures = await TrackClient.GetAudioFeatures(track.Id);
                     Logger.LogDebug($"Adding audio features [{track.DisplayString()}]: [{audioFeatures.DisplayString()}]");
 
-                    Timeline.Add(AnalysedTrack.From(track, audioFeatures), DateHelper.FromUnixMilli(e.Current.Timestamp));
+                    var analysedTrack = AnalysedTrack.From(track, audioFeatures);
+
+                    Timeline.Add(analysedTrack, DateHelper.FromUnixMilli(e.Current.Timestamp));
+                    OnNewFeature(analysedTrack);
                 }
                 catch (APIUnauthorizedException ex)
                 {
@@ -101,6 +106,11 @@ namespace Selector
             {
                 throw new ArgumentException("Provided watcher is not a PlayerWatcher");
             }
+        }
+
+        protected virtual void OnNewFeature(AnalysedTrack args)
+        {
+            NewFeature?.Invoke(this, args); 
         }
     }
 

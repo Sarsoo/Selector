@@ -74,14 +74,14 @@ namespace Selector
                         && (Live.Item is FullTrack || Live.Item is FullEpisode))
                     {
                         Logger.LogDebug($"Playback started: {Live.DisplayString()}");
-                        OnPlayingChange(ListeningChangeEventArgs.From(previous, Live, Username));
+                        OnPlayingChange(ListeningChangeEventArgs.From(previous, Live, Past, Username));
                     }
                     // STOPPED PLAYBACK
                     else if((previous.Item is FullTrack || previous.Item is FullEpisode) 
                         && Live is null)
                     {
                         Logger.LogDebug($"Playback stopped: {previous.DisplayString()}");
-                        OnPlayingChange(ListeningChangeEventArgs.From(previous, Live, Username));
+                        OnPlayingChange(ListeningChangeEventArgs.From(previous, Live, Past, Username));
                     }
                     // CONTINUING PLAYBACK
                     else {
@@ -92,17 +92,17 @@ namespace Selector
                         {
                             if(!eq.IsEqual(previousTrack, currentTrack)) {
                                 Logger.LogDebug($"Track changed: {previousTrack.DisplayString()} -> {currentTrack.DisplayString()}");
-                                OnItemChange(ListeningChangeEventArgs.From(previous, Live, Username));
+                                OnItemChange(ListeningChangeEventArgs.From(previous, Live, Past, Username));
                             }
 
                             if(!eq.IsEqual(previousTrack.Album, currentTrack.Album)) {
                                 Logger.LogDebug($"Album changed: {previousTrack.Album.DisplayString()} -> {currentTrack.Album.DisplayString()}");
-                                OnAlbumChange(ListeningChangeEventArgs.From(previous, Live, Username));
+                                OnAlbumChange(ListeningChangeEventArgs.From(previous, Live, Past, Username));
                             }
 
                             if(!eq.IsEqual(previousTrack.Artists[0], currentTrack.Artists[0])) {
                                 Logger.LogDebug($"Artist changed: {previousTrack.Artists.DisplayString()} -> {currentTrack.Artists.DisplayString()}");
-                                OnArtistChange(ListeningChangeEventArgs.From(previous, Live, Username));
+                                OnArtistChange(ListeningChangeEventArgs.From(previous, Live, Past, Username));
                             }
                         }
                         // CHANGED CONTENT
@@ -110,8 +110,8 @@ namespace Selector
                             || (previous.Item is FullEpisode && Live.Item is FullTrack))
                         {
                             Logger.LogDebug($"Media type changed: {previous.Item}, {previous.Item}");
-                            OnContentChange(ListeningChangeEventArgs.From(previous, Live, Username));
-                            OnItemChange(ListeningChangeEventArgs.From(previous, Live, Username));
+                            OnContentChange(ListeningChangeEventArgs.From(previous, Live, Past, Username));
+                            OnItemChange(ListeningChangeEventArgs.From(previous, Live, Past, Username));
                         }
                         // PODCASTS
                         else if(previous.Item is FullEpisode previousEp 
@@ -119,7 +119,7 @@ namespace Selector
                         {
                             if(!eq.IsEqual(previousEp, currentEp)) {
                                 Logger.LogDebug($"Podcast changed: {previousEp.DisplayString()} -> {currentEp.DisplayString()}");
-                                OnItemChange(ListeningChangeEventArgs.From(previous, Live, Username));
+                                OnItemChange(ListeningChangeEventArgs.From(previous, Live, Past, Username));
                             }
                         }
                         else {
@@ -129,25 +129,25 @@ namespace Selector
                         // CONTEXT
                         if(!eq.IsEqual(previous.Context, Live.Context)) {
                             Logger.LogDebug($"Context changed: {previous.Context.DisplayString()} -> {Live.Context.DisplayString()}");
-                            OnContextChange(ListeningChangeEventArgs.From(previous, Live, Username));
+                            OnContextChange(ListeningChangeEventArgs.From(previous, Live, Past, Username));
                         }
 
                         // DEVICE
                         if(!eq.IsEqual(previous?.Device, Live?.Device)) {
                             Logger.LogDebug($"Device changed: {previous?.Device.DisplayString()} -> {Live?.Device.DisplayString()}");
-                            OnDeviceChange(ListeningChangeEventArgs.From(previous, Live, Username));
+                            OnDeviceChange(ListeningChangeEventArgs.From(previous, Live, Past, Username));
                         }
 
                         // IS PLAYING
                         if(previous.IsPlaying != Live.IsPlaying) {
                             Logger.LogDebug($"Playing state changed: {previous.IsPlaying} -> {Live.IsPlaying}");
-                            OnPlayingChange(ListeningChangeEventArgs.From(previous, Live, Username));
+                            OnPlayingChange(ListeningChangeEventArgs.From(previous, Live, Past, Username));
                         }
 
                         // VOLUME
                         if(previous.Device.VolumePercent != Live.Device.VolumePercent) {
                             Logger.LogDebug($"Volume changed: {previous.Device.VolumePercent}% -> {Live.Device.VolumePercent}%");
-                            OnVolumeChange(ListeningChangeEventArgs.From(previous, Live, Username));
+                            OnVolumeChange(ListeningChangeEventArgs.From(previous, Live, Past, Username));
                         }
                     }
                 }                

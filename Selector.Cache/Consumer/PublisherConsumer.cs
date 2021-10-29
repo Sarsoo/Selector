@@ -5,28 +5,28 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using SpotifyAPI.Web;
+
 using StackExchange.Redis;
 
 namespace Selector.Cache
 {
-    public class CacheWriter : IConsumer
+    public class Publisher : IConsumer
     {
         private readonly IPlayerWatcher Watcher;
-        private readonly IDatabaseAsync Db;
-        private readonly ILogger<CacheWriter> Logger;
+        private readonly ISubscriber Subscriber;
+        private readonly ILogger<Publisher> Logger;
 
         public CancellationToken CancelToken { get; set; }
 
-        public CacheWriter(
+        public Publisher(
             IPlayerWatcher watcher,
-            IDatabaseAsync db,
-            ILogger<CacheWriter> logger = null,
+            ISubscriber subscriber,
+            ILogger<Publisher> logger = null,
             CancellationToken token = default
         ){
             Watcher = watcher;
-            Db = db;
-            Logger = logger ?? NullLogger<CacheWriter>.Instance;
+            Subscriber = subscriber;
+            Logger = logger ?? NullLogger<Publisher>.Instance;
             CancelToken = token;
         }
 
@@ -39,8 +39,13 @@ namespace Selector.Cache
 
         public async Task AsyncCallback(ListeningChangeEventArgs e)
         {
-            var payload = JsonSerializer.Serialize(e);
-            await Db.StringSetAsync(Key.CurrentlyPlaying(e.Username), payload);
+            var payload = JsonSerializer.Serialize((CurrentlyPlayingDTO) e);
+
+            Logger.LogTrace($"Publishing current for [{e.Username}]");
+            
+            var receivers = await Subscriber.PublishAsync(Key.CurrentlyPlaying(e.Username), payload);
+
+            Logger.LogDebug($"Published current for [{e.Username}], {receivers} receivers");
         }
 
         public void Subscribe(IWatcher watch = null)

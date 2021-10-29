@@ -114,6 +114,11 @@ namespace Selector.CLI
                             consumers.Add(await featureInjector.Get(spotifyFactory));
                             break;
 
+                        case Consumers.AudioFeaturesCache:
+                            var featureInjectorCache = new CachingAudioFeatureInjectorFactory(LoggerFactory, Cache);
+                            consumers.Add(await featureInjectorCache.Get(spotifyFactory));
+                            break;
+
                         case Consumers.CacheWriter:
                             var cacheWriter = new CacheWriterFactory(Cache, LoggerFactory);
                             consumers.Add(await cacheWriter.Get());
