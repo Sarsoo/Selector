@@ -15,9 +15,11 @@ using Microsoft.EntityFrameworkCore;
 
 using StackExchange.Redis;
 
+using Selector.Web.Hubs;
 using Selector.Model;
 using Selector.Model.Authorisation;
 using Selector.Cache;
+using Selector.Web.Service;
 
 namespace Selector.Web
 {
@@ -41,6 +43,7 @@ namespace Selector.Web
 
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddControllers();
+            services.AddSignalR();
 
             services.AddDbContext<ApplicationDbContext>(options => 
                 options.UseNpgsql(Configuration.GetConnectionString("Default"))
@@ -84,19 +87,20 @@ namespace Selector.Web
                 options.SlidingExpiration = true;
             });
 
+            // AUTH
             services.AddAuthorization(options =>
             {
                 options.FallbackPolicy = new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
                     .Build();
             });
-
             services.AddScoped<IAuthorizationHandler, WatcherIsOwnerAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, WatcherIsAdminAuthHandler>();
 
             services.AddScoped<IAuthorizationHandler, UserIsSelfAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, UserIsAdminAuthHandler>();
 
+            // REDIS
             if (config.RedisOptions.Enabled)
             {
                 Console.WriteLine("> Configuring Redis...");
@@ -140,6 +144,7 @@ namespace Selector.Web
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
+                endpoints.MapHub<NowPlayingHub>("/hub");
             });
         }
     }
