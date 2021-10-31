@@ -19,7 +19,6 @@ using Selector.Web.Hubs;
 using Selector.Model;
 using Selector.Model.Authorisation;
 using Selector.Cache;
-using Selector.Web.Service;
 
 namespace Selector.Web
 {
