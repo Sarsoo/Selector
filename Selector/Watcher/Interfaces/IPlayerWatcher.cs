@@ -5,6 +5,9 @@ namespace Selector
 {
     public interface IPlayerWatcher: IWatcher
     {
+        /// <summary>
+        /// Track or episode changes
+        /// </summary>
         public event EventHandler<ListeningChangeEventArgs> ItemChange;
         public event EventHandler<ListeningChangeEventArgs> AlbumChange;
         public event EventHandler<ListeningChangeEventArgs> ArtistChange;
@@ -15,6 +18,9 @@ namespace Selector
         public event EventHandler<ListeningChangeEventArgs> DeviceChange;
         public event EventHandler<ListeningChangeEventArgs> PlayingChange;
 
+        /// <summary>
+        /// Last retrieved currently playing
+        /// </summary>
         public CurrentlyPlayingContext Live { get; }
         public PlayerTimeline Past { get; }
     }

@@ -105,7 +105,7 @@ namespace Selector.CLI
                         break;
                     case WatcherType.Playlist:
                         throw new NotImplementedException("Playlist watchers not implemented");
-                        break;
+                        // break;
                 }
 
                 List<IConsumer> consumers = new();

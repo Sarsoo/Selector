@@ -12,6 +12,10 @@ namespace Selector
         public IWatcher Watcher { get; set; }
         private List<IConsumer> Consumers { get; set; } = new();
         public bool IsRunning { get; private set; }
+        /// <summary>
+        /// Reference to Watcher.Watch() task when running
+        /// </summary>
+        /// <value></value>
         public Task Task { get; set; }
         public CancellationTokenSource TokenSource { get; set; }
 
