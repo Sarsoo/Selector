@@ -9,6 +9,7 @@ using NLog.Extensions.Logging;
 
 using Selector.Model;
 using Selector.Cache;
+using IF.Lastfm.Core.Api;
 using StackExchange.Redis;
 
 namespace Selector.CLI
@@ -44,6 +45,18 @@ namespace Selector.CLI
                     // For generating spotify clients
                     //services.AddSingleton<IRefreshTokenFactoryProvider, RefreshTokenFactoryProvider>();
                     services.AddSingleton<IRefreshTokenFactoryProvider, CachingRefreshTokenFactoryProvider>();
+
+                    if(config.LastfmClient is not null)
+                    {
+                        Console.WriteLine("> Adding Last.fm credentials...");
+
+                        var lastAuth = new LastAuth(config.LastfmClient, config.LastfmSecret);
+                        services.AddSingleton<LastAuth>(lastAuth);
+                    }
+                    else 
+                    {
+                        Console.WriteLine("> No Last.fm credentials, skipping init...");
+                    }
 
                     // DB
                     if (config.DatabaseOptions.Enabled)

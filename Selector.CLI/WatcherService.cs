@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using IF.Lastfm.Core.Api;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,6 +26,7 @@ namespace Selector.CLI
         private readonly IWatcherFactory WatcherFactory;
         private readonly IWatcherCollectionFactory WatcherCollectionFactory;
         private readonly IRefreshTokenFactoryProvider SpotifyFactory;
+        private readonly LastAuth LastAuth;
         
         private readonly IDatabaseAsync Cache; 
         private readonly ISubscriber Subscriber; 
@@ -37,6 +39,7 @@ namespace Selector.CLI
             IRefreshTokenFactoryProvider spotifyFactory,
             ILoggerFactory loggerFactory,
             IOptions<RootOptions> config,
+            LastAuth lastAuth = null,
             IDatabaseAsync cache = null,
             ISubscriber subscriber = null
         ) {
@@ -46,6 +49,7 @@ namespace Selector.CLI
             WatcherFactory = watcherFactory;
             WatcherCollectionFactory = watcherCollectionFactory;
             SpotifyFactory = spotifyFactory;
+            LastAuth = lastAuth;
             Cache = cache;
             Subscriber = subscriber;
 
@@ -127,6 +131,22 @@ namespace Selector.CLI
                         case Consumers.Publisher:
                             var pub = new PublisherFactory(Subscriber, LoggerFactory);
                             consumers.Add(await pub.Get());
+                            break;
+
+                        case Consumers.PlayCounter:
+                            if(!string.IsNullOrWhiteSpace(watcherOption.LastFmUsername))
+                            {
+                                if(LastAuth is null) throw new ArgumentNullException("No Last Auth Injected");
+                                
+                                var client = new LastfmClient(LastAuth);
+
+                                var playCount = new PlayCounterFactory(LoggerFactory, client: client, creds: new(){ Username = watcherOption.LastFmUsername });
+                                consumers.Add(await playCount.Get());
+                            }
+                            else 
+                            {
+                                Logger.LogError("No Last.fm usernmae provided, skipping play counter");
+                            }
                             break;
                     }
                 }

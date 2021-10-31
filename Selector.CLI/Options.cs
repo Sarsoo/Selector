@@ -34,6 +34,8 @@ namespace Selector.CLI
         /// Spotify app secret
         /// </summary>
         public string ClientSecret { get; set; }
+        public string LastfmClient { get; set; }
+        public string LastfmSecret { get; set; }
         public WatcherOptions WatcherOptions { get; set; } = new();
         public DatabaseOptions DatabaseOptions { get; set; } = new();
         public RedisOptions RedisOptions { get; set; } = new();
@@ -60,6 +62,7 @@ namespace Selector.CLI
         public string Name { get; set; }
         public string AccessKey { get; set; }
         public string RefreshKey { get; set; }
+        public string LastFmUsername { get; set; }
         public int PollPeriod { get; set; } = 5000;
         public WatcherType Type { get; set; } = WatcherType.Player;
         public List<Consumers> Consumers { get; set; } = default;
@@ -71,7 +74,7 @@ namespace Selector.CLI
 
     enum Consumers
     {
-        AudioFeatures, AudioFeaturesCache, CacheWriter, Publisher
+        AudioFeatures, AudioFeaturesCache, CacheWriter, Publisher, PlayCounter
     }
 
     class DatabaseOptions {
