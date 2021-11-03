@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 using StackExchange.Redis;
 
+using Selector.Web.Service;
 using Selector.Web.Hubs;
 using Selector.Model;
 using Selector.Model.Authorisation;
@@ -115,6 +116,10 @@ namespace Selector.Web
                 services.AddTransient<IDatabaseAsync>(services => services.GetService<ConnectionMultiplexer>().GetDatabase());
                 services.AddTransient<ISubscriber>(services => services.GetService<ConnectionMultiplexer>().GetSubscriber());
             }
+
+            // HOSTED
+            services.AddSingleton<CacheHubProxy>();
+            services.AddSingleton<INowPlayingMappingFactory, NowPlayingMappingFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
