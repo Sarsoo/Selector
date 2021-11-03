@@ -10,6 +10,8 @@ namespace Selector.Cache
         public const string TrackName = "Track";
         public const string AudioFeatureName = "AudioFeature";
 
+        public const string WorkerName = "Worker";
+
         public static string CurrentlyPlaying(string user) => Namespace(new[] { user, CurrentlyPlayingName });
         public static string AudioFeature(string trackId) => Namespace(new[] { TrackName, trackId, AudioFeatureName });
 
