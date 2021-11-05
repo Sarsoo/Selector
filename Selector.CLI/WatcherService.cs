@@ -101,7 +101,7 @@ namespace Selector.CLI
                 switch(watcherOption.Type)
                 {
                     case WatcherType.Player:
-                        watcher = await WatcherFactory.Get<PlayerWatcher>(spotifyFactory, watcherOption.PollPeriod);
+                        watcher = await WatcherFactory.Get<PlayerWatcher>(spotifyFactory, id: watcherOption.Name, pollPeriod: watcherOption.PollPeriod);
                         break;
                     case WatcherType.Playlist:
                         throw new NotImplementedException("Playlist watchers not implemented");

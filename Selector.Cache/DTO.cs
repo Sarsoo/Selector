@@ -18,7 +18,7 @@ namespace Selector.Cache {
                 return new()
                 {
                     Context = e.Current,
-                    Username = e.Username,
+                    Username = e.SpotifyUsername,
                     Track = track
                 };
             }
@@ -27,7 +27,7 @@ namespace Selector.Cache {
                 return new()
                 {
                     Context = e.Current,
-                    Username = e.Username,
+                    Username = e.SpotifyUsername,
                     Episode = episode
                 };
             }

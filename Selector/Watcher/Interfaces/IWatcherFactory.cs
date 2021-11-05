@@ -7,7 +7,7 @@ namespace Selector
 {
     public interface IWatcherFactory
     {
-        public Task<IWatcher> Get<T>(ISpotifyConfigFactory spotifyFactory, int pollPeriod)
+        public Task<IWatcher> Get<T>(ISpotifyConfigFactory spotifyFactory, string id, int pollPeriod)
             where T : class, IWatcher;
     }
 }

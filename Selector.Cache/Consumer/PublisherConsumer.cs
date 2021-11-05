@@ -41,12 +41,12 @@ namespace Selector.Cache
         {
             var payload = JsonSerializer.Serialize((CurrentlyPlayingDTO) e);
 
-            Logger.LogTrace($"Publishing current for [{e.Username}]");
+            Logger.LogTrace($"Publishing current for [{e.Id}/{e.SpotifyUsername}]");
             
             // TODO: currently using spotify username for cache key, use db username
-            var receivers = await Subscriber.PublishAsync(Key.CurrentlyPlaying(e.Username), payload);
+            var receivers = await Subscriber.PublishAsync(Key.CurrentlyPlaying(e.Id), payload);
 
-            Logger.LogDebug($"Published current for [{e.Username}], {receivers} receivers");
+            Logger.LogDebug($"Published current for [{e.Id}/{e.SpotifyUsername}], {receivers} receivers");
         }
 
         public void Subscribe(IWatcher watch = null)

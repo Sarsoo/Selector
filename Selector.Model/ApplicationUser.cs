@@ -22,9 +22,11 @@ namespace Selector.Model
 
     public class ApplicationUserDTO
     {
+        public string Id { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
+        public bool LockoutEnabled { get; set; }
 
         public bool SpotifyIsLinked { get; set; }
         public DateTime SpotifyLastRefresh { get; set; }
@@ -35,9 +37,11 @@ namespace Selector.Model
         public string LastFmUsername { get; set; }
 
         public static explicit operator ApplicationUserDTO(ApplicationUser user) => new() {
+            Id = user.Id,
             UserName = user.UserName,
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
+            LockoutEnabled = user.LockoutEnabled,
 
             SpotifyIsLinked = user.SpotifyIsLinked,
             SpotifyLastRefresh = user.SpotifyLastRefresh,

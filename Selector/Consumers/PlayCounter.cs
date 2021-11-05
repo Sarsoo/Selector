@@ -79,12 +79,12 @@ namespace Selector
                     }
                     else
                     {
-                        Logger.LogDebug($"Track info error [{e.Username}] [{trackInfo.Result.Status}]");
+                        Logger.LogDebug($"Track info error [{e.Id}/{e.SpotifyUsername}] [{trackInfo.Result.Status}]");
                     }
                 }
                 else
                 {
-                    Logger.LogError(trackInfo.Exception, $"Track info task faulted, [{e.Username}] [{e.Current.DisplayString()}]");
+                    Logger.LogError(trackInfo.Exception, $"Track info task faulted, [{e.Id}/{e.SpotifyUsername}] [{e.Current.DisplayString()}]");
                 }
 
                 if (albumInfo.IsCompletedSuccessfully)
@@ -95,12 +95,12 @@ namespace Selector
                     }
                     else
                     {
-                        Logger.LogDebug($"Album info error [{e.Username}] [{albumInfo.Result.Status}]");
+                        Logger.LogDebug($"Album info error [{e.Id}/{e.SpotifyUsername}] [{albumInfo.Result.Status}]");
                     }
                 }
                 else
                 {
-                    Logger.LogError(albumInfo.Exception, $"Album info task faulted, [{e.Username}] [{e.Current.DisplayString()}]");
+                    Logger.LogError(albumInfo.Exception, $"Album info task faulted, [{e.Id}/{e.SpotifyUsername}] [{e.Current.DisplayString()}]");
                 }
 
                 //TODO: Add artist count
@@ -113,15 +113,15 @@ namespace Selector
                     }
                     else
                     {
-                        Logger.LogDebug($"User info error [{e.Username}] [{userInfo.Result.Status}]");
+                        Logger.LogDebug($"User info error [{e.Id}/{e.SpotifyUsername}] [{userInfo.Result.Status}]");
                     }
                 }
                 else
                 {
-                    Logger.LogError(userInfo.Exception, $"User info task faulted, [{e.Username}] [{e.Current.DisplayString()}]");
+                    Logger.LogError(userInfo.Exception, $"User info task faulted, [{e.Id}/{e.SpotifyUsername}] [{e.Current.DisplayString()}]");
                 }
 
-                Logger.LogDebug($"Adding Last.fm data [{Credentials.Username}/{e.Username}] [{track.DisplayString()}], track: {trackCount}, album: {albumCount}, artist: {artistCount}, user: {userCount}");
+                Logger.LogDebug($"Adding Last.fm data [{e.Id}/{e.SpotifyUsername}/{Credentials.Username}] [{track.DisplayString()}], track: {trackCount}, album: {albumCount}, artist: {artistCount}, user: {userCount}");
 
                 OnNewPlayCount(new()
                 {

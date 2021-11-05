@@ -9,17 +9,23 @@ namespace Selector
         /// <summary>
         /// Spotify Username
         /// </summary>
-        public string Username { get; set; }
+        public string SpotifyUsername { get; set; }
+        /// <summary>
+        /// String Id for watcher, used to hold user Db Id
+        /// </summary>
+        /// <value></value>
+        public string Id { get; set; }
         PlayerTimeline Timeline { get; set; }
 
-        public static ListeningChangeEventArgs From(CurrentlyPlayingContext previous, CurrentlyPlayingContext current, PlayerTimeline timeline, string username = null)
+        public static ListeningChangeEventArgs From(CurrentlyPlayingContext previous, CurrentlyPlayingContext current, PlayerTimeline timeline, string id = null, string username = null)
         {
             return new ListeningChangeEventArgs()
             {
                 Previous = previous,
                 Current = current,
                 Timeline = timeline,
-                Username = username
+                Id = id,
+                SpotifyUsername = username
             };
         }
     }

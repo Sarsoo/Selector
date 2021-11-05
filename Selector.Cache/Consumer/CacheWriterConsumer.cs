@@ -41,11 +41,11 @@ namespace Selector.Cache
         {
             var payload = JsonSerializer.Serialize((CurrentlyPlayingDTO) e);
             
-            Logger.LogTrace($"Caching current for [{e.Username}]");
+            Logger.LogTrace($"Caching current for [{e.Id}/{e.SpotifyUsername}]");
 
-            var resp = await Db.StringSetAsync(Key.CurrentlyPlaying(e.Username), payload);
+            var resp = await Db.StringSetAsync(Key.CurrentlyPlaying(e.Id), payload);
 
-            Logger.LogDebug($"Cached current for [{e.Username}], {(resp ? "value set" : "value NOT set")}");
+            Logger.LogDebug($"Cached current for [{e.Id}/{e.SpotifyUsername}], {(resp ? "value set" : "value NOT set")}");
 
         }
 

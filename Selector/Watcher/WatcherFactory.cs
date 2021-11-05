@@ -19,7 +19,7 @@ namespace Selector
             Equal = equal;
         }
 
-        public async Task<IWatcher> Get<T>(ISpotifyConfigFactory spotifyFactory, int pollPeriod = 3000)
+        public async Task<IWatcher> Get<T>(ISpotifyConfigFactory spotifyFactory, string id = null, int pollPeriod = 3000)
             where T : class, IWatcher
         {
             if(typeof(T).IsAssignableFrom(typeof(PlayerWatcher)))
@@ -35,7 +35,8 @@ namespace Selector
                     LoggerFactory?.CreateLogger<PlayerWatcher>() ?? NullLogger<PlayerWatcher>.Instance, 
                     pollPeriod: pollPeriod
                 ) {
-                    Username = user.DisplayName
+                    SpotifyUsername = user.DisplayName,
+                    Id = id
                 };
             }
             //else if (typeof(T).IsAssignableFrom(typeof(PlaylistWatcher)))

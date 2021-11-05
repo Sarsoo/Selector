@@ -27,7 +27,7 @@ namespace Selector.Web.Service
 
         public async Task ConstructMapping(ISubscriber subscriber, IHubContext<NowPlayingHub, INowPlayingHubClient> hub)
         {
-            var key = Key.CurrentlyPlaying(Username);
+            var key = Key.CurrentlyPlaying(UserId);
             (await subscriber.SubscribeAsync(key)).OnMessage(async message => {
                 
                 try{
