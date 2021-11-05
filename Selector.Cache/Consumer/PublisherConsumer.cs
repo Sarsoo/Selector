@@ -43,6 +43,7 @@ namespace Selector.Cache
 
             Logger.LogTrace($"Publishing current for [{e.Username}]");
             
+            // TODO: currently using spotify username for cache key, use db username
             var receivers = await Subscriber.PublishAsync(Key.CurrentlyPlaying(e.Username), payload);
 
             Logger.LogDebug($"Published current for [{e.Username}], {receivers} receivers");

@@ -117,9 +117,11 @@ namespace Selector.Web
                 services.AddTransient<ISubscriber>(services => services.GetService<ConnectionMultiplexer>().GetSubscriber());
             }
 
-            // HOSTED
             services.AddSingleton<CacheHubProxy>();
-            services.AddSingleton<INowPlayingMappingFactory, NowPlayingMappingFactory>();
+            services.AddHostedService<CacheHubProxyService>();
+
+            services.AddTransient<INowPlayingMappingFactory, NowPlayingMappingFactory>();
+            services.AddScoped<IUserMapping, NowPlayingUserMapping>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

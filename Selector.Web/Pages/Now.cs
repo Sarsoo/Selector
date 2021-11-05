@@ -35,7 +35,7 @@ namespace Selector.Web.Pages
 
         public void OnGet()
         {
-            HubProxy.FormMapping(MappingFactory.Get(UserManager.GetUserId(User)));
+            
         }
     }
 }

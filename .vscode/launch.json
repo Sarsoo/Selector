@@ -8,10 +8,10 @@
             "name": "Selector.Web",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
+            "preLaunchTask": "buildWeb",
             "program": "${workspaceFolder}/Selector.Web/bin/Debug/net5.0/Selector.Web.dll",
             "args": [],
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/Selector.Web",
             "stopAtEntry": false,
             "serverReadyAction": {
                 "action": "openExternally",
@@ -29,7 +29,7 @@
             "name": "Selector.CLI",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
+            "preLaunchTask": "buildCLI",
             "program": "${workspaceFolder}/Selector.CLI/bin/Debug/net5.0/Selector.CLI.dll",
             "env": {
                 "DOTNET_ENVIRONMENT": "Development"

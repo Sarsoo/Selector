@@ -1,11 +1,11 @@
 import * as signalR from "@microsoft/signalr";
-import { FullTrack } from "./HubInterfaces";
+import { FullTrack, CurrentlyPlayingDTO } from "./HubInterfaces";
 
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/hub")
     .build();
 
-connection.on("OnNewPlaying", context => console.log(context));
+connection.on("OnNewPlaying", (context: CurrentlyPlayingDTO) => console.log(context));
 
 connection.start().catch(err => console.error(err));
 

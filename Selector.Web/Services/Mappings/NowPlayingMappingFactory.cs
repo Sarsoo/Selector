@@ -1,18 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using SpotifyAPI.Web;
+
+using Selector.Web.Hubs;
 
 namespace Selector.Web.Service
 {
-    public interface INowPlayingMappingFactory {
-        public NowPlayingMapping Get(string userId);
+    public interface IUserMappingFactory<out TMap, THub, T>
+        where TMap : ICacheHubMapping<THub, T> 
+        where THub : Hub<T>
+        where T : class
+    {
+        public TMap Get(string userId, string username);
     }
 
+    public interface INowPlayingMappingFactory: IUserMappingFactory<NowPlayingMapping, NowPlayingHub, INowPlayingHubClient>
+    { }
+    
     public class NowPlayingMappingFactory : INowPlayingMappingFactory {
 
         private readonly ILoggerFactory LoggerFactory;
@@ -22,11 +26,12 @@ namespace Selector.Web.Service
             LoggerFactory = loggerFactory;
         }
 
-        public NowPlayingMapping Get(string userId)
+        public NowPlayingMapping Get(string userId, string username)
         {
             return new NowPlayingMapping(
                 LoggerFactory?.CreateLogger<NowPlayingMapping>(),
-                userId
+                userId,
+                username
             );
         }
     }

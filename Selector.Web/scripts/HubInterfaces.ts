@@ -1,12 +1,43 @@
 
+export interface SignalR {  
+    nowPlayingHub: nowPlayingProxy;
+}
+export interface nowPlayingProxy {  
+    client: NowPlayingHubClient;
+    server: NowPlayingHub;
+}
+
+export interface NowPlayingHubClient {
+    OnNewPlaying: (context: CurrentlyPlayingDTO) => void;
+}
+
 export interface NowPlayingHub {
-    
+    SendNewPlaying(context: CurrentlyPlayingDTO): void;
+}
+
+export interface CurrentlyPlayingDTO {
+    context: CurrentlyPlayingContextDTO;
+    username: string;
+    track: FullTrack;
+    episode: FullEpisode;
 }
 
 export interface ListeningChangeEventArgs {
     previous: CurrentlyPlayingContext;
     current: CurrentlyPlayingContext;
     username: string;
+}
+
+export interface CurrentlyPlayingContextDTO {
+    device: Device;
+    repeatState: string;
+    shuffleState: boolean;
+    context: Context;
+    timestamp: number;
+    progressMs: number;
+    isPlaying: boolean;
+    currentlyPlayingType: string;
+    actions: Actions;
 }
 
 export interface CurrentlyPlayingContext {
