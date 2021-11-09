@@ -1,4 +1,5 @@
 import * as signalR from "@microsoft/signalr";
+import * as Vue from "vue";
 import { FullTrack, CurrentlyPlayingDTO } from "./HubInterfaces";
 
 const connection = new signalR.HubConnectionBuilder()
@@ -9,9 +10,15 @@ connection.on("OnNewPlaying", (context: CurrentlyPlayingDTO) => console.log(cont
 
 connection.start().catch(err => console.error(err));
 
-/// <reference path="Interface/HubInterface.ts" />
-namespace Selector.Web {
-    
-}
-
-console.log("NowPlaying!");
+const app = Vue.createApp({
+    data() {
+        return {
+            count: 4
+        }
+    },
+    created() {
+        console.log(this.count);
+    }
+});
+// app.component("", TrackNowPlaying);
+const vm = app.mount('#app');

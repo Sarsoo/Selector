@@ -1,6 +1,7 @@
 {
     "compileOnSave": true,
     "compilerOptions": {
+        "strict": true,
         "sourceMap": true,
         "noImplicitAny": true,
         "noEmitOnError": true,
@@ -8,7 +9,14 @@
         "target": "es5",
         "allowJs": true,
         "moduleResolution": "node",
-        "outDir": "./wwwroot/js"
+        "outDir": "./wwwroot/js",
+        "baseUrl": ".",
+        "rootDir": "./scripts",
+        "paths": {
+            "@/*": [
+                "./scripts/*"
+            ]
+        }
     },
     "include": [
         "scripts/**/*"
