@@ -2,7 +2,10 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 
+using StackExchange.Redis;
+
 using Selector.Cache;
+using System.Text.Json;
 
 namespace Selector.Web.Hubs
 {
@@ -13,9 +16,18 @@ namespace Selector.Web.Hubs
 
     public class NowPlayingHub: Hub<INowPlayingHubClient>
     {
-        public Task SendNewPlaying(CurrentlyPlayingDTO context)
+        private readonly IDatabaseAsync Cache;
+
+        public NowPlayingHub(IDatabaseAsync cache)
         {
-            return Clients.All.OnNewPlaying(context);
+            Cache = cache;
+        }
+
+        public async Task SendNewPlaying()
+        {
+            var nowPlaying = await Cache.StringGetAsync(Key.CurrentlyPlaying(Context.UserIdentifier));
+            var deserialised = JsonSerializer.Deserialize<CurrentlyPlayingDTO>(nowPlaying);
+            await Clients.Caller.OnNewPlaying(deserialised);
         }
     }
 }

@@ -4,7 +4,7 @@
         "strict": true,
         "sourceMap": true,
         "noImplicitAny": true,
-        "noEmitOnError": true,
+        "noEmitOnError": false,
         "module": "es6",
         "target": "es5",
         "allowJs": true,
@@ -19,6 +19,7 @@
         }
     },
     "include": [
-        "scripts/**/*"
+        "scripts/**/*", 
+        "vue-file-import.d.ts"    
     ]
 }

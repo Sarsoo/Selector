@@ -27,6 +27,7 @@ namespace Selector
                 var config = await spotifyFactory.GetConfig();
                 var client = new SpotifyClient(config);
 
+                // TODO: catch spotify exceptions
                 var user = await client.UserProfile.Current();
 
                 return new PlayerWatcher(
