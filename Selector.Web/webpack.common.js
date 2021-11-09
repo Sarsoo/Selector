@@ -4,6 +4,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 module.exports = {
     entry: {
         now: './scripts/now.ts',
+        nowCss: './CSS/index.scss',
     },
     module: {
         rules: [
@@ -18,6 +19,17 @@ module.exports = {
             {
                 test: /\.vue$/,
                 loader: 'vue-loader',
+            },
+            {
+                test: /\.scss$/,
+                exclude: /node_modules/,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: { outputPath: '../css', name: '[name].min.css'}
+                    },
+                    'sass-loader'
+                ]
             }
         ]
     },

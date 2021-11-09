@@ -19,7 +19,6 @@
         }
     },
     "include": [
-        "scripts/**/*", 
-        "vue-file-import.d.ts"    
+        "scripts/**/*"   
     ]
 }

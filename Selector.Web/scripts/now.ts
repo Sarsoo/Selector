@@ -7,7 +7,11 @@ const connection = new signalR.HubConnectionBuilder()
     .withUrl("/hub")
     .build();
 
-connection.start().catch(err => console.error(err));
+connection.start()
+.then(val => {
+    connection.invoke("OnConnected");
+})
+.catch(err => console.error(err));
 
 interface NowPlaying {
     currentlyPlaying?: CurrentlyPlayingDTO
@@ -31,7 +35,8 @@ const app = Vue.createApp({
                         {
                             name: ""
                         }
-                    ]
+                    ],
+                    externalUrls: {}
                 }
             }
         } as NowPlaying

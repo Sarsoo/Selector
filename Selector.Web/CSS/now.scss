@@ -1,8 +1,21 @@
 
 .card {
     background-color: grey;
+    color: white;
+
+    box-shadow: 4px 4px 2px #5e5e5e;
 }
 
 .now-playing-card {
-    max-width: 400px;
+    // max-width: 300px;
+
+    text-shadow: 2px 2px 2px #5e5e5e;
+
+    .cover-art {
+        box-shadow: 4px 4px 2px #5e5e5e;
+    }
+
+    img {
+        margin: 15px;
+    }
 }

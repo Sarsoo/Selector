@@ -23,6 +23,11 @@ namespace Selector.Web.Hubs
             Cache = cache;
         }
 
+        public async Task OnConnected()
+        {
+            await SendNewPlaying();
+        }
+
         public async Task SendNewPlaying()
         {
             var nowPlaying = await Cache.StringGetAsync(Key.CurrentlyPlaying(Context.UserIdentifier));
