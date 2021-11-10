@@ -4,7 +4,7 @@
         "strict": true,
         "sourceMap": true,
         "noImplicitAny": true,
-        "noEmitOnError": false,
+        "noEmitOnError": true,
         "module": "es6",
         "target": "es5",
         "allowJs": true,
