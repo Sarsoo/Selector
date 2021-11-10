@@ -75,6 +75,7 @@ namespace Selector
                     {
                         Logger.LogDebug($"Playback started: {Live.DisplayString()}");
                         OnPlayingChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
+                        OnItemChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
                     }
                     // STOPPED PLAYBACK
                     else if((previous.Item is FullTrack || previous.Item is FullEpisode) 
@@ -82,6 +83,7 @@ namespace Selector
                     {
                         Logger.LogDebug($"Playback stopped: {previous.DisplayString()}");
                         OnPlayingChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
+                        OnItemChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
                     }
                     // CONTINUING PLAYBACK
                     else {

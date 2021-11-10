@@ -1,7 +1,9 @@
 import * as signalR from "@microsoft/signalr";
 import * as Vue from "vue";
-import { FullTrack, CurrentlyPlayingDTO } from "./HubInterfaces";
-import NowPlayingCard from "./NowPlayingCard";
+import { TrackAudioFeatures, CurrentlyPlayingDTO } from "./HubInterfaces";
+import NowPlayingCard from "./Now/NowPlayingCard";
+import { PopularityCard, SpotifyLogoLink } from "./Now/Spotify";
+import BaseInfoCard from "./Now/BaseInfoCard";
 
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/hub")
@@ -13,32 +15,22 @@ connection.start()
 })
 .catch(err => console.error(err));
 
+interface InfoCard {
+    html: string
+}
+
 interface NowPlaying {
-    currentlyPlaying?: CurrentlyPlayingDTO
+    currentlyPlaying?: CurrentlyPlayingDTO,
+    trackFeatures?: TrackAudioFeatures,
+    cards: InfoCard[]
 }
 
 const app = Vue.createApp({
     data() {
         return {
-            currentlyPlaying: {
-                track: {
-                    name: "No Playback",
-                    album: {
-                        name: "",
-                        images: [
-                            {
-                                url: ""
-                            }
-                        ]
-                    },
-                    artists: [
-                        {
-                            name: ""
-                        }
-                    ],
-                    externalUrls: {}
-                }
-            }
+            currentlyPlaying: undefined,
+            trackFeatures: undefined,
+            cards: []
         } as NowPlaying
     },
     created() {
@@ -46,9 +38,24 @@ const app = Vue.createApp({
         {
             console.log(context);
             this.currentlyPlaying = context;
+            this.cards = [];
+
+            // if(context.track !== null && context.track !== undefined)
+            // {
+            //     connection.invoke("SendAudioFeatures", context.track.id);
+            // }
         });
+
+        // connection.on("OnNewAudioFeature", (feature: TrackAudioFeatures) => 
+        // {
+        //     console.log(feature);
+        //     this.trackFeatures = feature;
+        // });
     }
 });
 
 app.component("now-playing-card", NowPlayingCard);
+app.component("info-card", BaseInfoCard);
+app.component("popularity", PopularityCard);
+app.component("spotify-logo", SpotifyLogoLink);
 const vm = app.mount('#app');

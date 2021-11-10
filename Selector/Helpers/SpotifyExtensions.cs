@@ -27,6 +27,10 @@ namespace Selector
             {
                 return $"{currentPlaying.IsPlaying}, {episode.DisplayString()}, {currentPlaying.Device?.DisplayString()}";
             }
+            else if (currentPlaying.Item is null)
+            {
+                return $"{currentPlaying.IsPlaying}, no item, {currentPlaying.Device?.DisplayString()}";
+            }
             else
             {
                 throw new ArgumentException("Unknown playing type");

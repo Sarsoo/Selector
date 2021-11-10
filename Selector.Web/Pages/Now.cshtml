@@ -6,8 +6,12 @@
 
 <div class="text-center">
     <h1 class="display-4">Now</h1>
-    <div id="app" class="col-12">
-        <now-playing-card :track="currentlyPlaying.track" class="col-md-3"></now-playing-card>
+    <div id="app">
+        <now-playing-card :track="currentlyPlaying.track" v-if="currentlyPlaying !== null && currentlyPlaying !== undefined"></now-playing-card>
+        <now-playing-card v-else></now-playing-card>
+
+        <popularity :track="currentlyPlaying.track" v-if="currentlyPlaying !== null && currentlyPlaying !== undefined && currentlyPlaying.track != null && currentlyPlaying.track != undefined" />
+        <info-card v-for="card in cards" :html="card.html" />
     </div>
 </div>
 

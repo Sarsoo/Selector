@@ -117,6 +117,8 @@ namespace Selector.Web
                 services.AddTransient<ISubscriber>(services => services.GetService<ConnectionMultiplexer>().GetSubscriber());
             }
 
+            services.AddSingleton<IRefreshTokenFactoryProvider, CachingRefreshTokenFactoryProvider>();
+
             services.AddSingleton<CacheHubProxy>();
             services.AddHostedService<CacheHubProxyService>();
 

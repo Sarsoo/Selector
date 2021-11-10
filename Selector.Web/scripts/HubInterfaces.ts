@@ -9,6 +9,7 @@ export interface nowPlayingProxy {
 
 export interface NowPlayingHubClient {
     OnNewPlaying: (context: CurrentlyPlayingDTO) => void;
+    OnNewAudioFeature: (features: TrackAudioFeatures) => void;
 }
 
 export interface NowPlayingHub {
@@ -104,6 +105,27 @@ export interface FullTrack {
     album: SimpleAlbum;
     href: string;
     isLocal: boolean;
+}
+
+export interface TrackAudioFeatures {
+    type: string;
+    trackHref: string;
+    timeSignature: number;
+    tempo: number;
+    speechiness: number;
+    mode: number;
+    loudness: number;
+    uri: string;
+    liveness: number;
+    instrumentalness: number;
+    id: string;
+    energy: number;
+    durationMs: number;
+    danceability: number;
+    analysisUrl: string;
+    acousticness: number;
+    key: number;
+    valence: number;
 }
 
 export interface LinkedTrack {

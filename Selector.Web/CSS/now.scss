@@ -1,7 +1,7 @@
-
 .card {
     background-color: grey;
     color: white;
+    margin: 5px;
 
     box-shadow: 4px 4px 2px #5e5e5e;
 }
@@ -17,5 +17,38 @@
 
     img {
         margin: 15px;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    .now-playing-card {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+
+      width: 300px;
+    }
+}
+
+.spotify-logo {
+    width: 21px;
+
+    img {
+        width: 21px;
+    }
+}
+
+.info-card {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    
+    img {
+        margin: 15px;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    .info-card {
+        max-width: 300px;
     }
 }
