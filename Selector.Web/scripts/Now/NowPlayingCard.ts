@@ -24,7 +24,10 @@ let component: Vue.Component = {
                     <span>{{ artist.name }}</span>
                 </template>
             </h6>
-            <spotify-logo :link="track.externalUrls.spotify" />
+            <div style="width: 100%">
+                <spotify-logo :link="track.externalUrls.spotify" style="float: left" />
+                <img src="/live.gif" style="height: 20px; float: right">
+            </div>
         </div>
 
         <div class="card now-playing-card" v-else-if="IsEpisodePlaying">
@@ -36,7 +39,10 @@ let component: Vue.Component = {
             <h6>
                 {{ episode.show.publisher }}
             </h6>
-            <spotify-logo :link="episode.externalUrls.spotify" />
+            <div style="width: 100%">
+                <spotify-logo :link="episode.externalUrls.spotify" style="float: left" />
+                <img src="/live.gif" style="height: 20px; float: right">
+            </div>
         </div>
 
         <div class="card now-playing-card" v-else>

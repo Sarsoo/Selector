@@ -16,6 +16,8 @@ namespace Selector.Cache
         public const string PlayCountName = "PlayCount";
 
         public const string WorkerName = "Worker";
+        public const string WatcherName = "Watcher";
+        public const string ReservedName = "Reserved";
 
         /// <summary>
         /// Current playback for a user
@@ -28,6 +30,8 @@ namespace Selector.Cache
         public static string TrackPlayCount(string name, string artist) => Namespace(TrackName, artist, name, PlayCountName);
         public static string AlbumPlayCount(string name, string artist) => Namespace(AlbumName, artist, name, PlayCountName);
         public static string ArtistPlayCount(string name) => Namespace(ArtistName, name, PlayCountName);
+
+        public static string WatcherReserved(int id) => Namespace(WatcherName, id.ToString(), ReservedName);
 
         public static string Namespace(params string[] args) => string.Join(":", args);
     }
