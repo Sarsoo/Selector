@@ -43,7 +43,7 @@ namespace Selector.Web
 
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddControllers();
-            services.AddSignalR();
+            services.AddSignalR(o => o.EnableDetailedErrors = true);
 
             services.AddDbContext<ApplicationDbContext>(options => 
                 options.UseNpgsql(Configuration.GetConnectionString("Default"))
@@ -117,7 +117,9 @@ namespace Selector.Web
                 services.AddTransient<ISubscriber>(services => services.GetService<ConnectionMultiplexer>().GetSubscriber());
             }
 
+            services.AddHostedService<SpotifyInitialiser>();
             services.AddSingleton<IRefreshTokenFactoryProvider, CachingRefreshTokenFactoryProvider>();
+            services.AddSingleton<AudioFeaturePuller>();
 
             services.AddSingleton<CacheHubProxy>();
             services.AddHostedService<CacheHubProxyService>();

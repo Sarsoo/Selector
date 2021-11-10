@@ -40,17 +40,17 @@ const app = Vue.createApp({
             this.currentlyPlaying = context;
             this.cards = [];
 
-            // if(context.track !== null && context.track !== undefined)
-            // {
-            //     connection.invoke("SendAudioFeatures", context.track.id);
-            // }
+            if(context.track !== null && context.track !== undefined)
+            {
+                connection.invoke("SendAudioFeatures", context.track.id);
+            }
         });
 
-        // connection.on("OnNewAudioFeature", (feature: TrackAudioFeatures) => 
-        // {
-        //     console.log(feature);
-        //     this.trackFeatures = feature;
-        // });
+        connection.on("OnNewAudioFeature", (feature: TrackAudioFeatures) => 
+        {
+            console.log(feature);
+            this.trackFeatures = feature;
+        });
     }
 });
 

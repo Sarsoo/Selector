@@ -1,29 +1,36 @@
 using System;
+using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
+using System.Data.SqlTypes;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 using SpotifyAPI.Web;
 using StackExchange.Redis;
 
 using Selector.Cache;
-using System.Text.Json;
+using Selector.Model;
 
 namespace Selector.Web.Hubs
 {
     public interface INowPlayingHubClient
     {
         public Task OnNewPlaying(CurrentlyPlayingDTO context);
-        // public Task OnNewAudioFeature(TrackAudioFeatures features);
+        public Task OnNewAudioFeature(TrackAudioFeatures features);
     }
 
     public class NowPlayingHub: Hub<INowPlayingHubClient>
     {
         private readonly IDatabaseAsync Cache;
-        // private readonly AudioFeaturePuller AudioFeaturePuller;
+        private readonly AudioFeaturePuller AudioFeaturePuller;
+        private readonly ApplicationDbContext Db;
 
-        public NowPlayingHub(IDatabaseAsync cache)
+        public NowPlayingHub(IDatabaseAsync cache, AudioFeaturePuller puller, ApplicationDbContext db)
         {
             Cache = cache;
+            AudioFeaturePuller = puller;
+            Db = db;
         }
 
         public async Task OnConnected()
@@ -34,13 +41,33 @@ namespace Selector.Web.Hubs
         public async Task SendNewPlaying()
         {
             var nowPlaying = await Cache.StringGetAsync(Key.CurrentlyPlaying(Context.UserIdentifier));
-            var deserialised = JsonSerializer.Deserialize<CurrentlyPlayingDTO>(nowPlaying);
-            await Clients.Caller.OnNewPlaying(deserialised);
+            if (nowPlaying != RedisValue.Null)
+            {
+                var deserialised = JsonSerializer.Deserialize<CurrentlyPlayingDTO>(nowPlaying);
+                await Clients.Caller.OnNewPlaying(deserialised);
+            }
         }
 
-        // public async Task SendAudioFeatures(string trackId)
-        // {
-        //     await Clients.Caller.OnNewAudioFeature(await AudioFeaturePuller.Get(trackId));
-        // }
+        public async Task SendAudioFeatures(string trackId)
+        {
+            var user = Db.Users
+                        .AsNoTracking()
+                        .Where(u => u.Id == Context.UserIdentifier)
+                        .SingleOrDefault() 
+                            ?? throw new SqlNullValueException("No user returned");
+            var watcher = Db.Watcher
+                        .AsNoTracking()
+                        .Where(w => w.UserId == Context.UserIdentifier
+                                && w.Type == WatcherType.Player)
+                        .SingleOrDefault() 
+                            ?? throw new SqlNullValueException($"No player watcher found for [{user.UserName}]");
+            
+            var feature = await AudioFeaturePuller.Get(user.SpotifyRefreshToken, trackId);
+
+            if (feature is not null)
+            {
+                await Clients.Caller.OnNewAudioFeature(feature);
+            }
+        }
     }
 }

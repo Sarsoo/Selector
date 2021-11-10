@@ -4,7 +4,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 using SpotifyAPI.Web;
 using StackExchange.Redis;
@@ -36,7 +35,7 @@ namespace Selector.Cache
 
         public async Task AsyncCacheCallback(AnalysedTrack e)
         {
-            var payload = JsonSerializer.Serialize(e);
+            var payload = JsonSerializer.Serialize(e.Features);
             
             Logger.LogTrace($"Caching current for [{e.Track.DisplayString()}]");
 

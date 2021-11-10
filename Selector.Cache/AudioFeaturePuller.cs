@@ -20,14 +20,25 @@ namespace Selector.Cache
             Cache = cache;
         }
 
-        public async Task<TrackAudioFeatures> Get(string userId, string trackId)
+        public async Task<TrackAudioFeatures> Get(string refreshToken, string trackId)
         {
+            if(string.IsNullOrWhiteSpace(trackId)) throw new ArgumentNullException("No track Id provided");
+
             var track = await Cache.StringGetAsync(Key.AudioFeature(trackId));
             if (track == RedisValue.Null)
             {
-                // TODO: finish implementing network pull
-                // return await SpotifyClient.GetAudioFeatures(trackId);
-                throw new NotImplementedException("Can't pull over network yet");
+                if(!string.IsNullOrWhiteSpace(refreshToken))
+                {
+                    var factory = await SpotifyFactory.GetFactory(refreshToken);
+                    var spotifyClient = new SpotifyClient(await factory.GetConfig());
+
+                    // TODO: Error checking
+                    return await spotifyClient.Tracks.GetAudioFeatures(trackId);
+                }
+                else 
+                {
+                    return null;
+                }
             }
             else
             {
