@@ -16,7 +16,7 @@ export let SpotifyLogoLink: Vue.Component = {
     props: ['link'],
     template: 
     `
-        <a :href="link" class="spotify-logo" v-if="link != null && link != undefined">
+        <a :href="link" target="_blank" class="spotify-logo" v-if="link != null && link != undefined">
             <img src="/Spotify_Icon_RGB_White.png">
         </a>
 
