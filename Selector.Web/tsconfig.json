@@ -10,15 +10,6 @@
         "allowJs": true,
         "moduleResolution": "node",
         "outDir": "./wwwroot/js",
-        "baseUrl": ".",
-        "rootDir": "./scripts",
-        "paths": {
-            "@/*": [
-                "./scripts/*"
-            ]
-        }
-    },
-    "include": [
-        "scripts/**/*"   
-    ]
+        "baseUrl": "."
+    }
 }

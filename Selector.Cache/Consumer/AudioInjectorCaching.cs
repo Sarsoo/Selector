@@ -13,7 +13,7 @@ namespace Selector.Cache
     public class CachingAudioFeatureInjector : AudioFeatureInjector
     {
         private readonly IDatabaseAsync Db;
-        public TimeSpan CacheExpiry { get; set; } = TimeSpan.FromDays(1);
+        public TimeSpan CacheExpiry { get; set; } = TimeSpan.FromDays(14);
 
         public CachingAudioFeatureInjector(
             IPlayerWatcher watcher,

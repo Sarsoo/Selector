@@ -1,7 +1,12 @@
+.app {
+    display: block;
+}
+
 .card {
     background-color: grey;
     color: white;
     margin: 5px;
+    padding: 15px;
 
     box-shadow: 4px 4px 2px #5e5e5e;
 }
@@ -13,20 +18,42 @@
 
     .cover-art {
         box-shadow: 4px 4px 2px #5e5e5e;
+        margin-bottom: 15px;
     }
 
     img {
-        margin: 15px;
+        // margin: 15px;
+    }
+}
+
+.info-card {
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+    img {
+        // margin: 15px;
     }
 }
 
 @media only screen and (min-width: 768px) {
+    .app {
+        display: flex;
+        align-items: flex-start;
+    }
+
     .now-playing-card {
       position: fixed;
+      z-index: 10;
       right: 20px;
       bottom: 20px;
 
-      width: 300px;
+      width: 250px;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    .info-card {
+        max-width: 300px;
     }
 }
 
@@ -35,20 +62,5 @@
 
     img {
         width: 21px;
-    }
-}
-
-.info-card {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    
-    img {
-        margin: 15px;
-    }
-}
-
-@media only screen and (min-width: 768px) {
-    .info-card {
-        max-width: 300px;
     }
 }

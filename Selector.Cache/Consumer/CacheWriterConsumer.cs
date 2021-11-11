@@ -15,6 +15,7 @@ namespace Selector.Cache
         private readonly IPlayerWatcher Watcher;
         private readonly IDatabaseAsync Db;
         private readonly ILogger<CacheWriter> Logger;
+        public TimeSpan CacheExpiry { get; set; } = TimeSpan.FromMinutes(10);
 
         public CancellationToken CancelToken { get; set; }
 
@@ -43,7 +44,7 @@ namespace Selector.Cache
             
             Logger.LogTrace($"Caching current for [{e.Id}/{e.SpotifyUsername}]");
 
-            var resp = await Db.StringSetAsync(Key.CurrentlyPlaying(e.Id), payload);
+            var resp = await Db.StringSetAsync(Key.CurrentlyPlaying(e.Id), payload, expiry: CacheExpiry);
 
             Logger.LogDebug($"Cached current for [{e.Id}/{e.SpotifyUsername}], {(resp ? "value set" : "value NOT set")}");
 

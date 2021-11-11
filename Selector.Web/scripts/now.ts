@@ -2,7 +2,7 @@ import * as signalR from "@microsoft/signalr";
 import * as Vue from "vue";
 import { TrackAudioFeatures, CurrentlyPlayingDTO } from "./HubInterfaces";
 import NowPlayingCard from "./Now/NowPlayingCard";
-import { PopularityCard, SpotifyLogoLink } from "./Now/Spotify";
+import { AudioFeatureCard, AudioFeatureChartCard, PopularityCard, SpotifyLogoLink } from "./Now/Spotify";
 import BaseInfoCard from "./Now/BaseInfoCard";
 
 const connection = new signalR.HubConnectionBuilder()
@@ -38,6 +38,7 @@ const app = Vue.createApp({
         {
             console.log(context);
             this.currentlyPlaying = context;
+            this.trackFeatures = null;
             this.cards = [];
 
             if(context.track !== null && context.track !== undefined)
@@ -55,6 +56,8 @@ const app = Vue.createApp({
 });
 
 app.component("now-playing-card", NowPlayingCard);
+app.component("audio-feature-card", AudioFeatureCard);
+app.component("audio-feature-chart-card", AudioFeatureChartCard);
 app.component("info-card", BaseInfoCard);
 app.component("popularity", PopularityCard);
 app.component("spotify-logo", SpotifyLogoLink);
