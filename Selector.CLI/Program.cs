@@ -37,7 +37,15 @@ namespace Selector.CLI
                 OptionsHelper.ConfigureOptions(options, context.Configuration);
             });
 
-            return OptionsHelper.ConfigureOptions(context.Configuration);
+            var config = OptionsHelper.ConfigureOptions(context.Configuration);
+
+            services.Configure<SpotifyAppCredentials>(options =>
+            {
+                options.ClientId = config.ClientId;
+                options.ClientSecret = config.ClientSecret;
+            });            
+
+            return config;
         }
 
         public static void ConfigureLastFm(RootOptions config, IServiceCollection services)

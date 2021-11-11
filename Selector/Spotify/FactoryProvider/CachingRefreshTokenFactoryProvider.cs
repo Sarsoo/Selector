@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SpotifyAPI.Web;
 
 
@@ -11,7 +12,7 @@ namespace Selector
     {
         protected readonly ILogger<CachingRefreshTokenFactoryProvider> Logger;
 
-        public CachingRefreshTokenFactoryProvider(ILogger<CachingRefreshTokenFactoryProvider> logger)
+        public CachingRefreshTokenFactoryProvider(IOptions<SpotifyAppCredentials> credentials, ILogger<CachingRefreshTokenFactoryProvider> logger) : base(credentials)
         {
             Logger = logger;
         }

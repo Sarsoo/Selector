@@ -52,8 +52,6 @@ namespace Selector.CLI
             LastAuth = lastAuth;
             Cache = cache;
             Subscriber = subscriber;
-
-            SpotifyFactory.Initialise(Config.ClientId, Config.ClientSecret);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)

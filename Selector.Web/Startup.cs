@@ -41,6 +41,12 @@ namespace Selector.Web
             });
             var config = OptionsHelper.ConfigureOptions(Configuration);
 
+            services.Configure<SpotifyAppCredentials>(options =>
+            {
+                options.ClientId = config.ClientId;
+                options.ClientSecret = config.ClientSecret;
+            }); 
+
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddControllers();
             services.AddSignalR(o => o.EnableDetailedErrors = true);
@@ -117,7 +123,6 @@ namespace Selector.Web
                 services.AddTransient<ISubscriber>(services => services.GetService<ConnectionMultiplexer>().GetSubscriber());
             }
 
-            services.AddHostedService<SpotifyInitialiser>();
             services.AddSingleton<IRefreshTokenFactoryProvider, CachingRefreshTokenFactoryProvider>();
             services.AddSingleton<AudioFeaturePuller>();
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SpotifyAPI.Web;
 
 
@@ -12,22 +13,18 @@ namespace Selector
     /// </summary>
     public class RefreshTokenFactoryProvider : IRefreshTokenFactoryProvider
     {
-        protected string ClientId { get; set; }
-        protected string ClientSecret { get; set; }
+        protected readonly SpotifyAppCredentials Credentials;
 
-        public void Initialise(string clientId, string clientSecret){
-            ClientId = clientId;
-            ClientSecret = clientSecret;
+        public RefreshTokenFactoryProvider(IOptions<SpotifyAppCredentials> credentials)
+        {
+            Credentials = credentials.Value;
         }
-
-        public bool Initialised => !string.IsNullOrWhiteSpace(ClientId) && !string.IsNullOrWhiteSpace(ClientSecret);
 
         public virtual Task<RefreshTokenFactory> GetFactory(string refreshToken)
         {
-            if(!Initialised) throw new InvalidOperationException("Factory not initialised");
             if(string.IsNullOrEmpty(refreshToken)) throw new ArgumentException("Null or empty refresh key provided");
 
-            return Task.FromResult(new RefreshTokenFactory(ClientId, ClientSecret, refreshToken));
+            return Task.FromResult(new RefreshTokenFactory(Credentials.ClientId, Credentials.ClientSecret, refreshToken));
         }
     }
 }
