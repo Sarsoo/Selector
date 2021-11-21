@@ -44,10 +44,10 @@ export let AudioFeatureCard: Vue.Component = {
     `
         <div class="card info-card">
             <h3>Info</h3>
-            <h5>Key: <b>{{ Key }} {{ Mode }}</b></h5>
-            <h5>Tempo: <b>{{ feature.tempo }} BPM</b></h5>
-            <h5>Time: <b>{{ feature.timeSignature }}/4</b></h5>
-            <h5>Loudness: <b>{{ feature.loudness }} dB</b></h5>
+            <h5>{{ Key }} {{ Mode }}</h5>
+            <h5>{{ feature.tempo }} BPM</h5>
+            <h5>{{ feature.timeSignature }}/4</h5>
+            <h5>{{ feature.loudness }} dB</h5>
             <spotify-logo />
         </div>
     `
