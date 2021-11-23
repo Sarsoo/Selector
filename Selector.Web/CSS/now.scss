@@ -9,6 +9,12 @@
     padding: 15px;
 
     box-shadow: 4px 4px 2px #5e5e5e;
+    transition: box-shadow 0.5s;
+
+    &:hover {
+        box-shadow: none;
+        offset: 4px 4px;
+    }
 }
 
 .now-playing-card {

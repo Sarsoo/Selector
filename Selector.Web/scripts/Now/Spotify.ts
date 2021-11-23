@@ -43,7 +43,6 @@ export let AudioFeatureCard: Vue.Component = {
     template: 
     `
         <div class="card info-card">
-            <h3>Info</h3>
             <h5>{{ Key }} {{ Mode }}</h5>
             <h5>{{ feature.tempo }} BPM</h5>
             <h5>{{ feature.timeSignature }}/4</h5>
@@ -94,25 +93,31 @@ export let AudioFeatureChartCard: Vue.Component = {
             type: "radar",
             data: this.chartData,
             options: {
-                // plugins: {
-                //     legend: {
-                //         labels: {
-                //             color: "white"
-                //         }
-                //     }
-                // },
                 elements: {
                     line: {
-                        borderWidth: 4
+                        borderWidth: 4,
+                        borderColor: "#3a3a3a",
+                        backgroundColor: "#727272",
+                        borderCapStyle: "round",
+                        borderJoinStyle: "round"
                     },
                     point: {
-                        radius: 4
+                        radius: 4,
+                        pointStyle: "circle",
+                        borderColor: "black",
+                        backgroundColor: "white"
                     }
                 },
                 scales: {
                     r: {
                         angleLines: {
-                            display: false
+                            display: true
+                        },
+                        pointLabels: {
+                            color: 'white',
+                            font: {
+                                size: 12
+                            }
                         },
                         beginAtZero: true,
                         suggestedMin: 0,
