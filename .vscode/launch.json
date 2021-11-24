@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "buildWeb",
-            "program": "${workspaceFolder}/Selector.Web/bin/Debug/net5.0/Selector.Web.dll",
+            "program": "${workspaceFolder}/Selector.Web/bin/Debug/net6.0/Selector.Web.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Selector.Web",
             "stopAtEntry": false,
@@ -30,7 +30,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "buildCLI",
-            "program": "${workspaceFolder}/Selector.CLI/bin/Debug/net5.0/Selector.CLI.dll",
+            "program": "${workspaceFolder}/Selector.CLI/bin/Debug/net6.0/Selector.CLI.dll",
             "env": {
                 "DOTNET_ENVIRONMENT": "Development"
             },
