@@ -52,6 +52,7 @@ namespace Selector.CLI
         public const string Key = "Watcher";
 
         public bool Enabled { get; set; } = true;
+        public bool LocalEnabled { get; set; } = true;
         public List<WatcherInstanceOptions> Instances { get; set; } = new();
     }
 

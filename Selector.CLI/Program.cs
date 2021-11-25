@@ -134,8 +134,17 @@ namespace Selector.CLI
             // HOSTED SERVICES
             if (config.WatcherOptions.Enabled)
             {
-                Console.WriteLine("> Adding Watcher Service");
-                services.AddHostedService<WatcherService>();
+                if(config.WatcherOptions.LocalEnabled)
+                {
+                    Console.WriteLine("> Adding Local Watcher Service");
+                    services.AddHostedService<LocalWatcherService>();
+                }
+
+                if(config.DatabaseOptions.Enabled)
+                {
+                    Console.WriteLine("> Adding Db Watcher Service");
+                    services.AddHostedService<DbWatcherService>();
+                }
             }
         }
 

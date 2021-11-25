@@ -152,7 +152,7 @@ namespace Selector
                             OnVolumeChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
                         }
                     }
-                }                
+                }
             }
             catch(APIUnauthorizedException e)
             {
@@ -162,12 +162,13 @@ namespace Selector
             catch(APITooManyRequestsException e)
             {
                 Logger.LogDebug($"Too many requests error: [{e.Message}]");
-                throw e;
+                await Task.Delay(e.RetryAfter);
+                // throw e;
             }
             catch(APIException e)
             {
                 Logger.LogDebug($"API error: [{e.Message}]");
-                throw e;
+                // throw e;
             }
         }
 

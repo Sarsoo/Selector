@@ -16,11 +16,11 @@ using StackExchange.Redis;
 
 namespace Selector.CLI
 {
-    class WatcherService : IHostedService
+    class LocalWatcherService : IHostedService
     {
         private const string ConfigInstanceKey = "localconfig";
 
-        private readonly ILogger<WatcherService> Logger;
+        private readonly ILogger<LocalWatcherService> Logger;
         private readonly ILoggerFactory LoggerFactory;
         private readonly RootOptions Config;
         private readonly IWatcherFactory WatcherFactory;
@@ -33,7 +33,7 @@ namespace Selector.CLI
 
         private Dictionary<string, IWatcherCollection> Watchers { get; set; } = new();
 
-        public WatcherService(
+        public LocalWatcherService(
             IWatcherFactory watcherFactory,
             IWatcherCollectionFactory watcherCollectionFactory,
             IRefreshTokenFactoryProvider spotifyFactory,
@@ -43,7 +43,7 @@ namespace Selector.CLI
             IDatabaseAsync cache = null,
             ISubscriber subscriber = null
         ) {
-            Logger = loggerFactory.CreateLogger<WatcherService>();
+            Logger = loggerFactory.CreateLogger<LocalWatcherService>();
             LoggerFactory = loggerFactory;
             Config = config.Value;
             WatcherFactory = watcherFactory;
@@ -56,16 +56,15 @@ namespace Selector.CLI
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            Logger.LogInformation("Starting watcher service...");
+            Logger.LogInformation("Starting local watcher service...");
 
-            Logger.LogInformation("Loading config instances...");
-            var watcherIndices = await InitialiseConfigInstances();
+            var watcherIndices = await InitInstances();
 
             Logger.LogInformation($"Starting {watcherIndices.Count()} affected watcher collection(s)...");
             StartWatcherCollections(watcherIndices);
         }
 
-        private async Task<IEnumerable<string>> InitialiseConfigInstances()
+        private async Task<IEnumerable<string>> InitInstances()
         {
             var indices = new HashSet<string>();
 
@@ -143,7 +142,7 @@ namespace Selector.CLI
                             }
                             else 
                             {
-                                Logger.LogError("No Last.fm usernmae provided, skipping play counter");
+                                Logger.LogError("No Last.fm username provided, skipping play counter");
                             }
                             break;
                     }
