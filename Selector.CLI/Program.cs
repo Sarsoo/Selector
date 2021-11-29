@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.CommandLine;
-using System.CommandLine.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using NLog.Extensions.Logging;
 
+using Selector.Extensions;
 using Selector.Model;
 using Selector.Cache;
 using Selector.Cache.Extensions;
+
 using IF.Lastfm.Core.Api;
 
 namespace Selector.CLI
@@ -54,9 +54,7 @@ namespace Selector.CLI
             {
                 Console.WriteLine("> Adding Last.fm credentials...");
 
-                var lastAuth = new LastAuth(config.LastfmClient, config.LastfmSecret);
-                services.AddSingleton(lastAuth);
-                services.AddTransient(sp => new LastfmClient(sp.GetService<LastAuth>()));
+                services.AddLastFm(config.LastfmClient, config.LastfmSecret);
             }
             else 
             {
@@ -101,14 +99,12 @@ namespace Selector.CLI
 
             Console.WriteLine("> Adding Services...");
             // SERVICES
+            services.AddConsumerFactories();
             services.AddCachingConsumerFactories();
+            services.AddWatcher();
 
-            services.AddSingleton<IWatcherFactory, WatcherFactory>();
-            services.AddSingleton<IWatcherCollectionFactory, WatcherCollectionFactory>();
-            // For generating spotify clients
-            //services.AddSingleton<IRefreshTokenFactoryProvider, RefreshTokenFactoryProvider>();
-            services.AddSingleton<IRefreshTokenFactoryProvider, CachingRefreshTokenFactoryProvider>();
-
+            services.AddSpotify();
+            services.AddCachingSpotify();
             ConfigureLastFm(config, services);
             ConfigureDb(config, services);
 

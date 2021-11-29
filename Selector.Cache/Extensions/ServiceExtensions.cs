@@ -28,10 +28,19 @@ namespace Selector.Cache.Extensions
         public static void AddCachingConsumerFactories(this IServiceCollection services)
         {
             services.AddTransient<IAudioFeatureInjectorFactory, AudioFeatureInjectorFactory>();
+            services.AddTransient<AudioFeatureInjectorFactory>();
             services.AddTransient<IPlayCounterFactory, PlayCounterCachingFactory>();
+            services.AddTransient<PlayCounterCachingFactory>();
 
             services.AddTransient<ICacheWriterFactory, CacheWriterFactory>();
+            services.AddTransient<CacheWriterFactory>();
             services.AddTransient<IPublisherFactory, PublisherFactory>();
+            services.AddTransient<PublisherFactory>();
+        }
+
+        public static void AddCachingSpotify(this IServiceCollection services)
+        {
+            services.AddSingleton<AudioFeaturePuller>();
         }
     }
 }

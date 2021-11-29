@@ -22,8 +22,7 @@ namespace Selector.CLI
     {
         private const int PollPeriod = 1000;
 
-        private readonly ILogger<LocalWatcherService> Logger;
-        private readonly ILoggerFactory LoggerFactory;
+        private readonly ILogger<DbWatcherService> Logger;
         private readonly IServiceProvider ServiceProvider;
 
         private readonly IWatcherFactory WatcherFactory;
@@ -48,11 +47,10 @@ namespace Selector.CLI
             IPublisherFactory publisherFactory,
             ICacheWriterFactory cacheWriterFactory,
 
-            ILoggerFactory loggerFactory,
+            ILogger<DbWatcherService> logger,
             IServiceProvider serviceProvider
         ) {
-            Logger = loggerFactory.CreateLogger<LocalWatcherService>();
-            LoggerFactory = loggerFactory;
+            Logger = logger;
             ServiceProvider = serviceProvider;
 
             WatcherFactory = watcherFactory;

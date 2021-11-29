@@ -4,17 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
-using Selector.Web.Service;
 using Selector.Web.Hubs;
+using Selector.Web.Extensions;
+using Selector.Extensions;
 using Selector.Model;
 using Selector.Model.Extensions;
 using Selector.Cache;
@@ -97,14 +96,10 @@ namespace Selector.Web
             if (config.RedisOptions.Enabled)
                 services.AddRedisServices(config.RedisOptions.ConnectionString);
 
-            services.AddSingleton<IRefreshTokenFactoryProvider, CachingRefreshTokenFactoryProvider>();
-            services.AddSingleton<AudioFeaturePuller>();
+            services.AddSpotify();
+            services.AddCachingSpotify();
 
-            services.AddSingleton<CacheHubProxy>();
-            services.AddHostedService<CacheHubProxyService>();
-
-            services.AddTransient<INowPlayingMappingFactory, NowPlayingMappingFactory>();
-            services.AddScoped<IUserMapping, NowPlayingUserMapping>();
+            services.AddCacheHubProxy();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

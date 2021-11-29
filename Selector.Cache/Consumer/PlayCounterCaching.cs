@@ -55,7 +55,7 @@ namespace Selector.Cache
 
             await Task.WhenAll(tasks);
 
-            Logger.LogDebug($"Cached audio feature for [{track.DisplayString()}]");
+            Logger.LogDebug($"Cached play count for [{track.DisplayString()}]");
         }
     }
 }
