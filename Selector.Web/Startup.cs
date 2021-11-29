@@ -13,13 +13,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
-using StackExchange.Redis;
-
 using Selector.Web.Service;
 using Selector.Web.Hubs;
 using Selector.Model;
-using Selector.Model.Authorisation;
+using Selector.Model.Extensions;
 using Selector.Cache;
+using Selector.Cache.Extensions;
 
 namespace Selector.Web
 {
@@ -93,35 +92,10 @@ namespace Selector.Web
                 options.SlidingExpiration = true;
             });
 
-            // AUTH
-            services.AddAuthorization(options =>
-            {
-                options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-            });
-            services.AddScoped<IAuthorizationHandler, WatcherIsOwnerAuthHandler>();
-            services.AddSingleton<IAuthorizationHandler, WatcherIsAdminAuthHandler>();
+            services.AddAuthorisationHandlers();
 
-            services.AddScoped<IAuthorizationHandler, UserIsSelfAuthHandler>();
-            services.AddSingleton<IAuthorizationHandler, UserIsAdminAuthHandler>();
-
-            // REDIS
             if (config.RedisOptions.Enabled)
-            {
-                Console.WriteLine("> Configuring Redis...");
-
-                if (string.IsNullOrWhiteSpace(config.RedisOptions.ConnectionString))
-                {
-                    Console.WriteLine("> No Redis configuration string provided, exiting...");
-                    Environment.Exit(1);
-                }
-
-                var connMulti = ConnectionMultiplexer.Connect(config.RedisOptions.ConnectionString);
-                services.AddSingleton(connMulti);
-                services.AddTransient<IDatabaseAsync>(services => services.GetService<ConnectionMultiplexer>().GetDatabase());
-                services.AddTransient<ISubscriber>(services => services.GetService<ConnectionMultiplexer>().GetSubscriber());
-            }
+                services.AddRedisServices(config.RedisOptions.ConnectionString);
 
             services.AddSingleton<IRefreshTokenFactoryProvider, CachingRefreshTokenFactoryProvider>();
             services.AddSingleton<AudioFeaturePuller>();

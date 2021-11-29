@@ -8,13 +8,8 @@ using SpotifyAPI.Web;
 using StackExchange.Redis;
 
 namespace Selector.Cache
-{
-    public interface ICachingAudioFeatureInjectorFactory
-    {
-        public Task<IConsumer> Get(ISpotifyConfigFactory spotifyFactory, IPlayerWatcher watcher);
-    }
-    
-    public class CachingAudioFeatureInjectorFactory: ICachingAudioFeatureInjectorFactory {
+{    
+    public class CachingAudioFeatureInjectorFactory: IAudioFeatureInjectorFactory {
 
         private readonly ILoggerFactory LoggerFactory;
         private readonly IDatabaseAsync Db;

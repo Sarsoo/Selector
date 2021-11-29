@@ -22,7 +22,7 @@ namespace Selector.CLI
         public static string FormatKeys(string[] args) => string.Join(":", args);
     }
 
-    class RootOptions
+    public class RootOptions
     {
         public const string Key = "Selector";
 
@@ -42,12 +42,12 @@ namespace Selector.CLI
         public EqualityChecker Equality { get; set; } = EqualityChecker.Uri;
     }
 
-    enum EqualityChecker
+    public enum EqualityChecker
     {
         Uri, String
     }
 
-    class WatcherOptions
+    public class WatcherOptions
     {
         public const string Key = "Watcher";
 
@@ -56,7 +56,7 @@ namespace Selector.CLI
         public List<WatcherInstanceOptions> Instances { get; set; } = new();
     }
 
-    class WatcherInstanceOptions
+    public class WatcherInstanceOptions
     {
         public const string Key = "Instances";
 
@@ -73,19 +73,19 @@ namespace Selector.CLI
 #nullable disable
     }
 
-    enum Consumers
+    public enum Consumers
     {
         AudioFeatures, AudioFeaturesCache, CacheWriter, Publisher, PlayCounter
     }
 
-    class DatabaseOptions {
+    public class DatabaseOptions {
         public const string Key = "Database";
 
         public bool Enabled { get; set; } = false;
         public string ConnectionString { get; set; }
     }
 
-    class RedisOptions
+    public class RedisOptions
     {
         public const string Key = "Redis";
 

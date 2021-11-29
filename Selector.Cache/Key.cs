@@ -11,6 +11,7 @@ namespace Selector.Cache
         public const string TrackName = "Track";
         public const string AlbumName = "Album";
         public const string ArtistName = "Artist";
+        public const string UserName = "User";
 
         public const string AudioFeatureName = "AudioFeature";
         public const string PlayCountName = "PlayCount";
@@ -30,6 +31,7 @@ namespace Selector.Cache
         public static string TrackPlayCount(string name, string artist) => Namespace(TrackName, artist, name, PlayCountName);
         public static string AlbumPlayCount(string name, string artist) => Namespace(AlbumName, artist, name, PlayCountName);
         public static string ArtistPlayCount(string name) => Namespace(ArtistName, name, PlayCountName);
+        public static string UserPlayCount(string username) => Namespace(UserName, username, PlayCountName);
 
         public static string WatcherReserved(int id) => Namespace(WatcherName, id.ToString(), ReservedName);
 

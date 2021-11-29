@@ -10,7 +10,7 @@ namespace Selector
 {
     public interface IAudioFeatureInjectorFactory
     {
-        public Task<IConsumer> Get(ISpotifyConfigFactory spotifyFactory, IPlayerWatcher watcher);
+        public Task<IConsumer> Get(ISpotifyConfigFactory spotifyFactory, IPlayerWatcher watcher = null);
     }
     
     public class AudioFeatureInjectorFactory: IAudioFeatureInjectorFactory {

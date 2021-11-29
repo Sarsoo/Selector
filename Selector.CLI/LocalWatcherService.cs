@@ -4,15 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using IF.Lastfm.Core.Api;
-using Microsoft.Extensions.Configuration;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Selector.Cache;
-using StackExchange.Redis;
 
 namespace Selector.CLI
 {
@@ -21,15 +19,12 @@ namespace Selector.CLI
         private const string ConfigInstanceKey = "localconfig";
 
         private readonly ILogger<LocalWatcherService> Logger;
-        private readonly ILoggerFactory LoggerFactory;
         private readonly RootOptions Config;
         private readonly IWatcherFactory WatcherFactory;
         private readonly IWatcherCollectionFactory WatcherCollectionFactory;
         private readonly IRefreshTokenFactoryProvider SpotifyFactory;
-        private readonly LastAuth LastAuth;
-        
-        private readonly IDatabaseAsync Cache; 
-        private readonly ISubscriber Subscriber; 
+
+        private readonly IServiceProvider ServiceProvider;
 
         private Dictionary<string, IWatcherCollection> Watchers { get; set; } = new();
 
@@ -37,21 +32,20 @@ namespace Selector.CLI
             IWatcherFactory watcherFactory,
             IWatcherCollectionFactory watcherCollectionFactory,
             IRefreshTokenFactoryProvider spotifyFactory,
-            ILoggerFactory loggerFactory,
-            IOptions<RootOptions> config,
-            LastAuth lastAuth = null,
-            IDatabaseAsync cache = null,
-            ISubscriber subscriber = null
+
+            IServiceProvider serviceProvider,
+
+            ILogger<LocalWatcherService> logger,
+            IOptions<RootOptions> config
         ) {
-            Logger = loggerFactory.CreateLogger<LocalWatcherService>();
-            LoggerFactory = loggerFactory;
+            Logger = logger;
             Config = config.Value;
+
             WatcherFactory = watcherFactory;
             WatcherCollectionFactory = watcherCollectionFactory;
             SpotifyFactory = spotifyFactory;
-            LastAuth = lastAuth;
-            Cache = cache;
-            Subscriber = subscriber;
+
+            ServiceProvider = serviceProvider;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -111,34 +105,25 @@ namespace Selector.CLI
                     switch(consumer)
                     {
                         case Consumers.AudioFeatures:
-                            var featureInjector = new AudioFeatureInjectorFactory(LoggerFactory);
-                            consumers.Add(await featureInjector.Get(spotifyFactory));
+                            consumers.Add(await ServiceProvider.GetService<AudioFeatureInjectorFactory>().Get(spotifyFactory));
                             break;
 
                         case Consumers.AudioFeaturesCache:
-                            var featureInjectorCache = new CachingAudioFeatureInjectorFactory(LoggerFactory, Cache);
-                            consumers.Add(await featureInjectorCache.Get(spotifyFactory));
+                            consumers.Add(await ServiceProvider.GetService<CachingAudioFeatureInjectorFactory>().Get(spotifyFactory));
                             break;
 
                         case Consumers.CacheWriter:
-                            var cacheWriter = new CacheWriterFactory(Cache, LoggerFactory);
-                            consumers.Add(await cacheWriter.Get());
+                            consumers.Add(await ServiceProvider.GetService<CacheWriterFactory>().Get());
                             break;
 
                         case Consumers.Publisher:
-                            var pub = new PublisherFactory(Subscriber, LoggerFactory);
-                            consumers.Add(await pub.Get());
+                            consumers.Add(await ServiceProvider.GetService<PublisherFactory>().Get());
                             break;
 
                         case Consumers.PlayCounter:
                             if(!string.IsNullOrWhiteSpace(watcherOption.LastFmUsername))
                             {
-                                if(LastAuth is null) throw new ArgumentNullException("No Last Auth Injected");
-                                
-                                var client = new LastfmClient(LastAuth);
-
-                                var playCount = new PlayCounterFactory(LoggerFactory, client: client, creds: new(){ Username = watcherOption.LastFmUsername });
-                                consumers.Add(await playCount.Get());
+                                consumers.Add(await ServiceProvider.GetService<PlayCounterCachingFactory>().Get(creds: new() { Username = watcherOption.LastFmUsername }));
                             }
                             else 
                             {

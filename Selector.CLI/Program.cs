@@ -11,12 +11,12 @@ using NLog.Extensions.Logging;
 
 using Selector.Model;
 using Selector.Cache;
+using Selector.Cache.Extensions;
 using IF.Lastfm.Core.Api;
-using StackExchange.Redis;
 
 namespace Selector.CLI
 {
-    class Program
+    public static class Program
     {
         public static async Task Main(string[] args)
         {
@@ -55,7 +55,8 @@ namespace Selector.CLI
                 Console.WriteLine("> Adding Last.fm credentials...");
 
                 var lastAuth = new LastAuth(config.LastfmClient, config.LastfmSecret);
-                services.AddSingleton<LastAuth>(lastAuth);
+                services.AddSingleton(lastAuth);
+                services.AddTransient(sp => new LastfmClient(sp.GetService<LastAuth>()));
             }
             else 
             {
@@ -72,25 +73,6 @@ namespace Selector.CLI
                     options.UseNpgsql(config.DatabaseOptions.ConnectionString)
                 );
             }
-        }
-
-        public static void ConfigureRedis(RootOptions config, IServiceCollection services)
-        {
-           if (config.RedisOptions.Enabled)
-            {
-                Console.WriteLine("> Configuring Redis...");
-                
-                if(string.IsNullOrWhiteSpace(config.RedisOptions.ConnectionString))
-                {
-                    Console.WriteLine("> No Redis configuration string provided, exiting...");
-                    Environment.Exit(1);
-                }
-
-                var connMulti = ConnectionMultiplexer.Connect(config.RedisOptions.ConnectionString);
-                services.AddSingleton(connMulti);
-                services.AddTransient<IDatabaseAsync>(services => services.GetService<ConnectionMultiplexer>().GetDatabase());
-                services.AddTransient<ISubscriber>(services => services.GetService<ConnectionMultiplexer>().GetSubscriber());
-            } 
         }
 
         public static void ConfigureEqual(RootOptions config, IServiceCollection services)
@@ -119,8 +101,9 @@ namespace Selector.CLI
 
             Console.WriteLine("> Adding Services...");
             // SERVICES
+            services.AddCachingConsumerFactories();
+
             services.AddSingleton<IWatcherFactory, WatcherFactory>();
-            services.AddSingleton<IAudioFeatureInjectorFactory, AudioFeatureInjectorFactory>();
             services.AddSingleton<IWatcherCollectionFactory, WatcherCollectionFactory>();
             // For generating spotify clients
             //services.AddSingleton<IRefreshTokenFactoryProvider, RefreshTokenFactoryProvider>();
@@ -128,7 +111,10 @@ namespace Selector.CLI
 
             ConfigureLastFm(config, services);
             ConfigureDb(config, services);
-            ConfigureRedis(config, services);
+
+            if (config.RedisOptions.Enabled) 
+                services.AddRedisServices(config.RedisOptions.ConnectionString);
+
             ConfigureEqual(config, services);
 
             // HOSTED SERVICES

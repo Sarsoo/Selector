@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Selector
 {
-    public class WatcherContext: IDisposable
+    public class WatcherContext: IDisposable, IWatcherContext
     {
         public IWatcher Watcher { get; set; }
         private List<IConsumer> Consumers { get; set; } = new();

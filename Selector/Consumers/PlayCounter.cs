@@ -123,13 +123,19 @@ namespace Selector
 
                 Logger.LogDebug($"Adding Last.fm data [{e.Id}/{e.SpotifyUsername}/{Credentials.Username}] [{track.DisplayString()}], track: {trackCount}, album: {albumCount}, artist: {artistCount}, user: {userCount}");
 
-                OnNewPlayCount(new()
+                PlayCount playCount = new()
                 {
                     Track = trackCount,
                     Album = albumCount,
                     Artist = artistCount,
                     User = userCount,
-                });
+                    ListeningEvent = e
+                };
+
+                if (!string.IsNullOrWhiteSpace(Credentials.Username))
+                    playCount.Username = Credentials.Username;
+
+                OnNewPlayCount(playCount);
             }
             else if (e.Current.Item is FullEpisode episode)
             {
@@ -181,6 +187,8 @@ namespace Selector
         public int? Album { get; set; }
         public int? Artist { get; set; }
         public int? User { get; set; }
+        public string Username { get; set; }
+        public ListeningChangeEventArgs ListeningEvent { get; set; }
     }
 
     public class LastFmCredentials
