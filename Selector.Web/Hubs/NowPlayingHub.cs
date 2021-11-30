@@ -18,18 +18,26 @@ namespace Selector.Web.Hubs
     {
         public Task OnNewPlaying(CurrentlyPlayingDTO context);
         public Task OnNewAudioFeature(TrackAudioFeatures features);
+        public Task OnNewPlayCount(PlayCount playCount);
     }
 
     public class NowPlayingHub: Hub<INowPlayingHubClient>
     {
         private readonly IDatabaseAsync Cache;
         private readonly AudioFeaturePuller AudioFeaturePuller;
+        private readonly PlayCountPuller PlayCountPuller;
         private readonly ApplicationDbContext Db;
 
-        public NowPlayingHub(IDatabaseAsync cache, AudioFeaturePuller puller, ApplicationDbContext db)
+        public NowPlayingHub(
+            IDatabaseAsync cache, 
+            AudioFeaturePuller featurePuller, 
+            ApplicationDbContext db,
+            PlayCountPuller playCountPuller = null
+        )
         {
             Cache = cache;
-            AudioFeaturePuller = puller;
+            AudioFeaturePuller = featurePuller;
+            PlayCountPuller = playCountPuller;
             Db = db;
         }
 
@@ -67,6 +75,28 @@ namespace Selector.Web.Hubs
             if (feature is not null)
             {
                 await Clients.Caller.OnNewAudioFeature(feature);
+            }
+        }
+
+        public async Task SendPlayCount(string track, string artist, string album, string albumArtist)
+        {
+            if(PlayCountPuller is not null)
+            {
+                var user = Db.Users
+                        .AsNoTracking()
+                        .Where(u => u.Id == Context.UserIdentifier)
+                        .SingleOrDefault()
+                            ?? throw new SqlNullValueException("No user returned");
+
+                if(!string.IsNullOrWhiteSpace(user.LastFmUsername))
+                {
+                    var playCount = await PlayCountPuller.Get(user.LastFmUsername, track, artist, album, albumArtist);
+
+                    if (playCount is not null)
+                    {
+                        await Clients.Caller.OnNewPlayCount(playCount);
+                    }
+                }
             }
         }
     }

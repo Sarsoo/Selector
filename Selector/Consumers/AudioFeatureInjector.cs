@@ -37,7 +37,7 @@ namespace Selector
         {
             if (e.Current is null) return;
 
-            Task.Run(() => { return AsyncCallback(e); }, CancelToken);
+            Task.Run(async () => { await AsyncCallback(e); }, CancelToken);
         }
 
         public async Task AsyncCallback(ListeningChangeEventArgs e)

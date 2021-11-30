@@ -52,7 +52,7 @@ namespace Selector
         {
             if (e.Current is null) return;
             
-            Task.Run(() => { return AsyncCallback(e); }, CancelToken);
+            Task.Run(async () => { await AsyncCallback(e); }, CancelToken);
         }
 
         public async Task AsyncCallback(ListeningChangeEventArgs e)
@@ -62,7 +62,7 @@ namespace Selector
                 Logger.LogTrace("Making Last.fm call");
 
                 var trackInfo = TrackClient.GetInfoAsync(track.Name, track.Artists[0].Name, username: Credentials?.Username);
-                var albumInfo = AlbumClient.GetInfoAsync(track.Album.Name, track.Album.Artists[0].Name, username: Credentials?.Username);
+                var albumInfo = AlbumClient.GetInfoAsync(track.Album.Artists[0].Name, track.Album.Name, username: Credentials?.Username);
                 var artistInfo = ArtistClient.GetInfoAsync(track.Artists[0].Name);
                 // TODO: Null checking on credentials
                 var userInfo = UserClient.GetInfoAsync(Credentials.Username);

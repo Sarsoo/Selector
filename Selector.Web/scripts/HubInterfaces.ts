@@ -10,10 +10,20 @@ export interface nowPlayingProxy {
 export interface NowPlayingHubClient {
     OnNewPlaying: (context: CurrentlyPlayingDTO) => void;
     OnNewAudioFeature: (features: TrackAudioFeatures) => void;
+    OnNewPlayCount: (playCount: PlayCount) => void;
 }
 
 export interface NowPlayingHub {
     SendNewPlaying(context: CurrentlyPlayingDTO): void;
+}
+
+export interface PlayCount {
+    track: number | null;
+    album: number | null;
+    artist: number | null;
+    user: number | null;
+    username: string;
+    listeningEvent: ListeningChangeEventArgs;
 }
 
 export interface CurrentlyPlayingDTO {

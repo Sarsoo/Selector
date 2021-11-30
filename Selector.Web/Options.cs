@@ -36,6 +36,8 @@ namespace Selector.Web
         /// Spotify callback for authentication
         /// </summary>
         public string SpotifyCallback { get; set; }
+        public string LastfmClient { get; set; }
+        public string LastfmSecret { get; set; }
 
         public RedisOptions RedisOptions { get; set; } = new();
 

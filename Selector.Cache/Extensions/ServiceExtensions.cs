@@ -42,5 +42,10 @@ namespace Selector.Cache.Extensions
         {
             services.AddSingleton<AudioFeaturePuller>();
         }
+
+        public static void AddCachingLastFm(this IServiceCollection services)
+        {
+            services.AddSingleton<PlayCountPuller>();
+        }
     }
 }

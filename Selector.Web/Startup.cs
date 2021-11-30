@@ -99,6 +99,8 @@ namespace Selector.Web
             services.AddSpotify();
             services.AddCachingSpotify();
 
+            ConfigureLastFm(config, services);
+
             services.AddCacheHubProxy();
         }
 
@@ -130,6 +132,21 @@ namespace Selector.Web
                 endpoints.MapControllers();
                 endpoints.MapHub<NowPlayingHub>("/hub");
             });
+        }
+
+        public static void ConfigureLastFm(RootOptions config, IServiceCollection services)
+        {
+            if (config.LastfmClient is not null)
+            {
+                Console.WriteLine("> Adding Last.fm credentials...");
+
+                services.AddLastFm(config.LastfmClient, config.LastfmSecret);
+                services.AddCachingLastFm();
+            }
+            else
+            {
+                Console.WriteLine("> No Last.fm credentials, skipping init...");
+            }
         }
     }
 }

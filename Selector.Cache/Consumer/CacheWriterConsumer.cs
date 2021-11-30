@@ -15,7 +15,7 @@ namespace Selector.Cache
         private readonly IPlayerWatcher Watcher;
         private readonly IDatabaseAsync Db;
         private readonly ILogger<CacheWriter> Logger;
-        public TimeSpan CacheExpiry { get; set; } = TimeSpan.FromMinutes(10);
+        public TimeSpan CacheExpiry { get; set; } = TimeSpan.FromMinutes(20);
 
         public CancellationToken CancelToken { get; set; }
 
@@ -35,7 +35,7 @@ namespace Selector.Cache
         {
             if (e.Current is null) return;
             
-            Task.Run(() => { return AsyncCallback(e); }, CancelToken);
+            Task.Run(async () => { await AsyncCallback(e); }, CancelToken);
         }
 
         public async Task AsyncCallback(ListeningChangeEventArgs e)
@@ -57,6 +57,7 @@ namespace Selector.Cache
             if (watcher is IPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange += Callback;
+                watcherCast.PlayingChange += Callback;
             } 
             else
             {
@@ -71,6 +72,7 @@ namespace Selector.Cache
             if (watcher is IPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange -= Callback;
+                watcherCast.PlayingChange -= Callback;
             }
             else
             {

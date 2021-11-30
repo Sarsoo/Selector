@@ -30,7 +30,7 @@ namespace Selector.Cache
 
         public void CacheCallback(object sender, AnalysedTrack e)
         {
-            Task.Run(() => { return AsyncCacheCallback(e); }, CancelToken);
+            Task.Run(async () => { await AsyncCacheCallback(e); }, CancelToken);
         }
 
         public async Task AsyncCacheCallback(AnalysedTrack e)

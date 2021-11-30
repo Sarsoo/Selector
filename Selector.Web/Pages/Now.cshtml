@@ -13,6 +13,7 @@
         <popularity :track="currentlyPlaying.track" v-if="currentlyPlaying !== null && currentlyPlaying !== undefined && currentlyPlaying.track != null && currentlyPlaying.track != undefined" ></popularity>
         <audio-feature-card :feature="trackFeatures" v-if="trackFeatures !== null && trackFeatures !== undefined" /></audio-feature-card>
         <audio-feature-chart-card :feature="trackFeatures" v-if="trackFeatures !== null && trackFeatures !== undefined" /></audio-feature-chart-card>
+        <play-count-card :count="playCount" v-if="playCount !== null && playCount !== undefined" /></play-count-card>
         <info-card v-for="card in cards" :html="card.html"></info-card>
     </div>
 </div>

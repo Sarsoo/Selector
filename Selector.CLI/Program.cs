@@ -55,6 +55,7 @@ namespace Selector.CLI
                 Console.WriteLine("> Adding Last.fm credentials...");
 
                 services.AddLastFm(config.LastfmClient, config.LastfmSecret);
+                services.AddCachingLastFm();
             }
             else 
             {

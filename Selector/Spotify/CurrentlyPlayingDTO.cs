@@ -2,7 +2,7 @@ using System;
 
 using SpotifyAPI.Web;
 
-namespace Selector.Cache {
+namespace Selector {
 
     public class CurrentlyPlayingDTO {
         public CurrentlyPlayingContextDTO Context { get; set; }
