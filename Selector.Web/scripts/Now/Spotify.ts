@@ -6,11 +6,18 @@ Chart.register(RadarController, RadialLinearScale, PointElement, LineElement);
 
 export let PopularityCard: Vue.Component = {
     props: ['track'],
+    computed: {
+        progressBarWidth() {
+            return `width: ${this.track.popularity}%`;
+        }
+    },
     template: 
     `
         <div class="card info-card">
             <h3>Popularity</h3>
-            <h1>{{ track.popularity }}%</h1>
+            <div class="progress popularity-progress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" :style="progressBarWidth" :aria-valuenow="track.popularity" aria-valuemin="0" aria-valuemax="100">{{ track.popularity }}%</div>
+            </div>
             <spotify-logo :link="track.externalUrls.spotify" />
         </div>
     `

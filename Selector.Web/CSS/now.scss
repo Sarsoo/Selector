@@ -2,12 +2,13 @@
     display: block;
 }
 
+$text-color: white;
+
 .card {
     background-color: grey;
-    color: white;
+    color: $text-color;
     margin: 5px;
     padding: 15px;
-
     box-shadow: 4px 4px 2px #5e5e5e;
     transition: box-shadow 0.5s;
 
@@ -45,6 +46,7 @@
     .app {
         display: flex;
         align-items: flex-start;
+        flex-wrap: wrap;
     }
 
     .now-playing-card {
@@ -59,7 +61,8 @@
 
 @media only screen and (min-width: 768px) {
     .info-card {
-        max-width: 300px;
+        min-width: 200px;
+        max-width: 500px;
     }
 }
 
@@ -69,4 +72,22 @@
     img {
         width: 21px;
     }
+}
+
+.lastfm-logo {
+    width: 24px;
+
+    img {
+        width: 24px;
+    }
+}
+
+.popularity-progress {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.subtle-link {
+    color: $text-color;
+    text-decoration: none;
 }

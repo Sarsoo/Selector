@@ -16,7 +16,7 @@ namespace Selector.Cache
     public class PlayCounterCaching: PlayCounter
     {
         private readonly IDatabaseAsync Db;
-        public TimeSpan CacheExpiry { get; set; } = TimeSpan.FromDays(14);
+        public TimeSpan CacheExpiry { get; set; } = TimeSpan.FromDays(1);
 
         public PlayCounterCaching(
             IPlayerWatcher watcher,

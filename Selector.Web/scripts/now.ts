@@ -3,7 +3,7 @@ import * as Vue from "vue";
 import { TrackAudioFeatures, PlayCount, CurrentlyPlayingDTO } from "./HubInterfaces";
 import NowPlayingCard from "./Now/NowPlayingCard";
 import { AudioFeatureCard, AudioFeatureChartCard, PopularityCard, SpotifyLogoLink } from "./Now/Spotify";
-import { PlayCountCard } from "./Now/LastFm";
+import { PlayCountCard, LastFmLogoLink } from "./Now/LastFm";
 import BaseInfoCard from "./Now/BaseInfoCard";
 
 const connection = new signalR.HubConnectionBuilder()
@@ -35,6 +35,16 @@ const app = Vue.createApp({
             playCount: undefined,
             cards: []
         } as NowPlaying
+    },
+    computed: {
+        lastfmTrack() {
+            return {
+                name: this.currentlyPlaying.track.name,
+                artist: this.currentlyPlaying.track.artists[0].name,
+                album: this.currentlyPlaying.track.album.name,
+                album_artist: this.currentlyPlaying.track.album.artists[0].name,
+            };
+        }
     },
     created() {
         connection.on("OnNewPlaying", (context: CurrentlyPlayingDTO) => 
@@ -77,5 +87,6 @@ app.component("audio-feature-chart-card", AudioFeatureChartCard);
 app.component("info-card", BaseInfoCard);
 app.component("popularity", PopularityCard);
 app.component("spotify-logo", SpotifyLogoLink);
+app.component("lastfm-logo", LastFmLogoLink);
 app.component("play-count-card", PlayCountCard);
 const vm = app.mount('#app');
