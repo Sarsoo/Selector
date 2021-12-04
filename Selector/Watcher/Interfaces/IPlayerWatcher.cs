@@ -8,6 +8,7 @@ namespace Selector
         /// <summary>
         /// Track or episode changes
         /// </summary>
+        public event EventHandler<ListeningChangeEventArgs> NetworkPoll;
         public event EventHandler<ListeningChangeEventArgs> ItemChange;
         public event EventHandler<ListeningChangeEventArgs> AlbumChange;
         public event EventHandler<ListeningChangeEventArgs> ArtistChange;

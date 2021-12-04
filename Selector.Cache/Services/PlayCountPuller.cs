@@ -23,13 +23,13 @@ namespace Selector.Cache
         protected readonly IUserApi UserClient;
 
         public PlayCountPuller(
-            IDatabaseAsync cache,
             ILogger<PlayCountPuller> logger,
 
             ITrackApi trackClient,
             IAlbumApi albumClient,
             IArtistApi artistClient,
-            IUserApi userClient
+            IUserApi userClient,
+            IDatabaseAsync cache = null
         )
         {
             Cache = cache;
@@ -45,14 +45,14 @@ namespace Selector.Cache
         {
             if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException("No username provided");
 
-            var trackCache = Cache.StringGetAsync(Key.TrackPlayCount(track, artist));
-            var albumCache = Cache.StringGetAsync(Key.AlbumPlayCount(album, albumArtist));
-            var artistCache = Cache.StringGetAsync(Key.ArtistPlayCount(artist));
-            var userCache = Cache.StringGetAsync(Key.UserPlayCount(username));
+            var trackCache = Cache?.StringGetAsync(Key.TrackPlayCount(track, artist));
+            var albumCache = Cache?.StringGetAsync(Key.AlbumPlayCount(album, albumArtist));
+            var artistCache = Cache?.StringGetAsync(Key.ArtistPlayCount(artist));
+            var userCache = Cache?.StringGetAsync(Key.UserPlayCount(username));
 
             var cacheTasks = new Task[] { trackCache, albumCache, artistCache, userCache };
 
-            await Task.WhenAll(cacheTasks);
+            await Task.WhenAll(cacheTasks.Where(t => t is not null));
 
             PlayCount playCount = new()
             {
@@ -64,64 +64,36 @@ namespace Selector.Cache
             Task<LastResponse<LastArtist>> artistHttp = null;
             Task<LastResponse<LastUser>> userHttp = null;
 
-            if (trackCache.IsCompletedSuccessfully)
+            if (trackCache is not null && trackCache.IsCompletedSuccessfully && trackCache.Result != RedisValue.Null)
             {
-                if(trackCache.Result == RedisValue.Null)
-                {
-                    trackHttp = TrackClient.GetInfoAsync(track, artist, username);
-                }
-                else
-                {
-                    playCount.Track = (int) trackCache.Result;
-                }
+                playCount.Track = (int) trackCache.Result;
             }
             else
             {
                 trackHttp = TrackClient.GetInfoAsync(track, artist, username);
             }
 
-            if (albumCache.IsCompletedSuccessfully)
+            if (albumCache is not null && albumCache.IsCompletedSuccessfully && albumCache.Result != RedisValue.Null)
             {
-                if (albumCache.Result == RedisValue.Null)
-                {
-                    albumHttp = AlbumClient.GetInfoAsync(albumArtist, album, username: username);
-                }
-                else
-                {
-                    playCount.Album = (int)albumCache.Result;
-                }
+                playCount.Album = (int) albumCache.Result;
             }
             else
             {
                 albumHttp = AlbumClient.GetInfoAsync(albumArtist, album, username: username);
             }
 
-            if (artistCache.IsCompletedSuccessfully)
+            if (artistCache is not null && artistCache.IsCompletedSuccessfully && artistCache.Result != RedisValue.Null)
             {
-                if (artistCache.Result == RedisValue.Null)
-                {
-                    artistHttp = ArtistClient.GetInfoAsync(artist);
-                }
-                else
-                {
-                    playCount.Artist = (int)artistCache.Result;
-                }
+                playCount.Artist = (int) artistCache.Result;
             }
             else
             {
                 artistHttp = ArtistClient.GetInfoAsync(artist);
             }
 
-            if (userCache.IsCompletedSuccessfully)
+            if (userCache is not null && userCache.IsCompletedSuccessfully && userCache.Result != RedisValue.Null)
             {
-                if (userCache.Result == RedisValue.Null)
-                {
-                    userHttp = UserClient.GetInfoAsync(username);
-                }
-                else
-                {
-                    playCount.User = (int)userCache.Result;
-                }
+                playCount.User = (int) userCache.Result;
             }
             else
             {

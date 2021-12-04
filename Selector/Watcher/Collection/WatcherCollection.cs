@@ -13,7 +13,7 @@ namespace Selector
     public class WatcherCollection: IWatcherCollection, IDisposable, IEnumerable<WatcherContext>
     {
         private readonly ILogger<WatcherCollection> Logger;
-        public bool IsRunning { get; private set; } = true;
+        public bool IsRunning { get; private set; } = false;
         private List<WatcherContext> Watchers { get; set; } = new();
 
         public WatcherCollection(ILogger<WatcherCollection> logger = null)

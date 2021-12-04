@@ -57,7 +57,6 @@ namespace Selector.Cache
             if (watcher is IPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange += Callback;
-                watcherCast.PlayingChange += Callback;
             } 
             else
             {
@@ -72,7 +71,6 @@ namespace Selector.Cache
             if (watcher is IPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange -= Callback;
-                watcherCast.PlayingChange -= Callback;
             }
             else
             {

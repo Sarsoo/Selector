@@ -123,7 +123,7 @@ namespace Selector.CLI
                         case Consumers.PlayCounter:
                             if(!string.IsNullOrWhiteSpace(watcherOption.LastFmUsername))
                             {
-                                consumers.Add(await ServiceProvider.GetService<PlayCounterCachingFactory>().Get(creds: new() { Username = watcherOption.LastFmUsername }));
+                                consumers.Add(await ServiceProvider.GetService<PlayCounterFactory>().Get(creds: new() { Username = watcherOption.LastFmUsername }));
                             }
                             else 
                             {

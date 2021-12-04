@@ -58,10 +58,24 @@ namespace Selector
 
             Consumers.ForEach(c => c.Subscribe(Watcher));
 
+            Reset();
+        }
+
+        private void Reset()
+        {
+            if(Task is not null && !Task.IsCompleted)
+            {
+                TokenSource.Cancel();
+            }
+
+            TokenSource = new();
+
             Task = Watcher.Watch(TokenSource.Token);
             Task.ContinueWith(t =>
             {
                 if (t.Exception != null) throw t.Exception;
+                Watcher.Reset();
+                Reset();
             }, TaskContinuationOptions.OnlyOnFaulted);
         }
 

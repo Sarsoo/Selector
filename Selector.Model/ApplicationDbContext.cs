@@ -64,11 +64,28 @@ namespace Selector.Model
 
     public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
     {
+        private static string GetPath(string env) => $"{@Directory.GetCurrentDirectory()}/../Selector.Web/appsettings.{env}.json";
+
         public ApplicationDbContext CreateDbContext(string[] args)
         {
+            string configFile;
+
+            if(File.Exists(GetPath("Development")))
+            {
+                configFile = GetPath("Development");
+            }
+            else if(File.Exists(GetPath("Release")))
+            {
+                configFile = GetPath("Release");
+            }
+            else
+            {
+                throw new FileNotFoundException("No config file available to load a connection string from");
+            }
+
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile(@Directory.GetCurrentDirectory() + "/../Selector.Web/appsettings.Development.json")
+                .AddJsonFile(configFile)
                 .Build();
 
             var builder = new DbContextOptionsBuilder<ApplicationDbContext>();

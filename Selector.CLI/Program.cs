@@ -55,7 +55,12 @@ namespace Selector.CLI
                 Console.WriteLine("> Adding Last.fm credentials...");
 
                 services.AddLastFm(config.LastfmClient, config.LastfmSecret);
-                services.AddCachingLastFm();
+                
+                if(config.RedisOptions.Enabled)
+                {
+                    Console.WriteLine("> Adding caching Last.fm consumers...");
+                    services.AddCachingLastFm();
+                }
             }
             else 
             {
@@ -101,11 +106,19 @@ namespace Selector.CLI
             Console.WriteLine("> Adding Services...");
             // SERVICES
             services.AddConsumerFactories();
-            services.AddCachingConsumerFactories();
+            if (config.RedisOptions.Enabled)
+            {
+                Console.WriteLine("> Adding caching consumers...");
+                services.AddCachingConsumerFactories();
+            }
             services.AddWatcher();
 
             services.AddSpotify();
-            services.AddCachingSpotify();
+            if (config.RedisOptions.Enabled) {
+                Console.WriteLine("> Adding caching Spotify consumers...");
+                services.AddCachingSpotify(); 
+            }
+
             ConfigureLastFm(config, services);
             ConfigureDb(config, services);
 
@@ -140,6 +153,8 @@ namespace Selector.CLI
 
         static IHostBuilder CreateHostBuilder(string[] args, Action<HostBuilderContext, IServiceCollection> BuildServices, Action<HostBuilderContext, ILoggingBuilder> BuildLogs)
             => Host.CreateDefaultBuilder(args)
+                .UseWindowsService()
+                .UseSystemd()
                 .ConfigureServices((context, services) => BuildServices(context, services))
                 .ConfigureLogging((context, builder) => BuildLogs(context, builder));
     }

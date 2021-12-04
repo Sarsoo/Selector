@@ -13,7 +13,7 @@ namespace Selector.Cache
 
         public AudioFeaturePuller(
             IRefreshTokenFactoryProvider spotifyFactory,
-            IDatabaseAsync cache
+            IDatabaseAsync cache = null
         )
         {
             SpotifyFactory = spotifyFactory;
@@ -24,8 +24,8 @@ namespace Selector.Cache
         {
             if(string.IsNullOrWhiteSpace(trackId)) throw new ArgumentNullException("No track Id provided");
 
-            var track = await Cache.StringGetAsync(Key.AudioFeature(trackId));
-            if (track == RedisValue.Null)
+            var track = await Cache?.StringGetAsync(Key.AudioFeature(trackId));
+            if (Cache is null || track == RedisValue.Null)
             {
                 if(!string.IsNullOrWhiteSpace(refreshToken))
                 {

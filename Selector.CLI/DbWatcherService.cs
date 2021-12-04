@@ -44,12 +44,14 @@ namespace Selector.CLI
             IAudioFeatureInjectorFactory audioFeatureInjectorFactory,
             IPlayCounterFactory playCounterFactory,
 
-            IPublisherFactory publisherFactory,
-            ICacheWriterFactory cacheWriterFactory,
 
             ILogger<DbWatcherService> logger,
-            IServiceProvider serviceProvider
-        ) {
+            IServiceProvider serviceProvider,
+
+            IPublisherFactory publisherFactory = null,
+            ICacheWriterFactory cacheWriterFactory = null
+        )
+        {
             Logger = logger;
             ServiceProvider = serviceProvider;
 
@@ -105,8 +107,8 @@ namespace Selector.CLI
                         watcher = await WatcherFactory.Get<PlayerWatcher>(spotifyFactory, id: dbWatcher.UserId, pollPeriod: PollPeriod);
 
                         consumers.Add(await AudioFeatureInjectorFactory.Get(spotifyFactory));
-                        consumers.Add(await CacheWriterFactory.Get());
-                        consumers.Add(await PublisherFactory.Get());
+                        if (CacheWriterFactory is not null) consumers.Add(await CacheWriterFactory.Get());
+                        if (PublisherFactory is not null) consumers.Add(await PublisherFactory.Get());
 
                         if (!string.IsNullOrWhiteSpace(dbWatcher.User.LastFmUsername))
                         {

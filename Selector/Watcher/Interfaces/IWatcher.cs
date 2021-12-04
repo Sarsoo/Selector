@@ -18,6 +18,8 @@ namespace Selector
         /// <returns></returns>
         public Task Watch(CancellationToken cancelToken);
 
+        public Task Reset();
+
         /// <summary>
         /// Time interval in ms between polls from Watch()
         /// </summary>

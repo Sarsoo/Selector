@@ -15,6 +15,7 @@ namespace Selector
         private readonly IPlayerClient spotifyClient;
         private readonly IEqual eq;
 
+        public event EventHandler<ListeningChangeEventArgs> NetworkPoll;
         public event EventHandler<ListeningChangeEventArgs> ItemChange;
         public event EventHandler<ListeningChangeEventArgs> AlbumChange;
         public event EventHandler<ListeningChangeEventArgs> ArtistChange;
@@ -26,6 +27,7 @@ namespace Selector
         public event EventHandler<ListeningChangeEventArgs> PlayingChange;
 
         public CurrentlyPlayingContext Live { get; private set; }
+        private CurrentlyPlayingContext Previous { get; set; }
         public PlayerTimeline Past { get; set; } = new();
 
         public PlayerWatcher(IPlayerClient spotifyClient, 
@@ -40,6 +42,15 @@ namespace Selector
             PollPeriod = pollPeriod;
         }
 
+        public override Task Reset()
+        {
+            Previous = null;
+            Live = null;
+            Past = new();
+
+            return Task.CompletedTask;
+        }
+
         public override async Task WatchOne(CancellationToken token = default) 
         {
             token.ThrowIfCancellationRequested();
@@ -52,104 +63,100 @@ namespace Selector
                 if (polledCurrent != null) StoreCurrentPlaying(polledCurrent);
 
                 // swap new item into live and bump existing down to previous
-                CurrentlyPlayingContext previous;
-                if(Live is null) {
-                    Live = polledCurrent;
-                    previous = polledCurrent;
-                }
-                else {
-                    previous = Live;
-                    Live = polledCurrent;
-                }
+                Previous = Live;
+                Live = polledCurrent;
+
+                OnNetworkPoll(GetEvent());
 
                 // NOT PLAYING
-                if(previous is null && Live is null)
+                if(Previous is null && Live is null)
                 {
                     // Console.WriteLine("not playing");
                 }
                 else
                 {
                     // STARTED PLAYBACK
-                    if(previous is null 
-                        && (Live.Item is FullTrack || Live.Item is FullEpisode))
+                    if(Previous is null && Live is not null)
                     {
                         Logger.LogDebug($"Playback started: {Live.DisplayString()}");
-                        OnPlayingChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
-                        OnItemChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
+                        OnPlayingChange(GetEvent());
+                        OnItemChange(GetEvent());
+                        OnContextChange(GetEvent());
                     }
                     // STOPPED PLAYBACK
-                    else if((previous.Item is FullTrack || previous.Item is FullEpisode) 
-                        && Live is null)
+                    else if(Previous is not null && Live is null)
                     {
-                        Logger.LogDebug($"Playback stopped: {previous.DisplayString()}");
-                        OnPlayingChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
-                        OnItemChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
+                        Logger.LogDebug($"Playback stopped: {Previous.DisplayString()}");
+                        OnPlayingChange(GetEvent());
+                        OnItemChange(GetEvent());
+                        OnContextChange(GetEvent());
                     }
                     // CONTINUING PLAYBACK
                     else {
 
                         // MUSIC
-                        if(previous.Item is FullTrack previousTrack 
+                        if(Previous.Item is FullTrack previousTrack 
                             && Live.Item is FullTrack currentTrack)
                         {
                             if(!eq.IsEqual(previousTrack, currentTrack)) {
                                 Logger.LogDebug($"Track changed: {previousTrack.DisplayString()} -> {currentTrack.DisplayString()}");
-                                OnItemChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
+                                OnItemChange(GetEvent());
                             }
 
                             if(!eq.IsEqual(previousTrack.Album, currentTrack.Album)) {
                                 Logger.LogDebug($"Album changed: {previousTrack.Album.DisplayString()} -> {currentTrack.Album.DisplayString()}");
-                                OnAlbumChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
+                                OnAlbumChange(GetEvent());
                             }
 
                             if(!eq.IsEqual(previousTrack.Artists[0], currentTrack.Artists[0])) {
                                 Logger.LogDebug($"Artist changed: {previousTrack.Artists.DisplayString()} -> {currentTrack.Artists.DisplayString()}");
-                                OnArtistChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
+                                OnArtistChange(GetEvent());
                             }
                         }
-                        // CHANGED CONTENT
-                        else if((previous.Item is FullTrack && Live.Item is FullEpisode)
-                            || (previous.Item is FullEpisode && Live.Item is FullTrack))
+                        // CHANGED CONTENT TYPE
+                        else if((Previous.Item is FullTrack && Live.Item is FullEpisode)
+                            || (Previous.Item is FullEpisode && Live.Item is FullTrack))
                         {
-                            Logger.LogDebug($"Media type changed: {previous.Item}, {previous.Item}");
-                            OnContentChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
-                            OnItemChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
+                            Logger.LogDebug($"Media type changed: {Previous.Item}, {Previous.Item}");
+                            OnContentChange(GetEvent());
+                            OnItemChange(GetEvent());
                         }
                         // PODCASTS
-                        else if(previous.Item is FullEpisode previousEp 
+                        else if(Previous.Item is FullEpisode previousEp 
                             && Live.Item is FullEpisode currentEp)
                         {
                             if(!eq.IsEqual(previousEp, currentEp)) {
                                 Logger.LogDebug($"Podcast changed: {previousEp.DisplayString()} -> {currentEp.DisplayString()}");
-                                OnItemChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
+                                OnItemChange(GetEvent());
                             }
                         }
                         else {
+                            Logger.LogError($"Unknown combination of previous and current playing contexts, [{Previous.DisplayString()}] [{Live.DisplayString()}]");
                             throw new NotSupportedException("Unknown item combination");
                         }
 
                         // CONTEXT
-                        if(!eq.IsEqual(previous.Context, Live.Context)) {
-                            Logger.LogDebug($"Context changed: {previous.Context.DisplayString()} -> {Live.Context.DisplayString()}");
-                            OnContextChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
+                        if(!eq.IsEqual(Previous.Context, Live.Context)) {
+                            Logger.LogDebug($"Context changed: {Previous.Context.DisplayString()} -> {Live.Context.DisplayString()}");
+                            OnContextChange(GetEvent());
                         }
 
                         // DEVICE
-                        if(!eq.IsEqual(previous?.Device, Live?.Device)) {
-                            Logger.LogDebug($"Device changed: {previous?.Device.DisplayString()} -> {Live?.Device.DisplayString()}");
-                            OnDeviceChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
+                        if(!eq.IsEqual(Previous?.Device, Live?.Device)) {
+                            Logger.LogDebug($"Device changed: {Previous?.Device.DisplayString()} -> {Live?.Device.DisplayString()}");
+                            OnDeviceChange(GetEvent());
                         }
 
                         // IS PLAYING
-                        if(previous.IsPlaying != Live.IsPlaying) {
-                            Logger.LogDebug($"Playing state changed: {previous.IsPlaying} -> {Live.IsPlaying}");
-                            OnPlayingChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
+                        if(Previous.IsPlaying != Live.IsPlaying) {
+                            Logger.LogDebug($"Playing state changed: {Previous.IsPlaying} -> {Live.IsPlaying}");
+                            OnPlayingChange(GetEvent());
                         }
 
                         // VOLUME
-                        if(previous.Device.VolumePercent != Live.Device.VolumePercent) {
-                            Logger.LogDebug($"Volume changed: {previous.Device.VolumePercent}% -> {Live.Device.VolumePercent}%");
-                            OnVolumeChange(ListeningChangeEventArgs.From(previous, Live, Past, id: Id, username: SpotifyUsername));
+                        if(Previous.Device.VolumePercent != Live.Device.VolumePercent) {
+                            Logger.LogDebug($"Volume changed: {Previous.Device.VolumePercent}% -> {Live.Device.VolumePercent}%");
+                            OnVolumeChange(GetEvent());
                         }
                     }
                 }
@@ -172,6 +179,8 @@ namespace Selector
             }
         }
 
+        private ListeningChangeEventArgs GetEvent() => ListeningChangeEventArgs.From(Previous, Live, Past, id: Id, username: SpotifyUsername);
+
         /// <summary>
         /// Store currently playing in last plays. Determine whether new list or appending required
         /// </summary>
@@ -182,6 +191,11 @@ namespace Selector
         }
 
         #region Event Firers
+        protected virtual void OnNetworkPoll(ListeningChangeEventArgs args)
+        {
+            NetworkPoll?.Invoke(this, args);
+        }
+
         protected virtual void OnItemChange(ListeningChangeEventArgs args)
         {
             ItemChange?.Invoke(this, args); 

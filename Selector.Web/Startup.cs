@@ -97,11 +97,14 @@ namespace Selector.Web
                 services.AddRedisServices(config.RedisOptions.ConnectionString);
 
             services.AddSpotify();
-            services.AddCachingSpotify();
+            if (config.RedisOptions.Enabled)
+            {
+                Console.WriteLine("> Adding caching Spotify consumers...");
+                services.AddCachingSpotify();
+                services.AddCacheHubProxy();
+            }
 
             ConfigureLastFm(config, services);
-
-            services.AddCacheHubProxy();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -141,7 +144,12 @@ namespace Selector.Web
                 Console.WriteLine("> Adding Last.fm credentials...");
 
                 services.AddLastFm(config.LastfmClient, config.LastfmSecret);
-                services.AddCachingLastFm();
+
+                if (config.RedisOptions.Enabled)
+                {
+                    Console.WriteLine("> Adding caching Last.fm consumers...");
+                    services.AddCachingLastFm();
+                }
             }
             else
             {

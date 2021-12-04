@@ -22,6 +22,7 @@ namespace Selector
         }
 
         public abstract Task WatchOne(CancellationToken token);
+        public abstract Task Reset();
 
         public async Task Watch(CancellationToken cancelToken)
         {

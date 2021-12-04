@@ -18,19 +18,10 @@ namespace Selector.Web.Pages
     public class NowModel : PageModel
     {
         private readonly ILogger<NowModel> Logger;
-        private readonly INowPlayingMappingFactory MappingFactory;
-        private readonly CacheHubProxy HubProxy;
-        private readonly UserManager<ApplicationUser> UserManager;
 
-        public NowModel(ILogger<NowModel> logger, 
-            INowPlayingMappingFactory mappingFactory, 
-            CacheHubProxy hubProxy, 
-            UserManager<ApplicationUser> userManager)
+        public NowModel(ILogger<NowModel> logger)
         {
             Logger = logger;
-            MappingFactory = mappingFactory;
-            HubProxy = hubProxy;
-            UserManager = userManager;
         }
 
         public void OnGet()

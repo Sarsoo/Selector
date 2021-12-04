@@ -27,8 +27,8 @@ namespace Selector.Cache.Extensions
 
         public static void AddCachingConsumerFactories(this IServiceCollection services)
         {
-            services.AddTransient<IAudioFeatureInjectorFactory, AudioFeatureInjectorFactory>();
-            services.AddTransient<AudioFeatureInjectorFactory>();
+            services.AddTransient<IAudioFeatureInjectorFactory, CachingAudioFeatureInjectorFactory>();
+            services.AddTransient<CachingAudioFeatureInjectorFactory>();
             services.AddTransient<IPlayCounterFactory, PlayCounterCachingFactory>();
             services.AddTransient<PlayCounterCachingFactory>();
 
