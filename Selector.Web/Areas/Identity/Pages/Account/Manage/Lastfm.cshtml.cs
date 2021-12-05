@@ -33,7 +33,6 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
-            [Required]
             [Display(Name = "Username")]
             public string Username { get; set; }
         }
@@ -76,7 +75,7 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
 
             if (Input.Username != user.LastFmUsername)
             {
-                user.LastFmUsername = Input.Username.Trim();
+                user.LastFmUsername = Input.Username?.Trim();
                 await _userManager.UpdateAsync(user);
 
                 StatusMessage = "Username changed";
