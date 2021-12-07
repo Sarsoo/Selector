@@ -74,9 +74,9 @@ namespace Selector.Model
             {
                 configFile = GetPath("Development");
             }
-            else if(File.Exists(GetPath("Release")))
+            else if(File.Exists(GetPath("Production")))
             {
-                configFile = GetPath("Release");
+                configFile = GetPath("Production");
             }
             else
             {
