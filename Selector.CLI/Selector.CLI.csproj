@@ -31,7 +31,7 @@
     <None Update="appsettings.Development.json" Condition="Exists('appsettings.Development.json')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="appsettings.Release.json" Condition="Exists('appsettings.Release.json')">
+    <None Update="appsettings.Production.json" Condition="Exists('appsettings.Production.json')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="appsettings.json">
