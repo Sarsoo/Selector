@@ -26,8 +26,7 @@ namespace Selector.CLI
                 }
             };
 
-            var host = CreateHostBuilder(args, ConfigureDefault, ConfigureDefaultNlog);
-            await host.RunConsoleAsync();
+            CreateHostBuilder(args, ConfigureDefault, ConfigureDefaultNlog).Build().Run();
         }
 
         public static RootOptions ConfigureOptions(HostBuilderContext context, IServiceCollection services)

@@ -83,7 +83,9 @@ namespace Selector.CLI
 
             var indices = new HashSet<string>();
 
-            foreach (var dbWatcher in db.Watcher.Include(w => w.User))
+            foreach (var dbWatcher in db.Watcher
+                                        .Include(w => w.User)
+                                        .Where(w => !string.IsNullOrWhiteSpace(w.User.SpotifyRefreshToken)))
             {
                 Logger.LogInformation($"Creating new [{dbWatcher.Type}] watcher");
 

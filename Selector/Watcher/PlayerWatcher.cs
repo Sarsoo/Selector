@@ -130,6 +130,14 @@ namespace Selector
                                 OnItemChange(GetEvent());
                             }
                         }
+                        else if (Previous.Item is null)
+                        {
+                            Logger.LogWarning($"Previous item was null [{Previous.DisplayString()}]");
+                        }
+                        else if (Live.Item is null)
+                        {
+                            Logger.LogWarning($"Live item was null [{Live.DisplayString()}]");
+                        }
                         else {
                             Logger.LogError($"Unknown combination of previous and current playing contexts, [{Previous.DisplayString()}] [{Live.DisplayString()}]");
                             throw new NotSupportedException("Unknown item combination");
