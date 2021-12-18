@@ -54,9 +54,9 @@ namespace Selector.Tests
                     Helper.CurrentPlayback(Helper.FullTrack("nochange", "album1", "artist1"), isPlaying: true, context: "context1"),
                 },
                 // to raise
-                new List<string>(){ "ItemChange", "ContextChange", "PlayingChange" },
+                new List<string>(){ "ItemChange", "ContextChange", "PlayingChange", "DeviceChange", "VolumeChange" },
                 // to not raise
-                new List<string>(){ "AlbumChange", "ArtistChange", "DeviceChange", "VolumeChange" }
+                new List<string>(){ "AlbumChange", "ArtistChange" }
             },
             // TRACK CHANGE
             new object[] { new List<CurrentlyPlayingContext>(){
@@ -64,9 +64,9 @@ namespace Selector.Tests
                     Helper.CurrentPlayback(Helper.FullTrack("trackchange2", "album1", "artist1"))
                 },
                 // to raise
-                new List<string>(){ "ContextChange", "PlayingChange", "ItemChange" },
+                new List<string>(){ "ContextChange", "PlayingChange", "ItemChange", "DeviceChange", "VolumeChange" },
                 // to not raise
-                new List<string>(){ "AlbumChange", "ArtistChange", "DeviceChange", "VolumeChange" }
+                new List<string>(){ "AlbumChange", "ArtistChange" }
             },
             // ALBUM CHANGE
             new object[] { new List<CurrentlyPlayingContext>(){
@@ -74,9 +74,9 @@ namespace Selector.Tests
                     Helper.CurrentPlayback(Helper.FullTrack("albumchange", "album2", "artist1"))
                 },
                 // to raise
-                new List<string>(){ "ContextChange", "PlayingChange", "ItemChange", "AlbumChange" },
+                new List<string>(){ "ContextChange", "PlayingChange", "ItemChange", "AlbumChange", "DeviceChange", "VolumeChange" },
                 // to not raise
-                new List<string>(){ "ArtistChange", "DeviceChange", "VolumeChange" }
+                new List<string>(){ "ArtistChange" }
             },
             // ARTIST CHANGE
             new object[] { new List<CurrentlyPlayingContext>(){
@@ -84,9 +84,9 @@ namespace Selector.Tests
                     Helper.CurrentPlayback(Helper.FullTrack("artistchange", "album1", "artist2"))
                 },
                 // to raise
-                new List<string>(){ "ContextChange", "PlayingChange", "ItemChange", "ArtistChange" },
+                new List<string>(){ "ContextChange", "PlayingChange", "ItemChange", "ArtistChange", "DeviceChange", "VolumeChange" },
                 // to not raise
-                new List<string>(){ "AlbumChange", "DeviceChange", "VolumeChange" }
+                new List<string>(){ "AlbumChange" }
             },
             // CONTEXT CHANGE
             new object[] { new List<CurrentlyPlayingContext>(){
@@ -94,9 +94,9 @@ namespace Selector.Tests
                     Helper.CurrentPlayback(Helper.FullTrack("contextchange", "album1", "artist1"), context: "context2")
                 },
                 // to raise
-                new List<string>(){ "PlayingChange", "ItemChange", "ContextChange" },
+                new List<string>(){ "PlayingChange", "ItemChange", "ContextChange", "DeviceChange", "VolumeChange" },
                 // to not raise
-                new List<string>(){ "AlbumChange", "ArtistChange", "DeviceChange", "VolumeChange" }
+                new List<string>(){ "AlbumChange", "ArtistChange" }
             },
             // PLAYING CHANGE
             new object[] { new List<CurrentlyPlayingContext>(){
@@ -104,9 +104,9 @@ namespace Selector.Tests
                     Helper.CurrentPlayback(Helper.FullTrack("playingchange1", "album1", "artist1"), isPlaying: false, context: "context1")
                 },
                 // to raise
-                new List<string>(){ "ContextChange", "ItemChange", "PlayingChange" },
+                new List<string>(){ "ContextChange", "ItemChange", "PlayingChange", "DeviceChange", "VolumeChange" },
                 // to not raise
-                new List<string>(){ "AlbumChange", "ArtistChange", "DeviceChange", "VolumeChange" }
+                new List<string>(){ "AlbumChange", "ArtistChange" }
             },
             // PLAYING CHANGE
             new object[] { new List<CurrentlyPlayingContext>(){
@@ -114,9 +114,9 @@ namespace Selector.Tests
                     Helper.CurrentPlayback(Helper.FullTrack("playingchange2", "album1", "artist1"), isPlaying: true, context: "context1")
                 },
                 // to raise
-                new List<string>(){ "ContextChange", "ItemChange", "PlayingChange" },
+                new List<string>(){ "ContextChange", "ItemChange", "PlayingChange", "DeviceChange", "VolumeChange" },
                 // to not raise
-                new List<string>(){ "AlbumChange", "ArtistChange", "DeviceChange", "VolumeChange" }
+                new List<string>(){ "AlbumChange", "ArtistChange" }
             },
             // CONTENT CHANGE
             new object[] { new List<CurrentlyPlayingContext>(){
@@ -124,9 +124,9 @@ namespace Selector.Tests
                     Helper.CurrentPlayback(Helper.FullEpisode("contentchange1", "show1", "pub1"), isPlaying: true, context: "context2")
                 },
                 // to raise
-                new List<string>(){ "PlayingChange", "ContentChange", "ContextChange", "ItemChange" },
+                new List<string>(){ "PlayingChange", "ContentChange", "ContextChange", "ItemChange", "DeviceChange", "VolumeChange" },
                 // to not raise
-                new List<string>(){ "AlbumChange", "ArtistChange", "DeviceChange", "VolumeChange" }
+                new List<string>(){ "AlbumChange", "ArtistChange" }
             },
             // CONTENT CHANGE
             new object[] { new List<CurrentlyPlayingContext>(){
@@ -134,9 +134,9 @@ namespace Selector.Tests
                     Helper.CurrentPlayback(Helper.FullTrack("contentchange1", "album1", "artist1"), isPlaying: true, context: "context1")
                 },
                 // to raise
-                new List<string>(){ "PlayingChange", "ContentChange", "ContextChange", "ItemChange" },
+                new List<string>(){ "PlayingChange", "ContentChange", "ContextChange", "ItemChange", "DeviceChange", "VolumeChange" },
                 // to not raise
-                new List<string>(){ "AlbumChange", "ArtistChange", "DeviceChange", "VolumeChange" }
+                new List<string>(){ "AlbumChange", "ArtistChange" }
             },
             // DEVICE CHANGE
             new object[] { new List<CurrentlyPlayingContext>(){
@@ -144,9 +144,9 @@ namespace Selector.Tests
                     Helper.CurrentPlayback(Helper.FullTrack("devicechange", "album1", "artist1"), device: Helper.Device("dev2"))
                 },
                 // to raise
-                new List<string>(){ "ContextChange", "PlayingChange", "ItemChange", "DeviceChange" },
+                new List<string>(){ "ContextChange", "PlayingChange", "ItemChange", "VolumeChange", "DeviceChange" },
                 // to not raise
-                new List<string>(){ "AlbumChange", "ArtistChange", "ContentChange", "VolumeChange" }
+                new List<string>(){ "AlbumChange", "ArtistChange", "ContentChange" }
             },
             // VOLUME CHANGE
             new object[] { new List<CurrentlyPlayingContext>(){
@@ -154,9 +154,9 @@ namespace Selector.Tests
                     Helper.CurrentPlayback(Helper.FullTrack("volumechange", "album1", "artist1"), device: Helper.Device("dev1", volume: 60))
                 },
                 // to raise
-                new List<string>(){ "ContextChange", "PlayingChange", "ItemChange", "VolumeChange" },
+                new List<string>(){ "ContextChange", "PlayingChange", "ItemChange", "VolumeChange", "DeviceChange" },
                 // to not raise
-                new List<string>(){ "AlbumChange", "ArtistChange", "ContentChange", "DeviceChange" }
+                new List<string>(){ "AlbumChange", "ArtistChange", "ContentChange" }
             },
             // // STARTED PLAYBACK
             // new object[] { new List<CurrentlyPlayingContext>(){

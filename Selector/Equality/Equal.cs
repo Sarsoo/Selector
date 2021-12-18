@@ -11,6 +11,9 @@ namespace Selector
 
         public bool IsEqual<T>(T item, T other)
         {
+            if (item is null && other is null) return true; 
+            if (item is null ^ other is null) return false;
+
             if (comps.ContainsKey(typeof(T)))
             {
                 var comp = (IEqualityComparer<T>) comps[typeof(T)];

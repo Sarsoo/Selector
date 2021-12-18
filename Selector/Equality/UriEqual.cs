@@ -6,6 +6,9 @@ namespace Selector
     {
         public bool IsEqual<T>(T item, T other)
         {
+            if (item is null && other is null) return true;
+            if (item is null ^ other is null) return false;
+
             var uri = typeof(T).GetProperty("Uri");
             
             if(uri is not null)

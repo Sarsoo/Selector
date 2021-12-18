@@ -68,127 +68,11 @@ namespace Selector
 
                 OnNetworkPoll(GetEvent());
 
-                // NOT PLAYING
-                if(Previous is null && Live is null)
-                {
-                    // Console.WriteLine("not playing");
-                }
-                else
-                {
-                    // STARTED PLAYBACK
-                    if(Previous?.Context is null && Live?.Context is not null)
-                    {
-                        Logger.LogDebug("Context started: {context}", Live?.Context.DisplayString());
-                        OnContextChange(GetEvent());
-                    }
+                CheckPlaying();
+                CheckContext();
+                CheckItem();
+                CheckDevice();
 
-                    if(Previous?.Item is null && Live?.Item is not null)
-                    {
-                        if (Live.Item is FullTrack track)
-                        {
-                            Logger.LogDebug("Item started: {track}", track.DisplayString());
-                        }
-                        else if (Live.Item is FullEpisode episode)
-                        {
-                            Logger.LogDebug("Item started: {episode}", episode.DisplayString());
-                        }
-                        else
-                        {
-                            Logger.LogDebug("Item started: {item}", Live.Item);
-                        }
-                        OnItemChange(GetEvent());
-                    }
-
-                    if(Previous is null && Live is not null)
-                    {
-                        Logger.LogDebug("Playback started: {context}", Live.DisplayString());
-                        OnPlayingChange(GetEvent());
-                    }
-                    // STOPPED PLAYBACK
-                    else if(Previous is not null && Live is null)
-                    {
-                        Logger.LogDebug("Playback stopped: {context}", Previous.DisplayString());
-                        OnPlayingChange(GetEvent());
-                        OnItemChange(GetEvent());
-                        OnContextChange(GetEvent());
-                    }
-                    // CONTINUING PLAYBACK
-                    else {
-
-                        // MUSIC
-                        if(Previous.Item is FullTrack previousTrack 
-                            && Live.Item is FullTrack currentTrack)
-                        {
-                            if(!eq.IsEqual(previousTrack, currentTrack)) {
-                                Logger.LogDebug("Track changed: {prevTrack} -> {currentTrack}", previousTrack.DisplayString(), currentTrack.DisplayString());
-                                OnItemChange(GetEvent());
-                            }
-
-                            if(!eq.IsEqual(previousTrack.Album, currentTrack.Album)) {
-                                Logger.LogDebug($"Album changed: {previousTrack.Album.DisplayString()} -> {currentTrack.Album.DisplayString()}");
-                                OnAlbumChange(GetEvent());
-                            }
-
-                            if(!eq.IsEqual(previousTrack.Artists[0], currentTrack.Artists[0])) {
-                                Logger.LogDebug($"Artist changed: {previousTrack.Artists.DisplayString()} -> {currentTrack.Artists.DisplayString()}");
-                                OnArtistChange(GetEvent());
-                            }
-                        }
-                        // CHANGED CONTENT TYPE
-                        else if((Previous.Item is FullTrack && Live.Item is FullEpisode)
-                            || (Previous.Item is FullEpisode && Live.Item is FullTrack))
-                        {
-                            Logger.LogDebug($"Media type changed: {Previous.Item}, {Previous.Item}");
-                            OnContentChange(GetEvent());
-                            OnItemChange(GetEvent());
-                        }
-                        // PODCASTS
-                        else if(Previous.Item is FullEpisode previousEp 
-                            && Live.Item is FullEpisode currentEp)
-                        {
-                            if(!eq.IsEqual(previousEp, currentEp)) {
-                                Logger.LogDebug($"Podcast changed: {previousEp.DisplayString()} -> {currentEp.DisplayString()}");
-                                OnItemChange(GetEvent());
-                            }
-                        }
-                        else if (Previous.Item is null)
-                        {
-                            Logger.LogTrace($"Previous item was null [{Previous.DisplayString()}]");
-                        }
-                        else if (Live.Item is null)
-                        {
-                            Logger.LogTrace($"Live item was null [{Live.DisplayString()}]");
-                        }
-                        else {
-                            Logger.LogError($"Unknown combination of previous and current playing contexts, [{Previous.DisplayString()}] [{Live.DisplayString()}]");
-                            throw new NotSupportedException("Unknown item combination");
-                        }
-
-                        // CONTEXT
-                        if(!eq.IsEqual(Previous.Context, Live.Context)) {
-                            Logger.LogDebug($"Context changed: {Previous.Context.DisplayString()} -> {Live.Context.DisplayString()}");
-                            OnContextChange(GetEvent());
-                        }
-
-                        // DEVICE
-                        if(!eq.IsEqual(Previous?.Device, Live?.Device)) {
-                            Logger.LogDebug($"Device changed: {Previous?.Device.DisplayString()} -> {Live?.Device.DisplayString()}");
-                            OnDeviceChange(GetEvent());
-                        }
-
-                        // IS PLAYING
-                        if(Previous.IsPlaying != Live.IsPlaying) {
-                            Logger.LogDebug($"Playing state changed: {Previous.IsPlaying} -> {Live.IsPlaying}");
-                            OnPlayingChange(GetEvent());
-                        }
-
-                        // VOLUME
-                        if(Previous.Device.VolumePercent != Live.Device.VolumePercent) {
-                            Logger.LogDebug($"Volume changed: {Previous.Device.VolumePercent}% -> {Live.Device.VolumePercent}%");
-                            OnVolumeChange(GetEvent());
-                        }
-                    }
-                }
             }
             catch(APIUnauthorizedException e)
             {
@@ -205,6 +89,129 @@ namespace Selector
             {
                 Logger.LogDebug($"API error: [{e.Message}]");
                 // throw e;
+            }
+        }
+
+        private void CheckItem()
+        {
+
+            switch (Previous, Live)
+            {
+                case (null or { Item: null }, { Item: FullTrack track }):
+                    Logger.LogDebug("Item started: {track}", track.DisplayString());
+                    break;
+                case (null or { Item: null }, { Item: FullEpisode episode }):
+                    Logger.LogDebug("Item started: {episode}", episode.DisplayString());
+                    break;
+                case (null or { Item: null }, { Item: not null }):
+                    Logger.LogDebug("Item started: {item}", Live.Item);
+                    break;
+            }
+
+            switch (Previous, Live)
+            {
+                case (null or { Item: null }, { Item: not null }):
+                    OnItemChange(GetEvent());
+                    break;
+                case ({ Item: not null }, null or { Item: null }):
+                    Logger.LogDebug("Item stopped: {context}", Previous.DisplayString());
+                    OnItemChange(GetEvent());
+                    break;
+            }
+
+            switch (Previous, Live)
+            {
+                case ({ Item: FullTrack previousTrack }, { Item: FullTrack currentTrack }):
+                    if (!eq.IsEqual(previousTrack, currentTrack))
+                    {
+                        Logger.LogDebug("Track changed: {prevTrack} -> {currentTrack}", previousTrack.DisplayString(), currentTrack.DisplayString());
+                        OnItemChange(GetEvent());
+                    }
+
+                    if (!eq.IsEqual(previousTrack.Album, currentTrack.Album))
+                    {
+                        Logger.LogDebug("Album changed: {previous} -> {current}", previousTrack.Album.DisplayString(), currentTrack.Album.DisplayString());
+                        OnAlbumChange(GetEvent());
+                    }
+
+                    if (!eq.IsEqual(previousTrack.Artists[0], currentTrack.Artists[0]))
+                    {
+                        Logger.LogDebug("Artist changed: {previous} -> {current}", previousTrack.Artists.DisplayString(), currentTrack.Artists.DisplayString());
+                        OnArtistChange(GetEvent());
+                    }
+                    break;
+                case ({ Item: FullTrack previousTrack }, { Item: FullEpisode currentEp }):
+                    Logger.LogDebug("Media type changed: {previous}, {current}", previousTrack.DisplayString(), currentEp.DisplayString());
+                    OnContentChange(GetEvent());
+                    OnItemChange(GetEvent());
+                    break;
+                case ({ Item: FullEpisode previousEpisode }, { Item: FullTrack currentTrack }):
+                    Logger.LogDebug("Media type changed: {previous}, {current}", previousEpisode.DisplayString(), currentTrack.DisplayString());
+                    OnContentChange(GetEvent());
+                    OnItemChange(GetEvent());
+                    break;
+                case ({ Item: FullEpisode previousEp }, { Item: FullEpisode currentEp }):
+                    if (!eq.IsEqual(previousEp, currentEp))
+                    {
+                        Logger.LogDebug($"Podcast changed: {previousEp.DisplayString()} -> {currentEp.DisplayString()}");
+                        OnItemChange(GetEvent());
+                    }
+                    break;
+            }
+        }
+
+        private void CheckContext()
+        {
+            if ((Previous, Live)
+                is (null or { Context: null }, { Context: not null }))
+            {
+                Logger.LogDebug("Context started: {context}", Live?.Context.DisplayString());
+                OnContextChange(GetEvent());
+            }
+            else if (!eq.IsEqual(Previous?.Context, Live?.Context))
+            {
+                Logger.LogDebug($"Context changed: {Previous?.Context?.DisplayString() ?? "none"} -> {Live?.Context?.DisplayString() ?? "none"}");
+                OnContextChange(GetEvent());
+            }
+        }
+
+        private void CheckPlaying()
+        {
+            switch (Previous, Live)
+            {
+                case (null, not null):
+                    Logger.LogDebug("Playback started: {context}", Live.DisplayString());
+                    OnPlayingChange(GetEvent());
+                    break;
+                case (not null, null):
+                    Logger.LogDebug("Playback stopped: {context}", Previous.DisplayString());
+                    OnPlayingChange(GetEvent());
+                    OnContextChange(GetEvent());
+                    break;
+            }
+
+            // IS PLAYING
+            if (Previous?.IsPlaying != Live?.IsPlaying)
+            {
+                Logger.LogDebug($"Playing state changed: {Previous?.IsPlaying} -> {Live?.IsPlaying}");
+                OnPlayingChange(GetEvent());
+            }
+        }
+
+        private void CheckDevice()
+        {
+            // DEVICE
+            if (!eq.IsEqual(Previous?.Device, Live?.Device))
+            {
+                Logger.LogDebug($"Device changed: {Previous?.Device?.DisplayString() ?? "none"} -> {Live?.Device?.DisplayString() ?? "none"}");
+                OnDeviceChange(GetEvent());
+            }
+
+            // VOLUME
+            if (Previous?.Device?.VolumePercent != Live?.Device?.VolumePercent)
+            {
+                Logger.LogDebug($"Volume changed: {Previous?.Device?.VolumePercent}% -> {Live?.Device?.VolumePercent}%");
+                OnVolumeChange(GetEvent());
             }
         }
 
