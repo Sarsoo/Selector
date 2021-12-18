@@ -72,7 +72,7 @@ namespace Selector.CLI
 
             var watcherIndices = await InitInstances();
 
-            Logger.LogInformation($"Starting {watcherIndices.Count()} affected watcher collection(s)...");
+            Logger.LogInformation("Starting {count} affected watcher collection(s)...", watcherIndices.Count());
             StartWatcherCollections(watcherIndices);
         }
 
@@ -87,7 +87,7 @@ namespace Selector.CLI
                                         .Include(w => w.User)
                                         .Where(w => !string.IsNullOrWhiteSpace(w.User.SpotifyRefreshToken)))
             {
-                Logger.LogInformation($"Creating new [{dbWatcher.Type}] watcher");
+                Logger.LogInformation("Creating new [{type}] watcher", dbWatcher.Type);
 
                 var watcherCollectionIdx = dbWatcher.UserId;
                 indices.Add(watcherCollectionIdx);
@@ -118,7 +118,7 @@ namespace Selector.CLI
                         }
                         else
                         {
-                            Logger.LogDebug($"[{dbWatcher.User.UserName}] No Last.fm username, skipping play counter");
+                            Logger.LogDebug("[{username}] No Last.fm username, skipping play counter", dbWatcher.User.UserName);
                         }
 
                         break;
@@ -140,12 +140,12 @@ namespace Selector.CLI
             {
                 try
                 {
-                    Logger.LogInformation($"Starting watcher collection [{index}]");
+                    Logger.LogInformation("Starting watcher collection [{index}]", index);
                     Watchers[index].Start();
                 }
                 catch (KeyNotFoundException)
                 {
-                    Logger.LogError($"Unable to retrieve watcher collection [{index}] when starting");
+                    Logger.LogError("Unable to retrieve watcher collection [{index}] when starting", index);
                 }
             }
         }
@@ -156,7 +156,7 @@ namespace Selector.CLI
 
             foreach((var key, var watcher) in Watchers)
             {
-                Logger.LogInformation($"Stopping watcher collection [{key}]");
+                Logger.LogInformation("Stopping watcher collection [{key}]", key);
                 watcher.Stop();
             }
 

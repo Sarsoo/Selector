@@ -141,6 +141,10 @@ namespace Selector
             {
                 Logger.LogDebug($"Ignoring podcast episdoe [{episode.DisplayString()}]");
             }
+            else if (e.Current.Item is null)
+            {
+                Logger.LogDebug($"Skipping play count pulling for null item [{e.Current.DisplayString()}]");
+            }
             else
             {
                 Logger.LogError($"Unknown item pulled from API [{e.Current.Item}]");

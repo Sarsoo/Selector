@@ -29,7 +29,16 @@ namespace Selector
             Logger.LogDebug("Starting watcher");
             while (true) {
                 cancelToken.ThrowIfCancellationRequested();
-                await WatchOne(cancelToken);
+
+                try
+                {
+                    await WatchOne(cancelToken);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Exception occured while conducting single poll operation");
+                }
+                
                 Logger.LogTrace($"Finished watch one, delaying {PollPeriod}ms...");
                 await Task.Delay(PollPeriod, cancelToken);
             }

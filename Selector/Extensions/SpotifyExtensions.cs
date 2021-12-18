@@ -21,15 +21,15 @@ namespace Selector
             
             if (currentPlaying.Item is FullTrack track)
             {
-                return $"{currentPlaying.IsPlaying}, {track.DisplayString()}, {currentPlaying.Device?.DisplayString()}";
+                return $"{currentPlaying.IsPlaying}, {track.DisplayString()}, {currentPlaying.Device?.DisplayString() ?? "no device"}, {currentPlaying?.Context?.DisplayString() ?? "no context"}";
             }
             else if (currentPlaying.Item is FullEpisode episode)
             {
-                return $"{currentPlaying.IsPlaying}, {episode.DisplayString()}, {currentPlaying.Device?.DisplayString()}";
+                return $"{currentPlaying.IsPlaying}, {episode.DisplayString()}, {currentPlaying.Device?.DisplayString() ?? "no device"}";
             }
             else if (currentPlaying.Item is null)
             {
-                return $"{currentPlaying.IsPlaying}, no item, {currentPlaying.Device?.DisplayString()}";
+                return $"{currentPlaying.IsPlaying}, no item, {currentPlaying.Device?.DisplayString() ?? "no device"}";
             }
             else
             {

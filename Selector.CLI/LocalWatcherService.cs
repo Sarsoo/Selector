@@ -54,7 +54,7 @@ namespace Selector.CLI
 
             var watcherIndices = await InitInstances();
 
-            Logger.LogInformation($"Starting {watcherIndices.Count()} affected watcher collection(s)...");
+            Logger.LogInformation("Starting {count} affected watcher collection(s)...", watcherIndices.Count());
             StartWatcherCollections(watcherIndices);
         }
 
@@ -145,12 +145,12 @@ namespace Selector.CLI
             {
                 try
                 {
-                    Logger.LogInformation($"Starting watcher collection [{index}]");
+                    Logger.LogInformation("Starting watcher collection [{index}]", index);
                     Watchers[index].Start();
                 }
                 catch (KeyNotFoundException)
                 {
-                    Logger.LogError($"Unable to retrieve watcher collection [{index}] when starting");
+                    Logger.LogError("Unable to retrieve watcher collection [{index}] when starting", index);
                 }
             }
         }
@@ -161,7 +161,7 @@ namespace Selector.CLI
 
             foreach((var key, var watcher) in Watchers)
             {
-                Logger.LogInformation($"Stopping watcher collection [{key}]");
+                Logger.LogInformation("Stopping watcher collection [{key}]", key);
                 watcher.Stop();
             }
 

@@ -58,7 +58,7 @@ namespace Selector
             try{
                 Logger.LogTrace("Making Spotify call");
                 var polledCurrent = await spotifyClient.GetCurrentPlayback();
-                Logger.LogTrace($"Received Spotify call [{polledCurrent?.DisplayString()}]");
+                Logger.LogTrace("Received Spotify call [{context}]", polledCurrent?.DisplayString());
 
                 if (polledCurrent != null) StoreCurrentPlaying(polledCurrent);
 
@@ -76,17 +76,38 @@ namespace Selector
                 else
                 {
                     // STARTED PLAYBACK
+                    if(Previous?.Context is null && Live?.Context is not null)
+                    {
+                        Logger.LogDebug("Context started: {context}", Live?.Context.DisplayString());
+                        OnContextChange(GetEvent());
+                    }
+
+                    if(Previous?.Item is null && Live?.Item is not null)
+                    {
+                        if (Live.Item is FullTrack track)
+                        {
+                            Logger.LogDebug("Item started: {track}", track.DisplayString());
+                        }
+                        else if (Live.Item is FullEpisode episode)
+                        {
+                            Logger.LogDebug("Item started: {episode}", episode.DisplayString());
+                        }
+                        else
+                        {
+                            Logger.LogDebug("Item started: {item}", Live.Item);
+                        }
+                        OnItemChange(GetEvent());
+                    }
+
                     if(Previous is null && Live is not null)
                     {
-                        Logger.LogDebug($"Playback started: {Live.DisplayString()}");
+                        Logger.LogDebug("Playback started: {context}", Live.DisplayString());
                         OnPlayingChange(GetEvent());
-                        OnItemChange(GetEvent());
-                        OnContextChange(GetEvent());
                     }
                     // STOPPED PLAYBACK
                     else if(Previous is not null && Live is null)
                     {
-                        Logger.LogDebug($"Playback stopped: {Previous.DisplayString()}");
+                        Logger.LogDebug("Playback stopped: {context}", Previous.DisplayString());
                         OnPlayingChange(GetEvent());
                         OnItemChange(GetEvent());
                         OnContextChange(GetEvent());
@@ -99,7 +120,7 @@ namespace Selector
                             && Live.Item is FullTrack currentTrack)
                         {
                             if(!eq.IsEqual(previousTrack, currentTrack)) {
-                                Logger.LogDebug($"Track changed: {previousTrack.DisplayString()} -> {currentTrack.DisplayString()}");
+                                Logger.LogDebug("Track changed: {prevTrack} -> {currentTrack}", previousTrack.DisplayString(), currentTrack.DisplayString());
                                 OnItemChange(GetEvent());
                             }
 
@@ -132,11 +153,11 @@ namespace Selector
                         }
                         else if (Previous.Item is null)
                         {
-                            Logger.LogWarning($"Previous item was null [{Previous.DisplayString()}]");
+                            Logger.LogTrace($"Previous item was null [{Previous.DisplayString()}]");
                         }
                         else if (Live.Item is null)
                         {
-                            Logger.LogWarning($"Live item was null [{Live.DisplayString()}]");
+                            Logger.LogTrace($"Live item was null [{Live.DisplayString()}]");
                         }
                         else {
                             Logger.LogError($"Unknown combination of previous and current playing contexts, [{Previous.DisplayString()}] [{Live.DisplayString()}]");
