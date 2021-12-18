@@ -82,7 +82,7 @@ namespace Selector
             catch(APITooManyRequestsException e)
             {
                 Logger.LogDebug($"Too many requests error: [{e.Message}]");
-                await Task.Delay(e.RetryAfter);
+                await Task.Delay(e.RetryAfter, token);
                 // throw e;
             }
             catch(APIException e)

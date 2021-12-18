@@ -37,7 +37,16 @@ namespace Selector.Cache
 
         public void CacheCallback(object sender, PlayCount e)
         {
-            Task.Run(async () => { await AsyncCacheCallback(e); }, CancelToken);
+            Task.Run(async () => {
+                try
+                {
+                    await AsyncCacheCallback(e);
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError(e, "Error occured during callback");
+                }
+            }, CancelToken);
         }
 
         public async Task AsyncCacheCallback(PlayCount e)

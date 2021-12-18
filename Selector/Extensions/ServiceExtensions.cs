@@ -16,6 +16,9 @@ namespace Selector.Extensions
 
             services.AddTransient<IPlayCounterFactory, PlayCounterFactory>();
             services.AddTransient<PlayCounterFactory>();
+
+            services.AddTransient<IWebHookFactory, WebHookFactory>();
+            services.AddTransient<WebHookFactory>();
         }
 
         public static void AddSpotify(this IServiceCollection services)
@@ -39,8 +42,6 @@ namespace Selector.Extensions
             services.AddTransient<IChartApi>(sp => sp.GetService<LastfmClient>().Chart);
             services.AddTransient<ILibraryApi>(sp => sp.GetService<LastfmClient>().Library);
             services.AddTransient<ITagApi>(sp => sp.GetService<LastfmClient>().Tag);
-
-
         }
 
         public static void AddWatcher(this IServiceCollection services)
