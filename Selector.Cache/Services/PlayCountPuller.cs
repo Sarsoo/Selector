@@ -45,9 +45,9 @@ namespace Selector.Cache
         {
             if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException("No username provided");
 
-            var trackCache = Cache?.StringGetAsync(Key.TrackPlayCount(track, artist));
-            var albumCache = Cache?.StringGetAsync(Key.AlbumPlayCount(album, albumArtist));
-            var artistCache = Cache?.StringGetAsync(Key.ArtistPlayCount(artist));
+            var trackCache = Cache?.StringGetAsync(Key.TrackPlayCount(username, track, artist));
+            var albumCache = Cache?.StringGetAsync(Key.AlbumPlayCount(username, album, albumArtist));
+            var artistCache = Cache?.StringGetAsync(Key.ArtistPlayCount(username,  artist));
             var userCache = Cache?.StringGetAsync(Key.UserPlayCount(username));
 
             var cacheTasks = new Task[] { trackCache, albumCache, artistCache, userCache };

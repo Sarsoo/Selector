@@ -48,6 +48,7 @@ namespace Selector.Web
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddControllers();
             services.AddSignalR(o => o.EnableDetailedErrors = true);
+            services.AddHttpClient();
 
             services.AddDbContext<ApplicationDbContext>(options => 
                 options.UseNpgsql(Configuration.GetConnectionString("Default"))
@@ -92,6 +93,7 @@ namespace Selector.Web
             });
 
             services.AddAuthorisationHandlers();
+            services.AddModelEventBus();
 
             if (config.RedisOptions.Enabled)
                 services.AddRedisServices(config.RedisOptions.ConnectionString);

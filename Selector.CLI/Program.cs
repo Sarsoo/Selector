@@ -13,6 +13,7 @@ using Selector.Cache;
 using Selector.Cache.Extensions;
 
 using IF.Lastfm.Core.Api;
+using Selector.Model.Extensions;
 
 namespace Selector.CLI
 {
@@ -101,6 +102,7 @@ namespace Selector.CLI
             Console.WriteLine("> Configuring...");
             // CONFIG
             var config = ConfigureOptions(context, services);
+            services.AddHttpClient();
 
             Console.WriteLine("> Adding Services...");
             // SERVICES

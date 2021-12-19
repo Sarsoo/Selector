@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Selector.Web.Service;
+using Selector.Web.Hubs;
 
 namespace Selector.Web.Extensions
 {
@@ -7,11 +8,14 @@ namespace Selector.Web.Extensions
     {
         public static void AddCacheHubProxy(this IServiceCollection services)
         {
-            services.AddSingleton<CacheHubProxy>();
-            services.AddHostedService<CacheHubProxyService>();
+            services.AddScoped<EventHubProxy>();
+            services.AddHostedService<CacheEventProxyService>();
 
-            services.AddTransient<INowPlayingMappingFactory, NowPlayingMappingFactory>();
-            services.AddScoped<IUserMapping, NowPlayingUserMapping>();
+            services.AddTransient<ICacheEventMapping, NowPlayingCacheMapping>();
+            services.AddTransient<NowPlayingCacheMapping>();
+
+            services.AddScoped<IEventHubMapping<NowPlayingHub, INowPlayingHubClient>, NowPlayingHubMapping>();
+            services.AddScoped<NowPlayingHubMapping>();
         }
     }
 }

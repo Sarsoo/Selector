@@ -56,9 +56,9 @@ namespace Selector.Cache
 
             var tasks = new Task[]
             {
-                Db.StringSetAsync(Key.TrackPlayCount(track.Name, track.Artists[0].Name), e.Track, expiry: CacheExpiry),
-                Db.StringSetAsync(Key.AlbumPlayCount(track.Album.Name, track.Album.Artists[0].Name), e.Album, expiry: CacheExpiry),
-                Db.StringSetAsync(Key.ArtistPlayCount(track.Artists[0].Name), e.Artist, expiry: CacheExpiry),
+                Db.StringSetAsync(Key.TrackPlayCount(e.Username, track.Name, track.Artists[0].Name), e.Track, expiry: CacheExpiry),
+                Db.StringSetAsync(Key.AlbumPlayCount(e.Username, track.Album.Name, track.Album.Artists[0].Name), e.Album, expiry: CacheExpiry),
+                Db.StringSetAsync(Key.ArtistPlayCount(e.Username, track.Artists[0].Name), e.Artist, expiry: CacheExpiry),
                 Db.StringSetAsync(Key.UserPlayCount(e.Username), e.User, expiry: CacheExpiry),
             };
 
