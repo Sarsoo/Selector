@@ -1,5 +1,85 @@
 @import "now.scss";
 
 body {
-    background-color: #c6c6c6;
+    background-color: #121212;
+    color: #efefef;
+}
+
+.navbar-bg {
+    background-color: #232323;
+}
+
+.form-element {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.menu-icon {
+    vertical-align: middle;
+    float: right;
+}
+
+.unselected img {
+    filter: brightness(0.4);
+}
+
+.black-img {
+    filter: brightness(0);
+}
+
+.central {
+    vertical-align: middle;
+}
+
+.data-value {
+    color: grey;
+}
+
+.separator-border {
+    border-bottom: 1px solid #191919;
+}
+
+.dash-underline {
+    text-decoration: dotted;
+    text-decoration-line: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 5px;
+
+    &:hover {
+        text-decoration: solid;
+        text-decoration-line: underline;
+        text-decoration-thickness: 1.5px;
+    }
+}
+
+.dash-underline-lg {
+    font-size: 24px;
+    text-decoration: dotted;
+    text-decoration-line: underline;
+    text-decoration-thickness: 4px;
+    text-underline-offset: 5px;
+
+    &:hover {
+        text-decoration: solid;
+        text-decoration-line: underline;
+        text-decoration-thickness: 3.4px;
+    }
+}
+
+.link-dark {
+    color: #a3a3a3;
+
+    &:hover {
+        color: #a3a3a3;
+    }
+}
+
+input[type=text], input[type=email], input[type=tel], input[type=password] {
+    background-color: #444444 !important;
+    border-color: #545454;
+    color: $text-color;
+
+    &:focus {
+        color: $text-color;
+    }
 }

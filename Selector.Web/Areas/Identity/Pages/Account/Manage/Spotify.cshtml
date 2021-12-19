@@ -5,22 +5,29 @@
     ViewData["ActivePage"] = ManageNavPages.Spotify;
 }
 
-<h4>@ViewData["Title"]</h4>
+<h4>@ViewData["Title"] <a href="https://spotify.com"><img src="/Spotify_Icon_RGB_White.png" class="spotify-logo central" /></a></h4>
 <partial name="_StatusMessage" model="Model.StatusMessage" />
+
 <div class="row">
     <div class="col-md-6">
         <form id="spotify-form" method="post">
             @if (Model.SpotifyIsLinked)
             {
-                <button id="unlink-button" type="submit" asp-page-handler="Unlink" class="btn btn-primary">Unlink</button>
+                <button id="unlink-button" type="submit" asp-page-handler="Unlink" class="btn btn-primary form-element">Unlink</button>
             }
             else
             {
-                <button id="link-button" type="submit" asp-page-handler="Link" class="btn btn-primary">Link</button>
+                <button id="link-button" type="submit" asp-page-handler="Link" class="btn btn-primary form-element">Link</button>
             }
         </form>
     </div>
 </div>
+@if (Model.SpotifyIsLinked)
+{
+    <div class="row">
+        <p class="small">Token last refreshed: <span class="data-value">@Model.LastRefresh</span></p>
+    </div>    
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

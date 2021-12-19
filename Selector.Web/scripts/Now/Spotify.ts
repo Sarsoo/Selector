@@ -103,7 +103,7 @@ export let AudioFeatureChartCard: Vue.Component = {
                 elements: {
                     line: {
                         borderWidth: 4,
-                        borderColor: "#3a3a3a",
+                        borderColor: "#a34c77",
                         backgroundColor: "#727272",
                         borderCapStyle: "round",
                         borderJoinStyle: "round"

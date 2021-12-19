@@ -3,13 +3,14 @@
 }
 
 $text-color: white;
+$shadow-color: #1e1e1e;
 
 .card {
-    background-color: grey;
+    background-color: #333232;
     color: $text-color;
     margin: 5px;
     padding: 15px;
-    box-shadow: 4px 4px 2px #5e5e5e;
+    box-shadow: 4px 4px 2px $shadow-color;
     transition: box-shadow 0.5s;
 
     &:hover {
@@ -21,10 +22,10 @@ $text-color: white;
 .now-playing-card {
     // max-width: 300px;
 
-    text-shadow: 2px 2px 2px #5e5e5e;
+    text-shadow: 2px 2px 2px $shadow-color;
 
     .cover-art {
-        box-shadow: 4px 4px 2px #5e5e5e;
+        box-shadow: 4px 4px 2px $shadow-color;
         margin-bottom: 15px;
     }
 
@@ -85,7 +86,7 @@ $text-color: white;
 .popularity-progress {
     margin-top: 10px;
     margin-bottom: 20px;
-    box-shadow: 2px 2px 2px #5e5e5e;
+    box-shadow: 2px 2px 2px $shadow-color;
 }
 
 .subtle-link {

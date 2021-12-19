@@ -37,6 +37,9 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
         [BindProperty]
         public bool SpotifyIsLinked { get; set; }
 
+        [BindProperty]
+        public DateTime LastRefresh { get; set; }
+
         [TempData]
         public string StatusMessage { get; set; }
 
@@ -49,6 +52,7 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
             }
 
             SpotifyIsLinked = user.SpotifyIsLinked;
+            LastRefresh = user.SpotifyLastRefresh;
 
             return Page();
         }
