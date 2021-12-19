@@ -12,17 +12,21 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 
 using Selector.Model;
+using Selector.Events;
 
 namespace Selector.Web.Areas.Identity.Pages.Account.Manage
 {
     public partial class LastFmModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserEventBus UserEvent;
 
         public LastFmModel(
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            UserEventBus userEvent)
         {
             _userManager = userManager;
+            UserEvent = userEvent;
         }
 
         [TempData]
@@ -75,8 +79,15 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
 
             if (Input.Username != user.LastFmUsername)
             {
+                var oldUsername = user.LastFmUsername;
                 user.LastFmUsername = Input.Username?.Trim();
+                
                 await _userManager.UpdateAsync(user);
+                UserEvent.OnLastfmCredChange(this, new LastfmChange { 
+                    UserId = user.Id, 
+                    PreviousUsername = oldUsername, 
+                    NewUsername = user.LastFmUsername
+                });
 
                 StatusMessage = "Username changed";
                 return RedirectToPage();

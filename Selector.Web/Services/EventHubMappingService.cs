@@ -6,35 +6,27 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using Selector.Events;
+
 namespace Selector.Web.Service
 {
-    public class CacheEventProxyService: IHostedService
+    public class EventHubMappingService: IHostedService
     {
-        private readonly ILogger<CacheEventProxyService> Logger;
+        private readonly ILogger<EventHubMappingService> Logger;
         private readonly IServiceScopeFactory ScopeFactory;
 
-        private readonly IEnumerable<ICacheEventMapping> CacheEvents;
-
-        public CacheEventProxyService(
-            ILogger<CacheEventProxyService> logger,
-            IEnumerable<ICacheEventMapping> mappings,
+        public EventHubMappingService(
+            ILogger<EventHubMappingService> logger,
             IServiceScopeFactory scopeFactory
         )
         {
             Logger = logger;
             ScopeFactory = scopeFactory;
-
-            CacheEvents = mappings;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            Logger.LogInformation("Starting cache event proxy");
-
-            foreach (var mapping in CacheEvents)
-            {
-                mapping.ConstructMapping();
-            }
+            Logger.LogInformation("Starting hub event mapping service");
 
             using (var scope = ScopeFactory.CreateScope())
             {
@@ -47,7 +39,6 @@ namespace Selector.Web.Service
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            Logger.LogInformation("Stopping cache hub proxy");
             return Task.CompletedTask;
         }
     }

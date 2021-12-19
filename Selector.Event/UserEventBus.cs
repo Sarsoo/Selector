@@ -4,17 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Selector.Events;
 
-namespace Selector.Model.Events
+using Selector.Model;
+
+namespace Selector.Events
 {
     public class UserEventBus: IEventBus
     {
         private readonly ILogger<UserEventBus> Logger;
 
         public event EventHandler<ApplicationUser> UserChange;
-        public event EventHandler<ApplicationUser> SpotifyLinkChange;
-        public event EventHandler<ApplicationUser> LastfmCredChange;
+        public event EventHandler<SpotifyLinkChange> SpotifyLinkChange;
+        public event EventHandler<LastfmChange> LastfmCredChange;
 
         public event EventHandler<(string, CurrentlyPlayingDTO)> CurrentlyPlaying;
 
@@ -29,15 +30,15 @@ namespace Selector.Model.Events
             UserChange?.Invoke(sender, args);
         }
 
-        public void OnSpotifyLinkChange(object sender, ApplicationUser args)
+        public void OnSpotifyLinkChange(object sender, SpotifyLinkChange args)
         {
-            Logger.LogTrace("Firing user Spotify event [{usernamne}]", args?.UserName);
+            Logger.LogTrace("Firing user Spotify event [{usernamne}]", args?.UserId);
             SpotifyLinkChange?.Invoke(sender, args);
         }
 
-        public void OnLastfmCredChange(object sender, ApplicationUser args)
+        public void OnLastfmCredChange(object sender, LastfmChange args)
         {
-            Logger.LogTrace("Firing user Last.fm event [{usernamne}]", args?.UserName);
+            Logger.LogTrace("Firing user Last.fm event [{usernamne}]", args?.UserId);
             LastfmCredChange?.Invoke(sender, args);
         }
 

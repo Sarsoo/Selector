@@ -8,9 +8,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 
-using Selector.Model;
-
 using SpotifyAPI.Web;
+
+using Selector.Events;
+using Selector.Model;
 
 namespace Selector.Web.Controller
 {
@@ -20,6 +21,7 @@ namespace Selector.Web.Controller
     public class SpotifyController : BaseAuthController
     {
         private readonly RootOptions Config;
+        private readonly UserEventBus UserEvent;
         private const string ManageSpotifyPath = "/Identity/Account/Manage/Spotify";
 
         public SpotifyController(
@@ -27,10 +29,12 @@ namespace Selector.Web.Controller
             IAuthorizationService auth,
             UserManager<ApplicationUser> userManager,
             ILogger<UsersController> logger,
-            IOptions<RootOptions> config
+            IOptions<RootOptions> config,
+            UserEventBus userEvent
         ) : base(context, auth, userManager, logger) 
         {
             Config = config.Value;
+            UserEvent = userEvent;
         }
 
         [HttpGet]
@@ -75,6 +79,8 @@ namespace Selector.Web.Controller
             user.SpotifyTokenExpiry = response.ExpiresIn;
 
             await UserManager.UpdateAsync(user);
+
+            UserEvent.OnSpotifyLinkChange(this, new SpotifyLinkChange { UserId = user.Id, PreviousLinkState = false, NewLinkState = true });
 
             TempData["StatusMessage"] = "Spotify Linked";
             return Redirect(ManageSpotifyPath);

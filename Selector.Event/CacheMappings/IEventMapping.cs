@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using StackExchange.Redis;
 
-namespace Selector.Web.Service
+namespace Selector.Events
 {
-    public interface ICacheEventMapping
+    public interface IEventMapping
     {
         public Task ConstructMapping();
     }

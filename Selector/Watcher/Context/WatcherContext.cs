@@ -10,7 +10,7 @@ namespace Selector
     public class WatcherContext: IDisposable, IWatcherContext
     {
         public IWatcher Watcher { get; set; }
-        private List<IConsumer> Consumers { get; set; } = new();
+        public List<IConsumer> Consumers { get; private set; } = new();
         public bool IsRunning { get; private set; }
         /// <summary>
         /// Reference to Watcher.Watch() task when running

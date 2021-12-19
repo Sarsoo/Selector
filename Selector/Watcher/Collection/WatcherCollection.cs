@@ -22,6 +22,12 @@ namespace Selector
         }
 
         public int Count => Watchers.Count;
+
+        public IEnumerable<IConsumer> Consumers
+            => Watchers
+                .SelectMany(w => w.Consumers)
+                .Where(t => t is not null);
+
         public IEnumerable<Task> Tasks 
             => Watchers
                 .Select(w => w.Task)
@@ -32,17 +38,18 @@ namespace Selector
                 .Select(w => w.TokenSource)
                 .Where(t => t is not null);
 
-        public void Add(IWatcher watcher)
+        public IWatcherContext Add(IWatcher watcher)
         {
-            Add(watcher, default);
+            return Add(watcher, default);
         }
 
-        public void Add(IWatcher watcher, List<IConsumer> consumers)
+        public IWatcherContext Add(IWatcher watcher, List<IConsumer> consumers)
         {
             var context = WatcherContext.From(watcher, consumers);
             if (IsRunning) context.Start();
 
             Watchers.Add(context);
+            return context;
         }
 
         public IEnumerable<WatcherContext> Running
@@ -50,6 +57,8 @@ namespace Selector
 
         public void Start()
         {
+            if (IsRunning) return;
+
             Logger.LogDebug($"Starting {Count} watcher(s)");
             foreach(var watcher in Watchers)
             {
@@ -60,13 +69,33 @@ namespace Selector
         
         public void Stop()
         {
-            Logger.LogDebug($"Stopping {Count} watcher(s)");
-            foreach (var watcher in Watchers)
+            if (!IsRunning) return;
+
+            try
             {
-                watcher.Stop();
+                Logger.LogDebug($"Stopping {Count} watcher(s)");
+                foreach (var watcher in Watchers)
+                {
+                    watcher.Stop();
+                }
+                Task.WaitAll(Tasks.ToArray());
+                IsRunning = false;
             }
-            Task.WaitAll(Tasks.ToArray());
-            IsRunning = false;
+            catch (TaskCanceledException)
+            {
+                Logger.LogTrace("Caught task cancelled exception");
+            }
+            catch (AggregateException ex)
+            {
+                if(ex.InnerException is TaskCanceledException || ex.InnerExceptions.Any(e => e is TaskCanceledException))
+                {
+                    Logger.LogTrace("Caught task cancelled exception");
+                }
+                else
+                {
+                    throw ex;
+                }
+            }
         }
 
         public void Dispose()

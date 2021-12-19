@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+using Selector.Events;
 using Selector.Web.Hubs;
 using Selector.Web.Extensions;
 using Selector.Extensions;
@@ -93,20 +94,28 @@ namespace Selector.Web
             });
 
             services.AddAuthorisationHandlers();
-            services.AddModelEventBus();
 
-            if (config.RedisOptions.Enabled)
-                services.AddRedisServices(config.RedisOptions.ConnectionString);
+            services.AddEvents();
 
             services.AddSpotify();
+            ConfigureLastFm(config, services);
+
             if (config.RedisOptions.Enabled)
             {
+                Console.WriteLine("> Adding Redis...");
+                services.AddRedisServices(config.RedisOptions.ConnectionString);
+
+                Console.WriteLine("> Adding cache event maps...");
+
+                services.AddTransient<IEventMapping, SpotifyLinkToCacheMapping>();
+                services.AddTransient<IEventMapping, LastfmToCacheMapping>();
+                services.AddTransient<IEventMapping, NowPlayingFromCacheMapping>();
+
+                services.AddCacheHubProxy();
+
                 Console.WriteLine("> Adding caching Spotify consumers...");
                 services.AddCachingSpotify();
-                services.AddCacheHubProxy();
             }
-
-            ConfigureLastFm(config, services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

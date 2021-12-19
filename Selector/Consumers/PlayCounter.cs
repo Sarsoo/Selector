@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using SpotifyAPI.Web;
 using IF.Lastfm.Core.Api;
+using IF.Lastfm.Core.Objects;
+using IF.Lastfm.Core.Api.Helpers;
 
 namespace Selector
 {
@@ -18,7 +20,7 @@ namespace Selector
         protected readonly IAlbumApi AlbumClient;
         protected readonly IArtistApi ArtistClient;
         protected readonly IUserApi UserClient;
-        protected readonly LastFmCredentials Credentials;
+        public readonly LastFmCredentials Credentials;
         protected readonly ILogger<PlayCounter> Logger;
 
         protected event EventHandler<PlayCount> NewPlayCount;
@@ -66,6 +68,12 @@ namespace Selector
 
         public async Task AsyncCallback(ListeningChangeEventArgs e)
         {
+            if(Credentials is null || string.IsNullOrWhiteSpace(Credentials.Username))
+            {
+                Logger.LogDebug("No Last.fm username, skipping play count");
+                return;
+            }
+
             if (e.Current.Item is FullTrack track)
             {
                 Logger.LogTrace("Making Last.fm call");
@@ -73,7 +81,6 @@ namespace Selector
                 var trackInfo = TrackClient.GetInfoAsync(track.Name, track.Artists[0].Name, username: Credentials?.Username);
                 var albumInfo = AlbumClient.GetInfoAsync(track.Album.Artists[0].Name, track.Album.Name, username: Credentials?.Username);
                 var artistInfo = ArtistClient.GetInfoAsync(track.Artists[0].Name);
-                // TODO: Null checking on credentials
                 var userInfo = UserClient.GetInfoAsync(Credentials.Username);
 
                 await Task.WhenAll(new Task[] { trackInfo, albumInfo, artistInfo, userInfo });

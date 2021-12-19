@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30717.126
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Selector", "Selector\Selector.csproj", "{05B22ACE-2EA1-46AA-8483-A625B08A0D01}"
 EndProject
@@ -18,9 +18,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Selector.CLI", "Selector.CL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Selector.Model", "Selector.Model\Selector.Model.csproj", "{B609975D-7CA6-422E-8461-E837C9EDB104}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Selector.Web", "Selector.Web\Selector.Web.csproj", "{ABC6EEBB-4C0D-45BD-8DDC-0B0304EAF34F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Selector.Web", "Selector.Web\Selector.Web.csproj", "{ABC6EEBB-4C0D-45BD-8DDC-0B0304EAF34F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Selector.Cache", "Selector.Cache\Selector.Cache.csproj", "{D8761D46-EF2B-4323-894F-E67C3EB0D0BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Selector.Cache", "Selector.Cache\Selector.Cache.csproj", "{D8761D46-EF2B-4323-894F-E67C3EB0D0BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Selector.Event", "Selector.Event\Selector.Event.csproj", "{C2FF1673-CB1A-43B7-A814-07BB3CB3A0D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,6 +54,10 @@ Global
 		{D8761D46-EF2B-4323-894F-E67C3EB0D0BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8761D46-EF2B-4323-894F-E67C3EB0D0BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8761D46-EF2B-4323-894F-E67C3EB0D0BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2FF1673-CB1A-43B7-A814-07BB3CB3A0D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2FF1673-CB1A-43B7-A814-07BB3CB3A0D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2FF1673-CB1A-43B7-A814-07BB3CB3A0D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2FF1673-CB1A-43B7-A814-07BB3CB3A0D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

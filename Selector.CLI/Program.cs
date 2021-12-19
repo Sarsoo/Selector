@@ -11,9 +11,7 @@ using Selector.Extensions;
 using Selector.Model;
 using Selector.Cache;
 using Selector.Cache.Extensions;
-
-using IF.Lastfm.Core.Api;
-using Selector.Model.Extensions;
+using Selector.Events;
 
 namespace Selector.CLI
 {
@@ -114,19 +112,25 @@ namespace Selector.CLI
             }
             services.AddWatcher();
 
-            services.AddSpotify();
-            if (config.RedisOptions.Enabled) {
-                Console.WriteLine("> Adding caching Spotify consumers...");
-                services.AddCachingSpotify(); 
-            }
+            services.AddEvents();
 
+            services.AddSpotify();
             ConfigureLastFm(config, services);
             ConfigureDb(config, services);
+            ConfigureEqual(config, services);
 
-            if (config.RedisOptions.Enabled) 
+            if (config.RedisOptions.Enabled)
+            {
+                Console.WriteLine("> Adding Redis...");
                 services.AddRedisServices(config.RedisOptions.ConnectionString);
 
-            ConfigureEqual(config, services);
+                Console.WriteLine("> Adding cache event maps...");
+                services.AddTransient<IEventMapping, SpotifyLinkFromCacheMapping>();
+                services.AddTransient<IEventMapping, LastfmFromCacheMapping>();
+
+                Console.WriteLine("> Adding caching Spotify consumers...");
+                services.AddCachingSpotify();
+            }
 
             // HOSTED SERVICES
             if (config.WatcherOptions.Enabled)

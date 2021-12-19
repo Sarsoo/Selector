@@ -25,6 +25,7 @@
     <ProjectReference Include="..\Selector\Selector.csproj" />
     <ProjectReference Include="..\Selector.Model\Selector.Model.csproj" />
     <ProjectReference Include="..\Selector.Cache\Selector.Cache.csproj" />
+    <ProjectReference Include="..\Selector.Event\Selector.Event.csproj" />
   </ItemGroup>
 
   <ItemGroup>

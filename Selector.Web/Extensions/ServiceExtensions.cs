@@ -9,10 +9,7 @@ namespace Selector.Web.Extensions
         public static void AddCacheHubProxy(this IServiceCollection services)
         {
             services.AddScoped<EventHubProxy>();
-            services.AddHostedService<CacheEventProxyService>();
-
-            services.AddTransient<ICacheEventMapping, NowPlayingCacheMapping>();
-            services.AddTransient<NowPlayingCacheMapping>();
+            services.AddHostedService<EventHubMappingService>();
 
             services.AddScoped<IEventHubMapping<NowPlayingHub, INowPlayingHubClient>, NowPlayingHubMapping>();
             services.AddScoped<NowPlayingHubMapping>();

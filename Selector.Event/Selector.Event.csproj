@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Selector\Selector.csproj" />
+    <ProjectReference Include="..\Selector.Model\Selector.Model.csproj" />
+    <ProjectReference Include="..\Selector.Cache\Selector.Cache.csproj" />
+  </ItemGroup>
+
+</Project>

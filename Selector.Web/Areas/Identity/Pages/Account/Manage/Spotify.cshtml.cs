@@ -1,20 +1,15 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
-
-using Selector.Model;
-using SpotifyAPI.Web;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
+
+using SpotifyAPI.Web;
+
+using Selector.Model;
+using Selector.Events;
 
 namespace Selector.Web.Areas.Identity.Pages.Account.Manage
 {
@@ -23,16 +18,20 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<SpotifyModel> Logger;
         private readonly RootOptions Config;
+        private readonly UserEventBus UserEvent;
 
         public SpotifyModel(
             UserManager<ApplicationUser> userManager,
             ILogger<SpotifyModel> logger,
-            IOptions<RootOptions> config
+            IOptions<RootOptions> config,
+            UserEventBus userEvent
             )
         {
             _userManager = userManager;
             Logger = logger;
             Config = config.Value;
+
+            UserEvent = userEvent;
         }
 
         [BindProperty]
@@ -97,8 +96,6 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            // TODO: stop users Spotify-linked resources (watchers)
-
             user.SpotifyIsLinked = false;
 
             user.SpotifyAccessToken = null;
@@ -107,6 +104,7 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
             user.SpotifyLastRefresh = default;
 
             await _userManager.UpdateAsync(user);
+            UserEvent.OnSpotifyLinkChange(this, new SpotifyLinkChange { UserId = user.Id, PreviousLinkState = true, NewLinkState = false });
 
             StatusMessage = "Spotify Unlinked";
             return RedirectToPage();

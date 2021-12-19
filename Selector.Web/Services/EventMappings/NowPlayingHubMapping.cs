@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 using Selector.Web.Hubs;
-using Selector.Model.Events;
+using Selector.Events;
 
 namespace Selector.Web.Service
 {

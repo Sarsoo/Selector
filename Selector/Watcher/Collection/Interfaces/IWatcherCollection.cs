@@ -11,13 +11,13 @@ namespace Selector
         /// Add watcher to collection, will start watcher if collection is running
         /// </summary>
         /// <param name="watcher">New watcher</param>
-        public void Add(IWatcher watcher);
+        public IWatcherContext Add(IWatcher watcher);
         /// <summary>
         /// Add watcher with given consumers to collection, will start watcher if collection is running
         /// </summary>
         /// <param name="watcher">New watcher</param>
         /// <param name="consumers">Consumers to subscribe to new watcher</param>
-        public void Add(IWatcher watcher, List<IConsumer> consumers);
+        public IWatcherContext Add(IWatcher watcher, List<IConsumer> consumers);
 
         /// <summary>
         /// Start watcher collection
@@ -27,5 +27,7 @@ namespace Selector
         /// Stop watcher collection
         /// </summary>
         public void Stop();
+
+        public IEnumerable<IConsumer> Consumers { get; }
     }
 }
