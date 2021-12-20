@@ -38,9 +38,9 @@ namespace Selector
 
         protected readonly WebHookConfig Config;
 
-        protected event EventHandler PredicatePass;
-        protected event EventHandler SuccessfulRequest;
-        protected event EventHandler FailedRequest;
+        public event EventHandler PredicatePass;
+        public event EventHandler SuccessfulRequest;
+        public event EventHandler FailedRequest;
 
         public CancellationToken CancelToken { get; set; }
 
@@ -81,20 +81,31 @@ namespace Selector
         {
             if(Config.ShouldRequest(e))
             {
-                Logger.LogDebug("[{name}] predicate passed, making request to [{url}]", Config.Name, Config.Url);
-                var response = await HttpClient.PostAsync(Config.Url, Config.Content, CancelToken);
-
-                OnPredicatePass(new EventArgs());
-
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    Logger.LogDebug("[{name}] request success", Config.Name);
-                    OnSuccessfulRequest(new EventArgs());
+                    Logger.LogDebug("[{name}] predicate passed, making request to [{url}]", Config.Name, Config.Url);
+                    OnPredicatePass(new EventArgs());
+
+                    var response = await HttpClient.PostAsync(Config.Url, Config.Content, CancelToken);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Logger.LogDebug("[{name}] request success", Config.Name);
+                        OnSuccessfulRequest(new EventArgs());
+                    }
+                    else
+                    {
+                        Logger.LogDebug("[{name}] request failed [{error}] [{content}]", Config.Name, response.StatusCode, response.Content);
+                        OnFailedRequest(new EventArgs());
+                    }
                 }
-                else
+                catch(HttpRequestException ex)
                 {
-                    Logger.LogDebug("[{name}] request failed [{error}] [{content}]", Config.Name, response.StatusCode, response.Content);
-                    OnFailedRequest(new EventArgs());
+                    Logger.LogError(ex, "Exception occured during request");
+                }
+                catch (TaskCanceledException)
+                {
+                    Logger.LogDebug("Task cancelled");
                 }
             }
             else

@@ -8,6 +8,9 @@ namespace Selector.Events
         {
             services.AddEventBus();
             services.AddEventMappingAgent();
+
+            services.AddTransient<IUserEventFirerFactory, UserEventFirerFactory>();
+            services.AddTransient<UserEventFirerFactory>();
         }
 
         public static void AddEventBus(this IServiceCollection services)

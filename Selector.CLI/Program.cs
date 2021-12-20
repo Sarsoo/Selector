@@ -125,8 +125,8 @@ namespace Selector.CLI
                 services.AddRedisServices(config.RedisOptions.ConnectionString);
 
                 Console.WriteLine("> Adding cache event maps...");
-                services.AddTransient<IEventMapping, SpotifyLinkFromCacheMapping>();
-                services.AddTransient<IEventMapping, LastfmFromCacheMapping>();
+                services.AddTransient<IEventMapping, FromPubSub.SpotifyLink>();
+                services.AddTransient<IEventMapping, FromPubSub.Lastfm>();
 
                 Console.WriteLine("> Adding caching Spotify consumers...");
                 services.AddCachingSpotify();

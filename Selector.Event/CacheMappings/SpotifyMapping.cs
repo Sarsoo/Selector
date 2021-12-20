@@ -14,78 +14,85 @@ namespace Selector.Events
         public bool NewLinkState { get; set; }
     }
 
-    public class SpotifyLinkFromCacheMapping : IEventMapping
+    public partial class FromPubSub
     {
-        private readonly ILogger<SpotifyLinkFromCacheMapping> Logger;
-        private readonly ISubscriber Subscriber;
-        private readonly UserEventBus UserEvent;
-
-        public SpotifyLinkFromCacheMapping(ILogger<SpotifyLinkFromCacheMapping> logger, 
-            ISubscriber subscriber,
-            UserEventBus userEvent)
+        public class SpotifyLink : IEventMapping
         {
-            Logger = logger;
-            Subscriber = subscriber;
-            UserEvent = userEvent;
-        }
+            private readonly ILogger<SpotifyLink> Logger;
+            private readonly ISubscriber Subscriber;
+            private readonly UserEventBus UserEvent;
 
-        public async Task ConstructMapping()
-        {
-            Logger.LogDebug("Forming Spotify link event mapping FROM cache TO event bus");
+            public SpotifyLink(ILogger<SpotifyLink> logger,
+                ISubscriber subscriber,
+                UserEventBus userEvent)
+            {
+                Logger = logger;
+                Subscriber = subscriber;
+                UserEvent = userEvent;
+            }
 
-            (await Subscriber.SubscribeAsync(Key.AllUserSpotify)).OnMessage(message => {
-                
-                try{
-                    var userId = Key.Param(message.Channel);
+            public async Task ConstructMapping()
+            {
+                Logger.LogDebug("Forming Spotify link event mapping FROM cache TO event bus");
 
-                    var deserialised = JsonSerializer.Deserialize<SpotifyLinkChange>(message.Message);
-                    Logger.LogDebug("Received new Spotify link event for [{userId}]", deserialised.UserId);
+                (await Subscriber.SubscribeAsync(Key.AllUserSpotify)).OnMessage(message => {
 
-                    if (!userId.Equals(deserialised.UserId))
+                    try
                     {
-                        Logger.LogWarning("Serialised user ID [{}] does not match cache channel [{}]", userId, deserialised.UserId);
-                    }
+                        var userId = Key.Param(message.Channel);
 
-                    UserEvent.OnSpotifyLinkChange(this, deserialised);
-                }
-                catch(TaskCanceledException)
-                {
-                    Logger.LogDebug("Task Cancelled");
-                }
-                catch(Exception e)
-                {
-                    Logger.LogError(e, "Error parsing new Spotify link event");
-                }
-            });
+                        var deserialised = JsonSerializer.Deserialize<SpotifyLinkChange>(message.Message);
+                        Logger.LogDebug("Received new Spotify link event for [{userId}]", deserialised.UserId);
+
+                        if (!userId.Equals(deserialised.UserId))
+                        {
+                            Logger.LogWarning("Serialised user ID [{}] does not match cache channel [{}]", userId, deserialised.UserId);
+                        }
+
+                        UserEvent.OnSpotifyLinkChange(this, deserialised);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        Logger.LogDebug("Task Cancelled");
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.LogError(e, "Error parsing new Spotify link event");
+                    }
+                });
+            }
         }
     }
 
-    public class SpotifyLinkToCacheMapping : IEventMapping
+    public partial class ToPubSub
     {
-        private readonly ILogger<SpotifyLinkToCacheMapping> Logger;
-        private readonly ISubscriber Subscriber;
-        private readonly UserEventBus UserEvent;
-
-        public SpotifyLinkToCacheMapping(ILogger<SpotifyLinkToCacheMapping> logger,
-            ISubscriber subscriber,
-            UserEventBus userEvent)
+        public class SpotifyLink : IEventMapping
         {
-            Logger = logger;
-            Subscriber = subscriber;
-            UserEvent = userEvent;
-        }
+            private readonly ILogger<SpotifyLink> Logger;
+            private readonly ISubscriber Subscriber;
+            private readonly UserEventBus UserEvent;
 
-        public Task ConstructMapping()
-        {
-            Logger.LogDebug("Forming Spotify link event mapping TO cache FROM event bus");
-
-            UserEvent.SpotifyLinkChange += async (o, e) =>
+            public SpotifyLink(ILogger<SpotifyLink> logger,
+                ISubscriber subscriber,
+                UserEventBus userEvent)
             {
-                var payload = JsonSerializer.Serialize(e);
-                await Subscriber.PublishAsync(Key.UserSpotify(e.UserId), payload);
-            };
+                Logger = logger;
+                Subscriber = subscriber;
+                UserEvent = userEvent;
+            }
 
-            return Task.CompletedTask;
+            public Task ConstructMapping()
+            {
+                Logger.LogDebug("Forming Spotify link event mapping TO cache FROM event bus");
+
+                UserEvent.SpotifyLinkChange += async (o, e) =>
+                {
+                    var payload = JsonSerializer.Serialize(e);
+                    await Subscriber.PublishAsync(Key.UserSpotify(e.UserId), payload);
+                };
+
+                return Task.CompletedTask;
+            }
         }
     }
 }

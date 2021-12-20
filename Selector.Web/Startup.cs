@@ -107,9 +107,9 @@ namespace Selector.Web
 
                 Console.WriteLine("> Adding cache event maps...");
 
-                services.AddTransient<IEventMapping, SpotifyLinkToCacheMapping>();
-                services.AddTransient<IEventMapping, LastfmToCacheMapping>();
-                services.AddTransient<IEventMapping, NowPlayingFromCacheMapping>();
+                services.AddTransient<IEventMapping, ToPubSub.SpotifyLink>();
+                services.AddTransient<IEventMapping, ToPubSub.Lastfm>();
+                services.AddTransient<IEventMapping, FromPubSub.NowPlaying>();
 
                 services.AddCacheHubProxy();
 

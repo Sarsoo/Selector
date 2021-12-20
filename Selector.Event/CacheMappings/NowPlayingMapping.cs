@@ -7,40 +7,78 @@ using Selector.Cache;
 
 namespace Selector.Events
 {
-    public class NowPlayingFromCacheMapping : IEventMapping
+    public partial class FromPubSub
     {
-        private readonly ILogger<NowPlayingFromCacheMapping> Logger;
-        private readonly ISubscriber Subscriber;
-        private readonly UserEventBus UserEvent;
-
-        public NowPlayingFromCacheMapping(ILogger<NowPlayingFromCacheMapping> logger, 
-            ISubscriber subscriber,
-            UserEventBus userEvent)
+        public class NowPlaying : IEventMapping
         {
-            Logger = logger;
-            Subscriber = subscriber;
-            UserEvent = userEvent;
+            private readonly ILogger<NowPlaying> Logger;
+            private readonly ISubscriber Subscriber;
+            private readonly UserEventBus UserEvent;
+
+            public NowPlaying(ILogger<NowPlaying> logger,
+                ISubscriber subscriber,
+                UserEventBus userEvent)
+            {
+                Logger = logger;
+                Subscriber = subscriber;
+                UserEvent = userEvent;
+            }
+
+            public async Task ConstructMapping()
+            {
+                Logger.LogDebug("Forming now playing event mapping between cache and event bus");
+
+                (await Subscriber.SubscribeAsync(Key.AllCurrentlyPlaying)).OnMessage(message => {
+
+                    try
+                    {
+                        var userId = Key.Param(message.Channel);
+
+                        var deserialised = JsonSerializer.Deserialize<CurrentlyPlayingDTO>(message.Message);
+                        Logger.LogDebug("Received new currently playing [{username}]", deserialised.Username);
+
+                        UserEvent.OnCurrentlyPlayingChange(this, userId, deserialised);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.LogError(e, $"Error parsing new currently playing [{message}]");
+                    }
+                });
+            }
         }
+    }
 
-        public async Task ConstructMapping()
+    public partial class ToPubSub
+    {
+        public class NowPlaying : IEventMapping
         {
-            Logger.LogDebug("Forming now playing event mapping between cache and event bus");
+            private readonly ILogger<NowPlaying> Logger;
+            private readonly ISubscriber Subscriber;
+            private readonly UserEventBus UserEvent;
 
-            (await Subscriber.SubscribeAsync(Key.AllCurrentlyPlaying)).OnMessage(message => {
-                
-                try{
-                    var userId = Key.Param(message.Channel);
+            public NowPlaying(ILogger<NowPlaying> logger,
+                ISubscriber subscriber,
+                UserEventBus userEvent)
+            {
+                Logger = logger;
+                Subscriber = subscriber;
+                UserEvent = userEvent;
+            }
 
-                    var deserialised = JsonSerializer.Deserialize<CurrentlyPlayingDTO>(message.Message);
-                    Logger.LogDebug("Received new currently playing [{username}]", deserialised.Username);
+            public Task ConstructMapping()
+            {
+                Logger.LogDebug("Forming now playing event mapping TO cache FROM event bus");
 
-                    UserEvent.OnCurrentlyPlayingChange(this, userId, deserialised);
-                }
-                catch(Exception e)
+                UserEvent.CurrentlyPlaying += async (o, e) =>
                 {
-                    Logger.LogError(e, $"Error parsing new currently playing [{message}]");
-                }
-            });
+                    (string id, CurrentlyPlayingDTO args) = e;
+
+                    var payload = JsonSerializer.Serialize(e);
+                    await Subscriber.PublishAsync(Key.CurrentlyPlaying(id), payload);
+                };
+
+                return Task.CompletedTask;
+            }
         }
     }
 }

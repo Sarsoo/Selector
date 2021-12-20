@@ -30,6 +30,8 @@ namespace Selector.CLI
         private readonly IAudioFeatureInjectorFactory AudioFeatureInjectorFactory;
         private readonly IPlayCounterFactory PlayCounterFactory;
 
+        private readonly IUserEventFirerFactory UserEventFirerFactory;
+
         private readonly IPublisherFactory PublisherFactory;
         private readonly ICacheWriterFactory CacheWriterFactory;
         private ConcurrentDictionary<string, IWatcherCollection> Watchers { get; set; } = new();
@@ -48,7 +50,9 @@ namespace Selector.CLI
             IServiceProvider serviceProvider,
 
             IPublisherFactory publisherFactory = null,
-            ICacheWriterFactory cacheWriterFactory = null
+            ICacheWriterFactory cacheWriterFactory = null,
+
+            IUserEventFirerFactory userEventFirerFactory = null
         )
         {
             Logger = logger;
@@ -61,6 +65,8 @@ namespace Selector.CLI
                 
             AudioFeatureInjectorFactory = audioFeatureInjectorFactory;
             PlayCounterFactory = playCounterFactory;
+
+            UserEventFirerFactory = userEventFirerFactory;
 
             PublisherFactory = publisherFactory;
             CacheWriterFactory = cacheWriterFactory;
@@ -122,6 +128,8 @@ namespace Selector.CLI
                     consumers.Add(await AudioFeatureInjectorFactory.Get(spotifyFactory));
                     if (CacheWriterFactory is not null) consumers.Add(await CacheWriterFactory.Get());
                     if (PublisherFactory is not null) consumers.Add(await PublisherFactory.Get());
+
+                    if (UserEventFirerFactory is not null) consumers.Add(await UserEventFirerFactory.Get());
 
                     if (!string.IsNullOrWhiteSpace(dbWatcher.User.LastFmUsername))
                     {

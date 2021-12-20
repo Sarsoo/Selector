@@ -14,74 +14,81 @@ namespace Selector.Events
         public string NewUsername { get; set; }
     }
 
-    public class LastfmFromCacheMapping : IEventMapping
+    public partial class FromPubSub
     {
-        private readonly ILogger<LastfmFromCacheMapping> Logger;
-        private readonly ISubscriber Subscriber;
-        private readonly UserEventBus UserEvent;
-
-        public LastfmFromCacheMapping(ILogger<LastfmFromCacheMapping> logger, 
-            ISubscriber subscriber,
-            UserEventBus userEvent)
+        public class Lastfm : IEventMapping
         {
-            Logger = logger;
-            Subscriber = subscriber;
-            UserEvent = userEvent;
-        }
+            private readonly ILogger<Lastfm> Logger;
+            private readonly ISubscriber Subscriber;
+            private readonly UserEventBus UserEvent;
 
-        public async Task ConstructMapping()
-        {
-            Logger.LogDebug("Forming Last.fm username event mapping FROM cache TO event bus");
+            public Lastfm(ILogger<Lastfm> logger,
+                ISubscriber subscriber,
+                UserEventBus userEvent)
+            {
+                Logger = logger;
+                Subscriber = subscriber;
+                UserEvent = userEvent;
+            }
 
-            (await Subscriber.SubscribeAsync(Key.AllUserLastfm)).OnMessage(message => {
-                
-                try{
-                    var userId = Key.Param(message.Channel);
+            public async Task ConstructMapping()
+            {
+                Logger.LogDebug("Forming Last.fm username event mapping FROM cache TO event bus");
 
-                    var deserialised = JsonSerializer.Deserialize<LastfmChange>(message.Message);
-                    Logger.LogDebug("Received new Last.fm username event for [{userId}]", deserialised.UserId);
+                (await Subscriber.SubscribeAsync(Key.AllUserLastfm)).OnMessage(message => {
 
-                    if (!userId.Equals(deserialised.UserId))
+                    try
                     {
-                        Logger.LogWarning("Serialised user ID [{}] does not match cache channel [{}]", userId, deserialised.UserId);
-                    }
+                        var userId = Key.Param(message.Channel);
 
-                    UserEvent.OnLastfmCredChange(this, deserialised);
-                }
-                catch(Exception e)
-                {
-                    Logger.LogError(e, "Error parsing Last.fm username event");
-                }
-            });
+                        var deserialised = JsonSerializer.Deserialize<LastfmChange>(message.Message);
+                        Logger.LogDebug("Received new Last.fm username event for [{userId}]", deserialised.UserId);
+
+                        if (!userId.Equals(deserialised.UserId))
+                        {
+                            Logger.LogWarning("Serialised user ID [{}] does not match cache channel [{}]", userId, deserialised.UserId);
+                        }
+
+                        UserEvent.OnLastfmCredChange(this, deserialised);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.LogError(e, "Error parsing Last.fm username event");
+                    }
+                });
+            }
         }
     }
 
-    public class LastfmToCacheMapping : IEventMapping
+    public partial class ToPubSub
     {
-        private readonly ILogger<LastfmToCacheMapping> Logger;
-        private readonly ISubscriber Subscriber;
-        private readonly UserEventBus UserEvent;
-
-        public LastfmToCacheMapping(ILogger<LastfmToCacheMapping> logger,
-            ISubscriber subscriber,
-            UserEventBus userEvent)
+        public class Lastfm : IEventMapping
         {
-            Logger = logger;
-            Subscriber = subscriber;
-            UserEvent = userEvent;
-        }
+            private readonly ILogger<Lastfm> Logger;
+            private readonly ISubscriber Subscriber;
+            private readonly UserEventBus UserEvent;
 
-        public Task ConstructMapping()
-        {
-            Logger.LogDebug("Forming Last.fm username event mapping TO cache FROM event bus");
-
-            UserEvent.LastfmCredChange += async (o, e) =>
+            public Lastfm(ILogger<Lastfm> logger,
+                ISubscriber subscriber,
+                UserEventBus userEvent)
             {
-                var payload = JsonSerializer.Serialize(e);
-                await Subscriber.PublishAsync(Key.UserLastfm(e.UserId), payload);
-            };
+                Logger = logger;
+                Subscriber = subscriber;
+                UserEvent = userEvent;
+            }
 
-            return Task.CompletedTask;
+            public Task ConstructMapping()
+            {
+                Logger.LogDebug("Forming Last.fm username event mapping TO cache FROM event bus");
+
+                UserEvent.LastfmCredChange += async (o, e) =>
+                {
+                    var payload = JsonSerializer.Serialize(e);
+                    await Subscriber.PublishAsync(Key.UserLastfm(e.UserId), payload);
+                };
+
+                return Task.CompletedTask;
+            }
         }
     }
 }
