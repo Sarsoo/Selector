@@ -41,7 +41,7 @@ namespace Selector.Events
                     {
                         var userId = Key.Param(message.Channel);
 
-                        var deserialised = JsonSerializer.Deserialize<SpotifyLinkChange>(message.Message);
+                        var deserialised = JsonSerializer.Deserialize(message.Message, CacheJsonContext.Default.SpotifyLinkChange);
                         Logger.LogDebug("Received new Spotify link event for [{userId}]", deserialised.UserId);
 
                         if (!userId.Equals(deserialised.UserId))
@@ -87,7 +87,7 @@ namespace Selector.Events
 
                 UserEvent.SpotifyLinkChange += async (o, e) =>
                 {
-                    var payload = JsonSerializer.Serialize(e);
+                    var payload = JsonSerializer.Serialize(e, CacheJsonContext.Default.SpotifyLinkChange);
                     await Subscriber.PublishAsync(Key.UserSpotify(e.UserId), payload);
                 };
 

@@ -34,10 +34,10 @@ namespace Selector.Events
                     {
                         var userId = Key.Param(message.Channel);
 
-                        var deserialised = JsonSerializer.Deserialize<CurrentlyPlayingDTO>(message.Message);
+                        var deserialised = JsonSerializer.Deserialize(message.Message, JsonContext.Default.CurrentlyPlayingDTO);
                         Logger.LogDebug("Received new currently playing [{username}]", deserialised.Username);
 
-                        UserEvent.OnCurrentlyPlayingChange(this, userId, deserialised);
+                        UserEvent.OnCurrentlyPlayingChange(this, deserialised);
                     }
                     catch (Exception e)
                     {
@@ -71,10 +71,8 @@ namespace Selector.Events
 
                 UserEvent.CurrentlyPlaying += async (o, e) =>
                 {
-                    (string id, CurrentlyPlayingDTO args) = e;
-
-                    var payload = JsonSerializer.Serialize(e);
-                    await Subscriber.PublishAsync(Key.CurrentlyPlaying(id), payload);
+                    var payload = JsonSerializer.Serialize(e, JsonContext.Default.CurrentlyPlayingDTO);
+                    await Subscriber.PublishAsync(Key.CurrentlyPlaying(e.UserId), payload);
                 };
 
                 return Task.CompletedTask;

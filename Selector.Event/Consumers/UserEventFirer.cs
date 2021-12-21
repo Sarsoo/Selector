@@ -1,9 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-using Selector.Events;
-
-namespace Selector
+namespace Selector.Events
 {
     public class UserEventFirer : IConsumer
     {
@@ -47,7 +45,7 @@ namespace Selector
         {
             Logger.LogDebug("Firing now playing event on user bus [{username}/{userId}]", e.SpotifyUsername, e.Id);
 
-            UserEvent.OnCurrentlyPlayingChange(this, e.Id, (CurrentlyPlayingDTO) e);
+            UserEvent.OnCurrentlyPlayingChange(this, (CurrentlyPlayingDTO) e);
 
             return Task.CompletedTask;
         }

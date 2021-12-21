@@ -7,6 +7,7 @@ namespace Selector {
     public class CurrentlyPlayingDTO {
         public CurrentlyPlayingContextDTO Context { get; set; }
         public string Username { get; set; }
+        public string UserId { get; set; }
 
         public FullTrack Track { get; set; }
         public FullEpisode Episode { get; set; }
@@ -19,7 +20,8 @@ namespace Selector {
                 {
                     Context = e.Current,
                     Username = e.SpotifyUsername,
-                    Track = track
+                    Track = track,
+                    UserId = e.Id
                 };
             }
             else if (e.Current.Item is FullEpisode episode)
@@ -28,7 +30,8 @@ namespace Selector {
                 {
                     Context = e.Current,
                     Username = e.SpotifyUsername,
-                    Episode = episode
+                    Episode = episode,
+                    UserId = e.Id
                 };
             }
             else

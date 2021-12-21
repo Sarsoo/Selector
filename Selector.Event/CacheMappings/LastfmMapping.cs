@@ -41,7 +41,7 @@ namespace Selector.Events
                     {
                         var userId = Key.Param(message.Channel);
 
-                        var deserialised = JsonSerializer.Deserialize<LastfmChange>(message.Message);
+                        var deserialised = JsonSerializer.Deserialize(message.Message, CacheJsonContext.Default.LastfmChange);
                         Logger.LogDebug("Received new Last.fm username event for [{userId}]", deserialised.UserId);
 
                         if (!userId.Equals(deserialised.UserId))
@@ -83,7 +83,7 @@ namespace Selector.Events
 
                 UserEvent.LastfmCredChange += async (o, e) =>
                 {
-                    var payload = JsonSerializer.Serialize(e);
+                    var payload = JsonSerializer.Serialize(e, CacheJsonContext.Default.LastfmChange);
                     await Subscriber.PublishAsync(Key.UserLastfm(e.UserId), payload);
                 };
 

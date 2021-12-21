@@ -48,7 +48,7 @@ namespace Selector.Cache
 
         public async Task AsyncCallback(ListeningChangeEventArgs e)
         {
-            var payload = JsonSerializer.Serialize((CurrentlyPlayingDTO) e);
+            var payload = JsonSerializer.Serialize((CurrentlyPlayingDTO) e, JsonContext.Default.CurrentlyPlayingDTO);
 
             Logger.LogTrace($"Publishing current for [{e.Id}/{e.SpotifyUsername}]");
             

@@ -12,7 +12,7 @@ namespace Selector.Events
         public event EventHandler<SpotifyLinkChange> SpotifyLinkChange;
         public event EventHandler<LastfmChange> LastfmCredChange;
 
-        public event EventHandler<(string, CurrentlyPlayingDTO)> CurrentlyPlaying;
+        public event EventHandler<CurrentlyPlayingDTO> CurrentlyPlaying;
 
         public UserEventBus(ILogger<UserEventBus> logger)
         {
@@ -37,10 +37,10 @@ namespace Selector.Events
             LastfmCredChange?.Invoke(sender, args);
         }
 
-        public void OnCurrentlyPlayingChange(object sender, string userId, CurrentlyPlayingDTO args)
+        public void OnCurrentlyPlayingChange(object sender, CurrentlyPlayingDTO args)
         {
-            Logger.LogTrace("Firing currently playing event [{usernamne}/{userId}]", args?.Username, userId);
-            CurrentlyPlaying?.Invoke(sender, (userId, args));
+            Logger.LogTrace("Firing currently playing event [{usernamne}/{userId}]", args?.Username, args.UserId);
+            CurrentlyPlaying?.Invoke(sender, args);
         }
     }
 }

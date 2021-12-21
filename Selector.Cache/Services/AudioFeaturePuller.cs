@@ -42,7 +42,7 @@ namespace Selector.Cache
             }
             else
             {
-                var deserialised = JsonSerializer.Deserialize<TrackAudioFeatures>(track);
+                var deserialised = JsonSerializer.Deserialize(track, JsonContext.Default.TrackAudioFeatures);
                 return deserialised;
             }
         }

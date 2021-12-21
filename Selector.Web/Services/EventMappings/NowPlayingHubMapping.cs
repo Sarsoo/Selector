@@ -28,10 +28,9 @@ namespace Selector.Web.Service
 
             UserEvent.CurrentlyPlaying += async (o, args) =>
             {
-                (string id, CurrentlyPlayingDTO e) = args;
-                Logger.LogDebug("Passing now playing event to SignalR hub [{userId}]", id);
+                Logger.LogDebug("Passing now playing event to SignalR hub [{userId}]", args.UserId);
 
-                await Hub.Clients.User(id).OnNewPlaying(e);
+                await Hub.Clients.User(args.UserId).OnNewPlaying(args);
             };
 
             return Task.CompletedTask;

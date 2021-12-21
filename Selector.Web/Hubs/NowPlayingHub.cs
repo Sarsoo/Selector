@@ -51,7 +51,7 @@ namespace Selector.Web.Hubs
             var nowPlaying = await Cache.StringGetAsync(Key.CurrentlyPlaying(Context.UserIdentifier));
             if (nowPlaying != RedisValue.Null)
             {
-                var deserialised = JsonSerializer.Deserialize<CurrentlyPlayingDTO>(nowPlaying);
+                var deserialised = JsonSerializer.Deserialize(nowPlaying, JsonContext.Default.CurrentlyPlayingDTO);
                 await Clients.Caller.OnNewPlaying(deserialised);
             }
         }

@@ -45,7 +45,7 @@ namespace Selector.Cache
 
         public async Task AsyncCacheCallback(AnalysedTrack e)
         {
-            var payload = JsonSerializer.Serialize(e.Features);
+            var payload = JsonSerializer.Serialize(e.Features, JsonContext.Default.TrackAudioFeatures);
             
             Logger.LogTrace($"Caching current for [{e.Track.DisplayString()}]");
 

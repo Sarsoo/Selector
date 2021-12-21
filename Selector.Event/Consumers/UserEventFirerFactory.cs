@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Selector.Events;
+﻿using Microsoft.Extensions.Logging;
 
-namespace Selector
+namespace Selector.Events
 {
     public interface IUserEventFirerFactory
     {
