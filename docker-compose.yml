@@ -1,0 +1,12 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  web:
+    build: Selector.Web/
+    ports:
+      - "8080:80"
+  cli:
+    build: Selector.CLI/
+  redis:
+    image: redis:alpine
+  database:
+    image: postgres
