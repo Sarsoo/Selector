@@ -1,11 +1,15 @@
 version: "3.9"  # optional since v1.27.0
 services:
   web:
-    build: Selector.Web/
+    build: 
+      context: .
+      dockerfile: Dockerfile.Web
     ports:
       - "8080:80"
   cli:
-    build: Selector.CLI/
+    build: 
+      context: .
+      dockerfile: Dockerfile.CLI
   redis:
     image: redis:alpine
   database:
