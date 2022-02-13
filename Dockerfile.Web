@@ -9,13 +9,12 @@ COPY Selector.Web/*.csproj ./Selector.Web/
 RUN dotnet restore
 
 COPY . ./
-WORKDIR /Selector.Web
-RUN dotnet publish Selector.Web.csproj -c Release
-COPY ./bin/Release/net6.0/publish/ App/
+RUN dotnet publish Selector.Web/Selector.Web.csproj -c Release
+COPY ./Selector.Web/bin/Release/net6.0/publish/ App/
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 EXPOSE 80
-COPY --from=build bin/Release/net6.0/publish/ App/
+COPY --from=build Selector.Web/bin/Release/net6.0/publish/ App/
 WORKDIR /App
 ENV DOTNET_EnableDiagnostics=0
 ENTRYPOINT ["dotnet", "Selector.Web.dll"]
