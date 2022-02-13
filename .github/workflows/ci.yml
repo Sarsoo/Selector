@@ -24,6 +24,25 @@ jobs:
       - name: Test
         run: dotnet test --no-restore --verbosity normal
 
+  build-Docker:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dotnet-version: [ '6.0.x' ]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build CLI Container
+        uses: docker/build-push-action@v2
+        with:
+          file: {context}/Dockerfile.CLI
+      - name: Build Web Container
+        uses: docker/build-push-action@v2
+        with:
+          file: {context}/Dockerfile.Web
+
   build-Js:
 
     runs-on: ubuntu-latest
