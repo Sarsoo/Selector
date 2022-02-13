@@ -1,7 +1,9 @@
 version: "3.9"
 services:
   web:
-    image: sarsoo/selector-web:latest
+    build: 
+      context: .
+      dockerfile: Dockerfile.Web
     ports:
       - "8080:80"
     depends_on:
@@ -13,7 +15,9 @@ services:
       DOTNET_ENVIRONMENT: Production
 
   cli:
-    image: sarsoo/selector-cli:latest
+    build: 
+      context: .
+      dockerfile: Dockerfile.CLI
     depends_on:
       - database
       - redis

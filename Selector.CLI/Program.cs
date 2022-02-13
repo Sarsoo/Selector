@@ -12,6 +12,7 @@ using Selector.Model;
 using Selector.Cache;
 using Selector.Cache.Extensions;
 using Selector.Events;
+using Selector.Model.Services;
 
 namespace Selector.CLI
 {
@@ -74,6 +75,8 @@ namespace Selector.CLI
                 services.AddDbContext<ApplicationDbContext>(options =>
                     options.UseNpgsql(config.DatabaseOptions.ConnectionString)
                 );
+
+                services.AddHostedService<MigratorService>();
             }
         }
 

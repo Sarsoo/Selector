@@ -78,13 +78,6 @@ namespace Selector.CLI
         AudioFeatures, AudioFeaturesCache, CacheWriter, Publisher, PlayCounter
     }
 
-    public class DatabaseOptions {
-        public const string Key = "Database";
-
-        public bool Enabled { get; set; } = false;
-        public string ConnectionString { get; set; }
-    }
-
     public class RedisOptions
     {
         public const string Key = "Redis";
