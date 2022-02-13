@@ -8,7 +8,7 @@ services:
       - database
       - redis
     volumes:
-      - "./Selector.Web/appsettings.Production.json:/appsettings.Production.json"
+      - "./Selector.Web/appsettings.Production.json:/app/appsettings.Production.json"
     environment:
       DOTNET_ENVIRONMENT: Production
 
@@ -18,7 +18,7 @@ services:
       - database
       - redis
     volumes:
-      - "./Selector.CLI/appsettings.Production.json:/appsettings.Production.json"
+      - "./Selector.CLI/appsettings.Production.json:/app/appsettings.Production.json"
     environment:
       DOTNET_ENVIRONMENT: Production
 
@@ -30,4 +30,4 @@ services:
     image: postgres
     ports:
       - "5432:5432"
-    env_file: .env # set POSTGRES_PASSWORD
+    env_file: .env # set POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
