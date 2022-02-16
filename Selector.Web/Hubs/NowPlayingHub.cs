@@ -11,6 +11,7 @@ using StackExchange.Redis;
 
 using Selector.Cache;
 using Selector.Model;
+using Selector.Model.Extensions;
 
 namespace Selector.Web.Hubs
 {
@@ -88,7 +89,7 @@ namespace Selector.Web.Hubs
                         .SingleOrDefault()
                             ?? throw new SqlNullValueException("No user returned");
 
-                if(!string.IsNullOrWhiteSpace(user.LastFmUsername))
+                if(user.LastFmConnected())
                 {
                     var playCount = await PlayCountPuller.Get(user.LastFmUsername, track, artist, album, albumArtist);
 

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 
 using Selector.Cache;
 using Selector.Model;
+using Selector.Model.Extensions;
 using Selector.Events;
 using System.Collections.Concurrent;
 
@@ -131,7 +132,7 @@ namespace Selector.CLI
 
                     if (UserEventFirerFactory is not null) consumers.Add(await UserEventFirerFactory.Get());
 
-                    if (!string.IsNullOrWhiteSpace(dbWatcher.User.LastFmUsername))
+                    if (dbWatcher.User.LastFmConnected())
                     {
                         consumers.Add(await PlayCounterFactory.Get(creds: new() { Username = dbWatcher.User.LastFmUsername }));
                     }

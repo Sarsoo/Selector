@@ -13,6 +13,7 @@ using Selector.Cache;
 using Selector.Cache.Extensions;
 using Selector.Events;
 using Selector.Model.Services;
+using Selector.CLI.Services;
 
 namespace Selector.CLI
 {
@@ -149,6 +150,13 @@ namespace Selector.CLI
                     Console.WriteLine("> Adding Db Watcher Service");
                     services.AddHostedService<DbWatcherService>();
                 }
+            }
+
+            if (config.ScrobbleOptions.Enabled)
+            {
+                Console.WriteLine("> Adding Scrobble Monitor Service");
+
+                services.AddHostedService<ScrobbleMonitor>();
             }
         }
 

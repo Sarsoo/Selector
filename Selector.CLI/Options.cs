@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 
 namespace Selector.CLI
@@ -10,6 +11,7 @@ namespace Selector.CLI
             config.GetSection(FormatKeys( new[] { RootOptions.Key, WatcherOptions.Key})).Bind(options.WatcherOptions);
             config.GetSection(FormatKeys( new[] { RootOptions.Key, DatabaseOptions.Key})).Bind(options.DatabaseOptions);
             config.GetSection(FormatKeys( new[] { RootOptions.Key, RedisOptions.Key})).Bind(options.RedisOptions);
+            config.GetSection(FormatKeys( new[] { RootOptions.Key, ScrobbleMonitorOptions.Key})).Bind(options.ScrobbleOptions);
         }  
 
         public static RootOptions ConfigureOptions(IConfiguration config)
@@ -37,6 +39,7 @@ namespace Selector.CLI
         public string LastfmClient { get; set; }
         public string LastfmSecret { get; set; }
         public WatcherOptions WatcherOptions { get; set; } = new();
+        public ScrobbleMonitorOptions ScrobbleOptions { get; set; } = new();
         public DatabaseOptions DatabaseOptions { get; set; } = new();
         public RedisOptions RedisOptions { get; set; } = new();
         public EqualityChecker Equality { get; set; } = EqualityChecker.Uri;
@@ -84,5 +87,13 @@ namespace Selector.CLI
 
         public bool Enabled { get; set; } = false;
         public string ConnectionString { get; set; }
+    }
+
+    public class ScrobbleMonitorOptions
+    {
+        public const string Key = "Scrobble";
+
+        public bool Enabled { get; set; } = true;
+        public TimeSpan InterRequestDelay { get; set; } = new(0, 0, 0, 1, 0);
     }
 }

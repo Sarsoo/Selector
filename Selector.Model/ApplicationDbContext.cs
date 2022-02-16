@@ -19,6 +19,10 @@ namespace Selector.Model
         private readonly ILogger<ApplicationDbContext> Logger;
 
         public DbSet<Watcher> Watcher { get; set; }
+        public DbSet<UserScrobble> Scrobble { get; set; }
+        public DbSet<TrackLastfmSpotifyMapping> TrackMapping { get; set; }
+        public DbSet<AlbumLastfmSpotifyMapping> AlbumMapping { get; set; }
+        public DbSet<ArtistLastfmSpotifyMapping> ArtistMapping { get; set; }
 
         public ApplicationDbContext(
             DbContextOptions<ApplicationDbContext> options, 
@@ -37,10 +41,55 @@ namespace Selector.Model
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.HasCollation("case_insensitive", locale: "en-u-ks-primary", provider: "icu", deterministic: false);
+
+            modelBuilder.Entity<ApplicationUser>()
+                .Property(u => u.SpotifyIsLinked)
+                .IsRequired();
+            modelBuilder.Entity<ApplicationUser>()
+                .Property(u => u.LastFmUsername)
+                .UseCollation("case_insensitive");
+
             modelBuilder.Entity<Watcher>()
                 .HasOne(w => w.User)
                 .WithMany(u => u.Watchers)
                 .HasForeignKey(w => w.UserId);
+
+            modelBuilder.Entity<UserScrobble>().HasKey(s => new { s.UserId, s.Timestamp });
+            modelBuilder.Entity<UserScrobble>()
+                .HasOne(w => w.User)
+                .WithMany(u => u.Scrobbles)
+                .HasForeignKey(w => w.UserId);
+            modelBuilder.Entity<UserScrobble>()
+                .Property(s => s.TrackName)
+                .UseCollation("case_insensitive");
+            modelBuilder.Entity<UserScrobble>()
+                .Property(s => s.AlbumName)
+                .UseCollation("case_insensitive");
+            modelBuilder.Entity<UserScrobble>()
+                .Property(s => s.ArtistName)
+                .UseCollation("case_insensitive");
+
+            modelBuilder.Entity<TrackLastfmSpotifyMapping>().HasKey(s => s.Id);
+            modelBuilder.Entity<TrackLastfmSpotifyMapping>()
+                .Property(s => s.LastfmTrackName)
+                .UseCollation("case_insensitive");
+            modelBuilder.Entity<TrackLastfmSpotifyMapping>()
+                .Property(s => s.LastfmArtistName)
+                .UseCollation("case_insensitive");
+
+            modelBuilder.Entity<AlbumLastfmSpotifyMapping>().HasKey(s => s.Id);
+            modelBuilder.Entity<AlbumLastfmSpotifyMapping>()
+                .Property(s => s.LastfmAlbumName)
+                .UseCollation("case_insensitive");
+            modelBuilder.Entity<AlbumLastfmSpotifyMapping>()
+                .Property(s => s.LastfmArtistName)
+                .UseCollation("case_insensitive");
+
+            modelBuilder.Entity<ArtistLastfmSpotifyMapping>().HasKey(s => s.Id);
+            modelBuilder.Entity<ArtistLastfmSpotifyMapping>()
+                .Property(s => s.LastfmArtistName)
+                .UseCollation("case_insensitive");
 
             SeedData.Seed(modelBuilder);
         }

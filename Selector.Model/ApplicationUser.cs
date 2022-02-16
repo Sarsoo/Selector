@@ -8,7 +8,6 @@ namespace Selector.Model
 {
     public class ApplicationUser : IdentityUser
     {
-        [Required]
         public bool SpotifyIsLinked { get; set; }
         public DateTime SpotifyLastRefresh { get; set; }
         public int SpotifyTokenExpiry { get; set; }
@@ -16,8 +15,10 @@ namespace Selector.Model
         public string SpotifyRefreshToken { get; set; }
 
         public string LastFmUsername { get; set; }
+        public bool SaveScrobbles { get; set; }
 
         public List<Watcher> Watchers { get; set; }
+        public List<UserScrobble> Scrobbles { get; set; }
     }
 
     public class ApplicationUserDTO

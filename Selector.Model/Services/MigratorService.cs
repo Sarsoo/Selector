@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,13 +11,13 @@ namespace Selector.Model.Services
 {
     public class MigratorService : IHostedService
     {
-        private readonly ApplicationDbContext context;
+        private readonly IServiceScopeFactory scopeProvider;
         private readonly DatabaseOptions options;
         private readonly ILogger<MigratorService> logger;
 
-        public MigratorService(ApplicationDbContext _context, IOptions<DatabaseOptions> _options, ILogger<MigratorService> _logger)
+        public MigratorService(IServiceScopeFactory _scopeProvider, IOptions<DatabaseOptions> _options, ILogger<MigratorService> _logger)
         {
-            context = _context;
+            scopeProvider = _scopeProvider;
             options = _options.Value;
             logger = _logger;
         }
@@ -24,8 +26,10 @@ namespace Selector.Model.Services
         {
             if(options.Migrate)
             {
+                using var scope = scopeProvider.CreateScope();
+                
                 logger.LogInformation("Applying migrations");
-                context.Database.Migrate();
+                scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
             }
 
             return Task.CompletedTask;
