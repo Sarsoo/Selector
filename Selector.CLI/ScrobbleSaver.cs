@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -68,6 +69,8 @@ namespace Selector
                         }
                     }                  
                 }
+
+                IdentifyDuplicates(scrobbles);
 
                 logger.LogDebug("Ordering and filtering pulled scrobbles");
 
@@ -153,6 +156,35 @@ namespace Selector
             }
 
             return tasks;
+        }
+
+        private void IdentifyDuplicates(IEnumerable<LastTrack> tracks)
+        {
+            logger.LogDebug("Identifying duplicates");
+
+            var duplicates = tracks
+                .GroupBy(t => t.TimePlayed?.UtcDateTime)
+                .Where(g => g.Count() > 1);
+
+            foreach(var dupe in duplicates)
+            {
+                var dupeString = new StringBuilder();
+
+                foreach(var scrobble in dupe)
+                {
+                    dupeString.Append("(");
+                    dupeString.Append(scrobble.Name);
+                    dupeString.Append(", ");
+                    dupeString.Append(scrobble.AlbumName); 
+                    dupeString.Append(", ");
+                    dupeString.Append(scrobble.ArtistName);
+                    dupeString.Append(")");
+                    
+                    dupeString.Append(" ");
+                }
+
+                logger.LogInformation("Duplicate at {0}: {1}", dupe.Key, dupeString.ToString());
+            }
         }
     }
 }

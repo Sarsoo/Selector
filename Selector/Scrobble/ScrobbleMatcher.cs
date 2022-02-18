@@ -1,4 +1,5 @@
 ﻿using IF.Lastfm.Core.Objects;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace Selector
         public static bool MatchTime(Scrobble nativeScrobble, Scrobble serviceScrobble)
             => serviceScrobble.Timestamp.Equals(nativeScrobble.Timestamp);
 
-        public static (IEnumerable<Scrobble>, IEnumerable<Scrobble>) IdentifyDiffs(IEnumerable<Scrobble> existing, IEnumerable<Scrobble> toApply)
+        public static (IEnumerable<Scrobble>, IEnumerable<Scrobble>) IdentifyDiffs(IEnumerable<Scrobble> existing, IEnumerable<Scrobble> toApply, bool matchContents = true)
         {
             existing = existing.OrderBy(s => s.Timestamp);
             toApply = toApply.OrderBy(s => s.Timestamp);
@@ -37,6 +38,11 @@ namespace Selector
 
                         if (MatchTime(currentExisting, toApplyIter.Current))
                         {
+                            if (matchContents)
+                            {
+                                MatchData(currentExisting, toApplyIter.Current);
+                            }
+
                             toApplyIter.MoveNext();
                         }
                         else
@@ -52,6 +58,24 @@ namespace Selector
             }
 
             return (toAdd, toRemove);
+        }
+
+        public static void MatchData(Scrobble currentExisting, Scrobble toApply)
+        {
+            if (!currentExisting.TrackName.Equals(toApply.TrackName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                currentExisting.TrackName = toApply.TrackName;
+            }
+
+            if (!currentExisting.AlbumName.Equals(toApply.AlbumName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                currentExisting.AlbumName = toApply.AlbumName;
+            }
+
+            if (!currentExisting.ArtistName.Equals(toApply.ArtistName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                currentExisting.ArtistName = toApply.ArtistName;
+            }
         }
 
         public static (IEnumerable<Scrobble>, IEnumerable<Scrobble>) IdentifyDiffsContains(IEnumerable<Scrobble> existing, IEnumerable<Scrobble> toApply)

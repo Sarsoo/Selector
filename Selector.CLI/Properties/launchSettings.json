@@ -9,7 +9,7 @@
     },
     "Selector.CLI.Scrobble": {
       "commandName": "Project",
-      "commandLineArgs": "scrobble save -u sarsoo --from \"2022/01/01\"",
+      "commandLineArgs": "scrobble save -u sarsoo --from \"2022/01/01\" -nr -na",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       },
@@ -17,7 +17,15 @@
     },
     "Selector.CLI.Scrobble.All": {
       "commandName": "Project",
-      "commandLineArgs": "scrobble save -u sarsoo --from \"2017/01/01\" -p 200 -d 75 --no-remove",
+      "commandLineArgs": "scrobble save -u sarsoo --from \"2017/01/01\" -p 200 -d 75 -na -nr",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      },
+      "nativeDebugging": true
+    },
+    "Selector.CLI.Scrobble.Clear": {
+      "commandName": "Project",
+      "commandLineArgs": "scrobble clear -u sarsoo --from \"2022/01/01\"",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       },

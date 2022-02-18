@@ -12,16 +12,6 @@ using System.Threading.Tasks;
 
 namespace Selector.CLI
 {
-    public class ScrobbleCommand : Command
-    {
-        public ScrobbleCommand(string name, string description = null) : base(name, description)
-        {
-
-            var saveCommand = new ScrobbleSaveCommand("save", "save scrobbles to");
-            AddCommand(saveCommand);
-        }
-    }
-
     public class ScrobbleSaveCommand : Command
     {
         public ScrobbleSaveCommand(string name, string description = null) : base(name, description) 
