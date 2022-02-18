@@ -20,7 +20,6 @@ namespace Selector.CLI.Services
         private readonly ScrobbleMonitorOptions config;
         private readonly IUserApi userApi;
         private readonly IServiceScopeFactory serviceScopeFactory;
-        private Task task;
 
         public ScrobbleMonitor(ILogger<ScrobbleMonitor> _logger, IOptions<ScrobbleMonitorOptions> _options, IUserApi _userApi, IServiceScopeFactory _serviceScopeFactory, ILoggerFactory _loggerFactory)
         {
@@ -43,19 +42,14 @@ namespace Selector.CLI.Services
 
         public async Task RunScrobbleSavers(ApplicationDbContext db, CancellationToken token)
         {
+            using var scope = serviceScopeFactory.CreateScope();
+
             foreach (var user in db.Users
                 .AsNoTracking()
                 .AsEnumerable()
                 .Where(u => u.ScrobbleSavingEnabled()))
             {
-                logger.LogInformation("Starting scrobble saver for {0}/{1}", user.UserName, user.LastFmUsername);
-
-                await new ScrobbleSaver(userApi, new ScrobbleSaverConfig()
-                {
-                    User = user,
-                    InterRequestDelay = config.InterRequestDelay,
-                    From = DateTime.UtcNow.AddDays(-3)
-                }, serviceScopeFactory, loggerFactory.CreateLogger<ScrobbleSaver>()).Execute(token);
+                //TODO
             }
         }
 

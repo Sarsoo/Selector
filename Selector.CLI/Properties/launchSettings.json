@@ -6,6 +6,22 @@
         "DOTNET_ENVIRONMENT": "Development"
       },
       "nativeDebugging": true
+    },
+    "Selector.CLI.Scrobble": {
+      "commandName": "Project",
+      "commandLineArgs": "scrobble save -u sarsoo --from \"2022/01/01\"",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      },
+      "nativeDebugging": true
+    },
+    "Selector.CLI.Scrobble.All": {
+      "commandName": "Project",
+      "commandLineArgs": "scrobble save -u sarsoo --from \"2017/01/01\" -p 200 -d 75 --no-remove",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      },
+      "nativeDebugging": true
     }
   }
 }

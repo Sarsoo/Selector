@@ -9,7 +9,7 @@ namespace Selector.Cache.Extensions
 {
     public static class ServiceExtensions
     {
-        public static void AddRedisServices(this IServiceCollection services, string connectionStr)
+        public static IServiceCollection AddRedisServices(this IServiceCollection services, string connectionStr)
         {
             Console.WriteLine("> Configuring Redis...");
 
@@ -23,9 +23,11 @@ namespace Selector.Cache.Extensions
             services.AddSingleton(connMulti);
             services.AddTransient<IDatabaseAsync>(services => services.GetService<ConnectionMultiplexer>().GetDatabase());
             services.AddTransient<ISubscriber>(services => services.GetService<ConnectionMultiplexer>().GetSubscriber());
+
+            return services;
         }
 
-        public static void AddCachingConsumerFactories(this IServiceCollection services)
+        public static IServiceCollection AddCachingConsumerFactories(this IServiceCollection services)
         {
             services.AddTransient<IAudioFeatureInjectorFactory, CachingAudioFeatureInjectorFactory>();
             services.AddTransient<CachingAudioFeatureInjectorFactory>();
@@ -36,16 +38,22 @@ namespace Selector.Cache.Extensions
             services.AddTransient<CacheWriterFactory>();
             services.AddTransient<IPublisherFactory, PublisherFactory>();
             services.AddTransient<PublisherFactory>();
+
+            return services;
         }
 
-        public static void AddCachingSpotify(this IServiceCollection services)
+        public static IServiceCollection AddCachingSpotify(this IServiceCollection services)
         {
             services.AddSingleton<AudioFeaturePuller>();
+
+            return services;
         }
 
-        public static void AddCachingLastFm(this IServiceCollection services)
+        public static IServiceCollection AddCachingLastFm(this IServiceCollection services)
         {
             services.AddSingleton<PlayCountPuller>();
+
+            return services;
         }
     }
 }

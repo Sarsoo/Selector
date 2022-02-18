@@ -14,7 +14,7 @@ namespace Selector.CLI
             config.GetSection(FormatKeys( new[] { RootOptions.Key, ScrobbleMonitorOptions.Key})).Bind(options.ScrobbleOptions);
         }  
 
-        public static RootOptions ConfigureOptions(IConfiguration config)
+        public static RootOptions ConfigureOptions(this IConfiguration config)
         {
             var options = config.GetSection(RootOptions.Key).Get<RootOptions>();
             ConfigureOptions(options, config);

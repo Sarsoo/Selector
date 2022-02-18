@@ -4,24 +4,30 @@ namespace Selector.Events
 {
     public static class ServiceExtensions
     {
-        public static void AddEvents(this IServiceCollection services)
+        public static IServiceCollection AddEvents(this IServiceCollection services)
         {
             services.AddEventBus();
             services.AddEventMappingAgent();
 
             services.AddTransient<IUserEventFirerFactory, UserEventFirerFactory>();
             services.AddTransient<UserEventFirerFactory>();
+
+            return services;
         }
 
-        public static void AddEventBus(this IServiceCollection services)
+        public static IServiceCollection AddEventBus(this IServiceCollection services)
         {
             services.AddSingleton<UserEventBus>();
             services.AddSingleton<IEventBus, UserEventBus>(sp => sp.GetRequiredService<UserEventBus>());
+
+            return services;
         }
 
-        public static void AddEventMappingAgent(this IServiceCollection services)
+        public static IServiceCollection AddEventMappingAgent(this IServiceCollection services)
         {
             services.AddHostedService<EventMappingService>();
+
+            return services;
         }
     }
 }

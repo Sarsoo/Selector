@@ -11,7 +11,7 @@ namespace Selector
             => serviceScrobble.TimePlayed.Equals(nativeScrobble);
 
         public static bool MatchTime(Scrobble nativeScrobble, Scrobble serviceScrobble)
-            => serviceScrobble.Timestamp.Equals(nativeScrobble);
+            => serviceScrobble.Timestamp.Equals(nativeScrobble.Timestamp);
 
         public static (IEnumerable<Scrobble>, IEnumerable<Scrobble>) IdentifyDiffs(IEnumerable<Scrobble> existing, IEnumerable<Scrobble> toApply)
         {
@@ -22,26 +22,33 @@ namespace Selector
             var toAdd = new List<Scrobble>();
             var toRemove = new List<Scrobble>();
 
-            if(existing.Any())
+            if (toApplyIter.MoveNext())
             {
-                foreach (var currentExisting in existing)
+                if (existing.Any())
                 {
-                    while (toApplyIter.Current.Timestamp < currentExisting.Timestamp)
+                    foreach (var currentExisting in existing)
                     {
-                        toAdd.Add(toApplyIter.Current);
+                        while (toApplyIter.Current.Timestamp < currentExisting.Timestamp)
+                        {
+                            toAdd.Add(toApplyIter.Current);
 
-                        if (!toApplyIter.MoveNext()) break;
-                    }
+                            toApplyIter.MoveNext();
+                        }
 
-                    if (!MatchTime(currentExisting, toApplyIter.Current))
-                    {
-                        toRemove.Add(currentExisting);
+                        if (MatchTime(currentExisting, toApplyIter.Current))
+                        {
+                            toApplyIter.MoveNext();
+                        }
+                        else
+                        {
+                            toRemove.Add(currentExisting);
+                        }
                     }
                 }
-            }
-            else
-            {
-                toAdd.AddRange(toApply);
+                else
+                {
+                    toAdd.AddRange(toApply);
+                }
             }
 
             return (toAdd, toRemove);

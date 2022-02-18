@@ -21,5 +21,7 @@ namespace Selector
             AlbumName = track.AlbumName,
             ArtistName = track.ArtistName,
         };
+
+        public override string ToString() => $"({Timestamp}) {TrackName}, {AlbumName}, {ArtistName}";
     }
 }

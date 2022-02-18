@@ -9,7 +9,7 @@ namespace Selector.Extensions
 {
     public static class ServiceExtensions
     {
-        public static void AddConsumerFactories(this IServiceCollection services)
+        public static IServiceCollection AddConsumerFactories(this IServiceCollection services)
         {
             services.AddTransient<IAudioFeatureInjectorFactory, AudioFeatureInjectorFactory>();
             services.AddTransient<AudioFeatureInjectorFactory>();
@@ -19,15 +19,19 @@ namespace Selector.Extensions
 
             services.AddTransient<IWebHookFactory, WebHookFactory>();
             services.AddTransient<WebHookFactory>();
+
+            return services;
         }
 
-        public static void AddSpotify(this IServiceCollection services)
+        public static IServiceCollection AddSpotify(this IServiceCollection services)
         {
             services.AddSingleton<IRefreshTokenFactoryProvider, RefreshTokenFactoryProvider>();
             services.AddSingleton<IRefreshTokenFactoryProvider, CachingRefreshTokenFactoryProvider>();
+
+            return services;
         }
 
-        public static void AddLastFm(this IServiceCollection services, string client, string secret)
+        public static IServiceCollection AddLastFm(this IServiceCollection services, string client, string secret)
         {
             var lastAuth = new LastAuth(client, secret);
             services.AddSingleton(lastAuth);
@@ -42,12 +46,16 @@ namespace Selector.Extensions
             services.AddTransient<IChartApi>(sp => sp.GetService<LastfmClient>().Chart);
             services.AddTransient<ILibraryApi>(sp => sp.GetService<LastfmClient>().Library);
             services.AddTransient<ITagApi>(sp => sp.GetService<LastfmClient>().Tag);
+
+            return services;
         }
 
-        public static void AddWatcher(this IServiceCollection services)
+        public static IServiceCollection AddWatcher(this IServiceCollection services)
         {
             services.AddSingleton<IWatcherFactory, WatcherFactory>();
             services.AddSingleton<IWatcherCollectionFactory, WatcherCollectionFactory>();
+
+            return services;
         }
     }
 }
