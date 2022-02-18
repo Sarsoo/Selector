@@ -52,7 +52,7 @@ namespace Selector.CLI
                 var context = new CommandContext().WithLogger().WithDb().WithLastfmApi();
                 var logger = context.Logger.CreateLogger("Scrobble");
 
-                var db = new ApplicationDbContext(context.DatabaseConfig.Options, context.Logger.CreateLogger<ApplicationDbContext>());
+                using var db = new ApplicationDbContext(context.DatabaseConfig.Options, context.Logger.CreateLogger<ApplicationDbContext>());
 
                 logger.LogInformation("Running from {0} to {1}", from, to);
 

@@ -34,7 +34,7 @@ namespace Selector.CLI.Extensions
             return context;
         }
 
-        public static CommandContext WithDb(this CommandContext context)
+        public static CommandContext WithDb(this CommandContext context, string connectionString = null)
         {
             if (context.Config is null)
             {
@@ -42,7 +42,7 @@ namespace Selector.CLI.Extensions
             }
 
             context.DatabaseConfig = new DbContextOptionsBuilder<ApplicationDbContext>();
-            context.DatabaseConfig.UseNpgsql(context.Config.DatabaseOptions.ConnectionString);
+            context.DatabaseConfig.UseNpgsql(string.IsNullOrWhiteSpace(connectionString) ?  context.Config.DatabaseOptions.ConnectionString : connectionString);
 
             return context;
         }
