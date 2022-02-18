@@ -71,10 +71,12 @@ namespace Selector.CLI
             Console.WriteLine("> Configuring...");
             // CONFIG
             var config = ConfigureOptions(context, services);
-            services.AddHttpClient();
 
             Console.WriteLine("> Adding Services...");
             // SERVICES
+            services.AddHttpClient()
+                    .ConfigureDb(config);
+
             services.AddConsumerFactories();
             if (config.RedisOptions.Enabled)
             {
@@ -87,7 +89,6 @@ namespace Selector.CLI
                     .AddSpotify();
 
             services.ConfigureLastFm(config)
-                    .ConfigureDb(config)
                     .ConfigureEqual(config);
 
             if (config.RedisOptions.Enabled)
