@@ -27,7 +27,7 @@ jobs:
   build-Docker:
 
     runs-on: ubuntu-latest
-    needs: build # for ignoring bad builds
+    needs: [build, build-Js] # for ignoring bad builds
 
     steps:
       - uses: actions/checkout@v2
