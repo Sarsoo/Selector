@@ -11,10 +11,6 @@ RUN dotnet restore ./Selector.CLI/Selector.CLI.csproj
 
 COPY . ./
 
-FROM base as test
-RUN dotnet restore ./Selector.Tests/Selector.Tests.csproj
-RUN dotnet test --no-restore --verbosity normal
-
 FROM base as publish
 RUN dotnet publish Selector.CLI/Selector.CLI.csproj -c Release -o /app --no-restore
 

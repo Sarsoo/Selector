@@ -1,3 +1,11 @@
+FROM node as frontend
+COPY ./Selector.Web/package.json /Selector.Web/
+COPY ./Selector.Web/package-lock.json /Selector.Web/
+WORKDIR /Selector.Web
+RUN npm ci
+COPY ./Selector.Web ./
+RUN npm run build
+
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS base
 
 COPY *.sln .
@@ -11,25 +19,14 @@ RUN dotnet restore ./Selector.Web/Selector.Web.csproj
 
 COPY . ./
 
-# FROM base as test
-# RUN dotnet restore ./Selector.Tests/Selector.Tests.csproj
-# RUN dotnet test --no-restore
-
 FROM base as publish
+COPY --from=frontend /Selector.Web/wwwroot Selector.Web/wwwroot/
+COPY --from=frontend /Selector.Web/wwwroot Selector.Web/wwwroot/
 RUN dotnet publish Selector.Web/Selector.Web.csproj -c Release -o /app --no-restore
-
-FROM node as frontend
-COPY ./Selector.Web/package.json /Selector.Web/
-COPY ./Selector.Web/package-lock.json /Selector.Web/
-WORKDIR /Selector.Web
-RUN npm ci
-COPY ./Selector.Web/ .
-RUN npm run build
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 EXPOSE 80
 WORKDIR /app
 COPY --from=publish /app ./
-COPY --from=frontend /Selector.Web/wwwroot ./Selector.Web/wwwroot/
 ENV DOTNET_EnableDiagnostics=0
 ENTRYPOINT ["dotnet", "Selector.Web.dll"]
