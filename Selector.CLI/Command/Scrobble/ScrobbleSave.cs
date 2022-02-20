@@ -30,6 +30,10 @@ namespace Selector.CLI
             delayOption.AddAlias("-d");
             AddOption(delayOption);
 
+            var simulOption = new Option<int>("--simultaneous", getDefaultValue: () => 5, "simultaneous connections when pulling");
+            simulOption.AddAlias("-s");
+            AddOption(simulOption);
+
             var username = new Option<string>("--username", "user to pulls scrobbles for");
             username.AddAlias("-u");
             AddOption(username);
@@ -42,10 +46,10 @@ namespace Selector.CLI
             dontRemove.AddAlias("-nr");
             AddOption(dontRemove);
 
-            Handler = CommandHandler.Create(async (DateTime from, DateTime to, int page, int delay, string username, bool noAdd, bool noRemove, CancellationToken token) => await Execute(from, to, page, delay, username, noAdd, noRemove, token));
+            Handler = CommandHandler.Create(async (DateTime from, DateTime to, int page, int delay, int simul, string username, bool noAdd, bool noRemove, CancellationToken token) => await Execute(from, to, page, delay, simul, username, noAdd, noRemove, token));
         }
 
-        public static async Task<int> Execute(DateTime from, DateTime to, int page, int delay, string username, bool noAdd, bool noRemove, CancellationToken token)
+        public static async Task<int> Execute(DateTime from, DateTime to, int page, int delay, int simul, string username, bool noAdd, bool noRemove, CancellationToken token)
         {
             try
             {
@@ -75,10 +79,12 @@ namespace Selector.CLI
                                 To = to,
                                 PageSize = page,
                                 DontAdd = noAdd,
-                                DontRemove = noRemove
+                                DontRemove = noRemove,
+                                SimultaneousConnections = simul
                             },
                             db,
-                            context.Logger.CreateLogger<ScrobbleSaver>())
+                            context.Logger.CreateLogger<ScrobbleSaver>(), 
+                            context.Logger)
                                 .Execute(token);
                     }
                     else
