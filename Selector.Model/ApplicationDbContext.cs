@@ -55,7 +55,6 @@ namespace Selector.Model
                 .WithMany(u => u.Watchers)
                 .HasForeignKey(w => w.UserId);
 
-            modelBuilder.Entity<UserScrobble>().HasKey(s => new { s.UserId, s.Timestamp });
             modelBuilder.Entity<UserScrobble>()
                 .HasOne(w => w.User)
                 .WithMany(u => u.Scrobbles)

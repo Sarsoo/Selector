@@ -77,7 +77,7 @@ namespace Selector
 
                 logger.LogDebug("Pulling currently stored scrobbles");
 
-                var currentScrobblesPulled = GetDbScrobbles();
+                var currentScrobbles = GetDbScrobbles();
 
                 await aggregateNetworkTask;
                 var scrobbles = runRequests.SelectMany(r => r.Scrobbles);
@@ -89,7 +89,7 @@ namespace Selector
                 RemoveNowPlaying(scrobbles.ToList());
 
                 var nativeScrobbles = scrobbles
-                    .DistinctBy(s => s.TimePlayed?.UtcDateTime)
+                    .DistinctBy(s => new { s.TimePlayed?.UtcDateTime, s.Name, s.ArtistName })
                     .Select(s =>
                     {
                         var nativeScrobble = (UserScrobble)s;
@@ -102,7 +102,7 @@ namespace Selector
                 logger.LogDebug("Identifying difference sets");
                 var time = Stopwatch.StartNew();
 
-                (var toAdd, var toRemove) = ScrobbleMatcher.IdentifyDiffs(currentScrobblesPulled, nativeScrobbles);
+                (var toAdd, var toRemove) = ScrobbleMatcher.IdentifyDiffs(currentScrobbles, nativeScrobbles);
 
                 time.Stop();
                 logger.LogTrace("Finished diffing: {0:n}ms", time.ElapsedMilliseconds);

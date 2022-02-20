@@ -4,6 +4,7 @@ namespace Selector.Model
 {
     public class UserScrobble: Scrobble
     {
+        public int Id { get; set; }
         public string UserId { get; set; }
         public ApplicationUser User { get; set; }
 

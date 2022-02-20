@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Selector.Model;
@@ -11,9 +12,10 @@ using Selector.Model;
 namespace Selector.Model.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220220213329_scrobble_int_id")]
+    partial class scrobble_int_id
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -185,7 +187,7 @@ namespace Selector.Model.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AlbumMapping", (string)null);
+                    b.ToTable("AlbumMapping");
                 });
 
             modelBuilder.Entity("Selector.Model.ApplicationUser", b =>
@@ -291,7 +293,7 @@ namespace Selector.Model.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ArtistMapping", (string)null);
+                    b.ToTable("ArtistMapping");
                 });
 
             modelBuilder.Entity("Selector.Model.TrackLastfmSpotifyMapping", b =>
@@ -315,7 +317,7 @@ namespace Selector.Model.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TrackMapping", (string)null);
+                    b.ToTable("TrackMapping");
                 });
 
             modelBuilder.Entity("Selector.Model.UserScrobble", b =>
@@ -351,7 +353,7 @@ namespace Selector.Model.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Scrobble", (string)null);
+                    b.ToTable("Scrobble");
                 });
 
             modelBuilder.Entity("Selector.Model.Watcher", b =>
@@ -373,7 +375,7 @@ namespace Selector.Model.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Watcher", (string)null);
+                    b.ToTable("Watcher");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
