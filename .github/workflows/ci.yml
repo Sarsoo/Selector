@@ -28,6 +28,7 @@ jobs:
 
     runs-on: ubuntu-latest
     needs: [build, build-Js] # for ignoring bad builds
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
     steps:
       - uses: actions/checkout@v2
