@@ -110,7 +110,24 @@ namespace Selector
                 SpotifyUri = a.Uri
             });
 
-            mappingRepo.AddRange(newMappings);
+            var existingUris = currentArtists.Select(a => a.SpotifyUri).ToArray();
+
+            foreach (var candidateMapping in newMappings)
+            {
+                if (existingUris.Contains(candidateMapping.SpotifyUri))
+                {
+                    var duplicates = currentArtists.Where(a => a.LastfmArtistName.Equals(candidateMapping.LastfmArtistName, StringComparison.OrdinalIgnoreCase));
+                    logger.LogWarning("Found duplicate Spotify uri ({}), [{}], {}", 
+                        candidateMapping.SpotifyUri, 
+                        candidateMapping.LastfmArtistName, 
+                        string.Join(", ", duplicates.Select(d => d.LastfmArtistName))
+                    );
+                }
+                else
+                {
+                    mappingRepo.Add(candidateMapping);
+                }
+            }
         }
 
         private async Task MapAlbums(CancellationToken token)
@@ -162,7 +179,26 @@ namespace Selector
                 SpotifyUri = a.Uri
             });
 
-            mappingRepo.AddRange(newMappings);
+            var existingUris = currentAlbums.Select(a => a.SpotifyUri).ToArray();
+
+            foreach(var candidateMapping in newMappings)
+            {
+                if(existingUris.Contains(candidateMapping.SpotifyUri))
+                {
+                    var duplicates = currentAlbums.Where(a => a.LastfmArtistName.Equals(candidateMapping.LastfmArtistName, StringComparison.OrdinalIgnoreCase)
+                                                                && a.LastfmAlbumName.Equals(candidateMapping.LastfmAlbumName, StringComparison.OrdinalIgnoreCase));
+                    logger.LogWarning("Found duplicate Spotify uri ({}), [{}, {}] {}", 
+                        candidateMapping.SpotifyUri, 
+                        candidateMapping.LastfmAlbumName, 
+                        candidateMapping.LastfmArtistName, 
+                        string.Join(", ", duplicates.Select(d => $"{d.LastfmAlbumName} {d.LastfmArtistName}"))
+                    );
+                }
+                else
+                {
+                    mappingRepo.Add(candidateMapping);
+                }
+            }
         }
 
         private async Task MapTracks(CancellationToken token)
@@ -214,7 +250,26 @@ namespace Selector
                 SpotifyUri = a.Uri
             });
 
-            mappingRepo.AddRange(newMappings);
+            var existingUris = currentTracks.Select(a => a.SpotifyUri).ToArray();
+
+            foreach (var candidateMapping in newMappings)
+            {
+                if (existingUris.Contains(candidateMapping.SpotifyUri))
+                {
+                    var duplicates = currentTracks.Where(a => a.LastfmArtistName.Equals(candidateMapping.LastfmArtistName, StringComparison.OrdinalIgnoreCase)
+                                                                && a.LastfmTrackName.Equals(candidateMapping.LastfmTrackName, StringComparison.OrdinalIgnoreCase));
+                    logger.LogWarning("Found duplicate Spotify uri ({}), [{}, {}] {}", 
+                        candidateMapping.SpotifyUri, 
+                        candidateMapping.LastfmTrackName, 
+                        candidateMapping.LastfmArtistName,
+                        string.Join(", ", duplicates.Select(d => $"{d.LastfmTrackName} {d.LastfmArtistName}"))
+                    );
+                }
+                else
+                {
+                    mappingRepo.Add(candidateMapping);
+                }
+            }
         }
     }
 }

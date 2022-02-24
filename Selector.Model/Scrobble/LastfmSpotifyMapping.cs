@@ -2,8 +2,6 @@
 {
     public abstract class LastfmSpotifyMapping
     {
-        public int Id { get; set; }
-
         public string SpotifyUri { get; set; }
     }
 
