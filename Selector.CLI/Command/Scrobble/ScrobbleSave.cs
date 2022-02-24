@@ -46,10 +46,10 @@ namespace Selector.CLI
             dontRemove.AddAlias("-nr");
             AddOption(dontRemove);
 
-            Handler = CommandHandler.Create(async (DateTime from, DateTime to, int page, int delay, int simul, string username, bool noAdd, bool noRemove, CancellationToken token) => await Execute(from, to, page, delay, simul, username, noAdd, noRemove, token));
+            Handler = CommandHandler.Create(async (DateTime from, DateTime to, int page, int delay, int simultaneous, string username, bool noAdd, bool noRemove, CancellationToken token) => await Execute(from, to, page, delay, simultaneous, username, noAdd, noRemove, token));
         }
 
-        public static async Task<int> Execute(DateTime from, DateTime to, int page, int delay, int simul, string username, bool noAdd, bool noRemove, CancellationToken token)
+        public static async Task<int> Execute(DateTime from, DateTime to, int page, int delay, int simultaneous, string username, bool noAdd, bool noRemove, CancellationToken token)
         {
             try
             {
@@ -91,7 +91,7 @@ namespace Selector.CLI
                                 PageSize = page,
                                 DontAdd = noAdd,
                                 DontRemove = noRemove,
-                                SimultaneousConnections = simul
+                                SimultaneousConnections = simultaneous
                             },
                             repo,
                             context.Logger.CreateLogger<ScrobbleSaver>(), 

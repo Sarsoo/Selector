@@ -19,7 +19,7 @@ namespace Selector
 
         public int MaxAttempts { get; private set; }
         public int Attempts { get; private set; }
-        public List<LastTrack> Scrobbles { get; private set; }
+        public IEnumerable<LastTrack> Scrobbles { get; private set; }
         public int TotalPages { get; private set; }
         private Task<PageResponse<LastTrack>> currentTask { get; set; }
         public bool Succeeded { get; private set; } = false;
@@ -60,7 +60,7 @@ namespace Selector
 
                     if (Succeeded)
                     {
-                        Scrobbles = result.Content.ToList();
+                        Scrobbles = result.Content.ToArray();
                         TotalPages = result.TotalPages;
                         OnSuccess();
                         AggregateTaskSource.SetResult();

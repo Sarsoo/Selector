@@ -64,7 +64,7 @@ namespace Selector.Operations
             }
 
             var timeoutTask = Task.Delay(timeout, token);
-            var allTasks = WaitingRequests.Union(DoneRequests).Select(r => r.Task).ToList();
+            var allTasks = WaitingRequests.Union(DoneRequests).Select(r => r.Task);
 
             var firstToFinish = await Task.WhenAny(timeoutTask, Task.WhenAll(allTasks));
 

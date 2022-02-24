@@ -87,29 +87,28 @@ namespace Selector
                     await batchTask;
                 }
 
-                var scrobbles = page1.Scrobbles;
-
+                IEnumerable<LastTrack> scrobbles;
                 if(batchOperation is not null)
                 {
-                    scrobbles.AddRange(batchOperation.DoneRequests.SelectMany(r => r.Scrobbles));
+                    scrobbles = page1.Scrobbles.Union(batchOperation.DoneRequests.SelectMany(r => r.Scrobbles));
+                }
+                else
+                {
+                    scrobbles = page1.Scrobbles;
                 }
 
                 IdentifyDuplicates(scrobbles);
 
                 logger.LogDebug("Ordering and filtering pulled scrobbles");
 
-                RemoveNowPlaying(scrobbles.ToList());
+                scrobbles = RemoveNowPlaying(scrobbles);
 
                 var nativeScrobbles = scrobbles
                     .DistinctBy(s => new { s.TimePlayed?.UtcDateTime, s.Name, s.ArtistName })
-                    .Select(s =>
-                    {
-                        var nativeScrobble = (UserScrobble)s;
-                        nativeScrobble.UserId = config.User.Id;
-                        return nativeScrobble;
-                    });
+                    .Select(s => (UserScrobble) s)
+                    .ToArray();
 
-                logger.LogInformation("Completed database scrobble pulling for {}, pulled {:n0}", config.User.UserName, nativeScrobbles.Count());
+                logger.LogInformation("Completed database scrobble pulling for {}, pulled {:n0}", config.User.UserName, nativeScrobbles.Length);
 
                 logger.LogDebug("Identifying difference sets");
                 var time = Stopwatch.StartNew();
@@ -123,7 +122,12 @@ namespace Selector
 
                 if(!config.DontAdd)
                 {
-                    scrobbleRepo.AddRange(toAdd.Cast<UserScrobble>());
+                    foreach(var add in toAdd)
+                    {
+                        var scrobble = (UserScrobble) add;
+                        scrobble.UserId = config.User.Id;
+                        scrobbleRepo.Add(scrobble);
+                    }
                 }
                 else
                 {
@@ -131,7 +135,12 @@ namespace Selector
                 }
                 if (!config.DontRemove)
                 {
-                    scrobbleRepo.RemoveRange(toRemove.Cast<UserScrobble>());
+                    foreach (var remove in toRemove)
+                    {
+                        var scrobble = (UserScrobble) remove;
+                        scrobble.UserId = config.User.Id;
+                        scrobbleRepo.Remove(scrobble);
+                    }
                 }
                 else
                 {
@@ -189,19 +198,18 @@ namespace Selector
             }
         }
 
-        private bool RemoveNowPlaying(List<LastTrack> scrobbles)
+        private IEnumerable<LastTrack> RemoveNowPlaying(IEnumerable<LastTrack> scrobbles)
         {
             var newestScrobble = scrobbles.FirstOrDefault();
             if (newestScrobble is not null)
             {
                 if (newestScrobble.IsNowPlaying is bool playing && playing)
                 {
-                    scrobbles.Remove(newestScrobble);
-                    return true;
+                    scrobbles = scrobbles.Skip(1);
                 }
             }
 
-            return false;
+            return scrobbles;
         }
     }
 }
