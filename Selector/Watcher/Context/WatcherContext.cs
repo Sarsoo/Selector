@@ -24,10 +24,10 @@ namespace Selector
             Watcher = watcher;
         }
 
-        public WatcherContext(IWatcher watcher, List<IConsumer> consumers)
+        public WatcherContext(IWatcher watcher, IEnumerable<IConsumer> consumers)
         {
             Watcher = watcher;
-            Consumers = consumers ?? new();
+            Consumers = consumers.ToList() ?? new();
         }
 
         public static WatcherContext From(IWatcher watcher)
@@ -35,7 +35,7 @@ namespace Selector
             return new(watcher);
         }
 
-        public static WatcherContext From(IWatcher watcher, List<IConsumer> consumers)
+        public static WatcherContext From(IWatcher watcher, IEnumerable<IConsumer> consumers)
         {
             return new(watcher, consumers);
         }

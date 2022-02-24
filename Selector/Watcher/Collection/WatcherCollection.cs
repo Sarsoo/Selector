@@ -43,7 +43,7 @@ namespace Selector
             return Add(watcher, default);
         }
 
-        public IWatcherContext Add(IWatcher watcher, List<IConsumer> consumers)
+        public IWatcherContext Add(IWatcher watcher, IEnumerable<IConsumer> consumers)
         {
             var context = WatcherContext.From(watcher, consumers);
             if (IsRunning) context.Start();

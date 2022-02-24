@@ -17,7 +17,7 @@ namespace Selector
         /// </summary>
         /// <param name="watcher">New watcher</param>
         /// <param name="consumers">Consumers to subscribe to new watcher</param>
-        public IWatcherContext Add(IWatcher watcher, List<IConsumer> consumers);
+        public IWatcherContext Add(IWatcher watcher, IEnumerable<IConsumer> consumers);
 
         /// <summary>
         /// Start watcher collection

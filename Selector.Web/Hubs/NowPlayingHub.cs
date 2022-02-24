@@ -28,11 +28,13 @@ namespace Selector.Web.Hubs
         private readonly AudioFeaturePuller AudioFeaturePuller;
         private readonly PlayCountPuller PlayCountPuller;
         private readonly ApplicationDbContext Db;
+        private readonly IScrobbleRepository ScrobbleRepository;
 
         public NowPlayingHub(
             IDatabaseAsync cache, 
             AudioFeaturePuller featurePuller, 
             ApplicationDbContext db,
+            IScrobbleRepository scrobbleRepository,
             PlayCountPuller playCountPuller = null
         )
         {
@@ -40,6 +42,7 @@ namespace Selector.Web.Hubs
             AudioFeaturePuller = featurePuller;
             PlayCountPuller = playCountPuller;
             Db = db;
+            ScrobbleRepository = scrobbleRepository;
         }
 
         public async Task OnConnected()
@@ -89,9 +92,14 @@ namespace Selector.Web.Hubs
                         .SingleOrDefault()
                             ?? throw new SqlNullValueException("No user returned");
 
-                if(user.LastFmConnected())
+                if (user.LastFmConnected())
                 {
                     var playCount = await PlayCountPuller.Get(user.LastFmUsername, track, artist, album, albumArtist);
+
+                    if (user.ScrobbleSavingEnabled())
+                    {
+                        playCount.Artist = ScrobbleRepository.GetAll(userId: user.Id, artistName: artist).Count();
+                    }
 
                     if (playCount is not null)
                     {

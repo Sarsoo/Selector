@@ -97,11 +97,11 @@ namespace Selector
                     scrobbles = page1.Scrobbles;
                 }
 
-                IdentifyDuplicates(scrobbles);
-
                 logger.LogDebug("Ordering and filtering pulled scrobbles");
 
-                scrobbles = RemoveNowPlaying(scrobbles);
+                scrobbles = scrobbles.Where(s => !(s.IsNowPlaying is bool playing && playing));
+
+                IdentifyDuplicates(scrobbles);
 
                 var nativeScrobbles = scrobbles
                     .DistinctBy(s => new { s.TimePlayed?.UtcDateTime, s.Name, s.ArtistName })
