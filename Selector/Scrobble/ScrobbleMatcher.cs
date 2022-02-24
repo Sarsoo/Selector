@@ -50,6 +50,16 @@ namespace Selector
                             toRemove.Add(currentExisting);
                         }
                     }
+
+                    if (toApplyIter.Current is not null)
+                    {
+                        toAdd.Add(toApplyIter.Current);
+
+                        while (toApplyIter.MoveNext())
+                        {
+                            toAdd.Add(toApplyIter.Current);
+                        }
+                    }
                 }
                 else
                 {
