@@ -2,6 +2,7 @@
 using IF.Lastfm.Core.Api.Helpers;
 using IF.Lastfm.Core.Objects;
 using Microsoft.Extensions.Logging;
+using Selector.Operations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace Selector
 {
-    public class ScrobbleRequest
+    public class ScrobbleRequest : IOperation
     {
         private readonly ILogger<ScrobbleRequest> logger;
         private readonly IUserApi userClient;
 
         public event EventHandler Success;
 
-        public int MaxAttempts { get; private set; } = 5;
+        public int MaxAttempts { get; private set; }
         public int Attempts { get; private set; }
         public List<LastTrack> Scrobbles { get; private set; }
         public int TotalPages { get; private set; }
@@ -32,7 +33,7 @@ namespace Selector
         private TaskCompletionSource AggregateTaskSource { get; set; } = new();
         public Task Task => AggregateTaskSource.Task;
 
-        public ScrobbleRequest(IUserApi _userClient, ILogger<ScrobbleRequest> _logger, string _username, int _pageNumber, int _pageSize, DateTime? _from, DateTime? _to)
+        public ScrobbleRequest(IUserApi _userClient, ILogger<ScrobbleRequest> _logger, string _username, int _pageNumber, int _pageSize, DateTime? _from, DateTime? _to, int maxRetries = 5)
         {
             userClient = _userClient;
             logger = _logger;
@@ -42,12 +43,8 @@ namespace Selector
             pageSize = _pageSize;
             from = _from;
             to = _to;
-        }
 
-        protected virtual void RaiseSampleEvent()
-        {
-            // Raise the event in a thread-safe manner using the ?. operator.
-            Success?.Invoke(this, new EventArgs());
+            MaxAttempts = maxRetries;
         }
 
         public Task Execute()
@@ -95,7 +92,6 @@ namespace Selector
 
         protected virtual void OnSuccess()
         {
-            // Raise the event in a thread-safe manner using the ?. operator.
             Success?.Invoke(this, new EventArgs());
         }
     }

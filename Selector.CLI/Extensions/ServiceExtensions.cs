@@ -45,6 +45,8 @@ namespace Selector.CLI.Extensions
                     options.UseNpgsql(config.DatabaseOptions.ConnectionString)
                 );
 
+                services.AddTransient<IScrobbleRepository, ScrobbleRepository>();
+
                 services.AddHostedService<MigratorService>();
             }
 

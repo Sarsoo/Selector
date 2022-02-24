@@ -36,6 +36,10 @@ namespace Selector.CLI
         /// Spotify app secret
         /// </summary>
         public string ClientSecret { get; set; }
+        /// <summary>
+        /// Service account refresh token for tool spotify usage
+        /// </summary>
+        public string RefreshToken { get; set; }
         public string LastfmClient { get; set; }
         public string LastfmSecret { get; set; }
         public WatcherOptions WatcherOptions { get; set; } = new();

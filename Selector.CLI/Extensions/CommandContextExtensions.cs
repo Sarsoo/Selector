@@ -2,7 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Selector.Model;
+using SpotifyAPI.Web;
+using System.Linq;
 
 namespace Selector.CLI.Extensions
 {
@@ -55,6 +58,34 @@ namespace Selector.CLI.Extensions
             }
 
             context.LastFmClient = new LastfmClient(new LastAuth(context.Config.LastfmClient, context.Config.LastfmSecret));
+
+            return context;
+        }
+
+        public static CommandContext WithSpotify(this CommandContext context)
+        {
+            if (context.Config is null)
+            {
+                context.WithConfig();
+            }
+
+            var refreshToken = context.Config.RefreshToken;
+
+            if(string.IsNullOrWhiteSpace(refreshToken))
+            {
+                if (context.DatabaseConfig is null)
+                {
+                    context.WithDb();
+                }
+
+                using var db = new ApplicationDbContext(context.DatabaseConfig.Options, NullLogger<ApplicationDbContext>.Instance);
+
+                refreshToken = db.Users.FirstOrDefault(u => u.UserName == "sarsoo")?.SpotifyRefreshToken;
+            }
+
+            var configFactory = new RefreshTokenFactory(context.Config.ClientId, context.Config.ClientSecret, refreshToken);
+
+            context.Spotify = new SpotifyClient(configFactory.GetConfig().Result);
 
             return context;
         }

@@ -11,6 +11,9 @@ namespace Selector.CLI
 
             var clearCommand = new ScrobbleClearCommand("clear", "clear user scrobbles");
             AddCommand(clearCommand);
+
+            var mapCommand = new ScrobbleMapCommand("map", "map last.fm data to spotify uris");
+            AddCommand(mapCommand);
         }
     }
 }
