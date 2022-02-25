@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using Selector.Cache.Extensions;
 using Selector.CLI.Extensions;
-using Selector.CLI.Services;
 using Selector.Events;
 using Selector.Extensions;
 using System;
@@ -89,7 +88,8 @@ namespace Selector.CLI
                     .AddSpotify();
 
             services.ConfigureLastFm(config)
-                    .ConfigureEqual(config);
+                    .ConfigureEqual(config)
+                    .ConfigureJobs(config);
 
             if (config.RedisOptions.Enabled)
             {
@@ -118,13 +118,6 @@ namespace Selector.CLI
                     Console.WriteLine("> Adding Db Watcher Service");
                     services.AddHostedService<DbWatcherService>();
                 }
-            }
-
-            if (config.ScrobbleOptions.Enabled)
-            {
-                Console.WriteLine("> Adding Scrobble Monitor Service");
-
-                services.AddHostedService<ScrobbleMonitor>();
             }
         }
 

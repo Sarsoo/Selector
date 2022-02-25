@@ -11,7 +11,8 @@ namespace Selector.CLI
             config.GetSection(FormatKeys( new[] { RootOptions.Key, WatcherOptions.Key})).Bind(options.WatcherOptions);
             config.GetSection(FormatKeys( new[] { RootOptions.Key, DatabaseOptions.Key})).Bind(options.DatabaseOptions);
             config.GetSection(FormatKeys( new[] { RootOptions.Key, RedisOptions.Key})).Bind(options.RedisOptions);
-            config.GetSection(FormatKeys( new[] { RootOptions.Key, ScrobbleMonitorOptions.Key})).Bind(options.ScrobbleOptions);
+            config.GetSection(FormatKeys( new[] { RootOptions.Key, JobsOptions.Key})).Bind(options.JobOptions);
+            config.GetSection(FormatKeys( new[] { RootOptions.Key, JobsOptions.Key, ScrobbleWatcherJobOptions.Key})).Bind(options.JobOptions.Scrobble);
         }  
 
         public static RootOptions ConfigureOptions(this IConfiguration config)
@@ -43,7 +44,7 @@ namespace Selector.CLI
         public string LastfmClient { get; set; }
         public string LastfmSecret { get; set; }
         public WatcherOptions WatcherOptions { get; set; } = new();
-        public ScrobbleMonitorOptions ScrobbleOptions { get; set; } = new();
+        public JobsOptions JobOptions { get; set; } = new();
         public DatabaseOptions DatabaseOptions { get; set; } = new();
         public RedisOptions RedisOptions { get; set; } = new();
         public EqualityChecker Equality { get; set; } = EqualityChecker.Uri;
@@ -93,11 +94,23 @@ namespace Selector.CLI
         public string ConnectionString { get; set; }
     }
 
-    public class ScrobbleMonitorOptions
+    public class JobsOptions
+    {
+        public const string Key = "Job";
+
+        public bool Enabled { get; set; } = true;
+        public ScrobbleWatcherJobOptions Scrobble { get; set; } = new();
+    }
+
+    public class ScrobbleWatcherJobOptions
     {
         public const string Key = "Scrobble";
 
-        public bool Enabled { get; set; } = true;
-        public TimeSpan InterRequestDelay { get; set; } = new(0, 0, 0, 1, 0);
+        public TimeSpan InterJobDelay { get; set; } = TimeSpan.FromMinutes(5);
+        public TimeSpan InterRequestDelay { get; set; } = TimeSpan.FromMilliseconds(100);
+        public DateTime? From { get; set; } = DateTime.UtcNow.AddDays(-14);
+        public DateTime? To { get; set; }
+        public int PageSize { get; set; } = 200;
+        public int Simultaneous { get; set; } = 3;
     }
 }

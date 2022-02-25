@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Quartz;
 using Selector.Cache.Extensions;
+using Selector.CLI.Jobs;
 using Selector.Extensions;
 using Selector.Model;
 using Selector.Model.Services;
@@ -31,6 +33,51 @@ namespace Selector.CLI.Extensions
             else
             {
                 Console.WriteLine("> No Last.fm credentials, skipping init...");
+            }
+
+            return services;
+        }
+
+        public static IServiceCollection ConfigureJobs(this IServiceCollection services, RootOptions config)
+        {
+            if (config.JobOptions.Enabled)
+            {
+                Console.WriteLine("> Adding Jobs...");
+
+                services.AddQuartz(options => {
+
+                    options.UseMicrosoftDependencyInjectionJobFactory();
+
+                    options.UseSimpleTypeLoader();
+                    options.UseInMemoryStore();
+                    options.UseDefaultThreadPool(tp =>
+                    {
+                        tp.MaxConcurrency = 5;
+                    });
+
+                    var scrobbleKey = new JobKey("scrobble-watcher", "scrobble");
+
+                    options.AddJob<ScrobbleWatcherJob>(j => j
+                        .WithDescription("Watch recent scrobbles and mirror to database")
+                        .WithIdentity(scrobbleKey)
+                    );
+
+                    options.AddTrigger(t => t
+                        .WithIdentity("scrobble-watcher-trigger")
+                        .ForJob(scrobbleKey)
+                        .StartNow()
+                        .WithSimpleSchedule(x => x.WithInterval(config.JobOptions.Scrobble.InterJobDelay).RepeatForever())
+                        .WithDescription("Periodic trigger for scrobble watcher")
+                    );
+                });
+
+                services.AddQuartzHostedService(options =>{
+
+                    options.WaitForJobsToComplete = true;
+                });
+
+                services.AddTransient<ScrobbleWatcherJob>();
+                services.AddTransient<IJob, ScrobbleWatcherJob>();
             }
 
             return services;
