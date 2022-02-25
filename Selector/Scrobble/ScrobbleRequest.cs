@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Selector.Operations;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -50,9 +51,14 @@ namespace Selector
         public Task Execute()
         {
             logger.LogInformation("Scrobble request #{} for {} by {} from {} to {}", pageNumber, username, pageSize, from, to);
+
+            var netTime = Stopwatch.StartNew();
             currentTask = userClient.GetRecentScrobbles(username, pagenumber: pageNumber, count: pageSize, from: from, to: to);
             currentTask.ContinueWith(async t =>
             {
+                netTime.Stop();
+                logger.LogTrace("Network request took {:n} ms", netTime.ElapsedMilliseconds);
+
                 if (t.IsCompletedSuccessfully)
                 {
                     var result = t.Result;

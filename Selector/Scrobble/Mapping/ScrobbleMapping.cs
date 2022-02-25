@@ -2,6 +2,7 @@
 using Selector.Operations;
 using SpotifyAPI.Web;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Selector
@@ -40,9 +41,13 @@ namespace Selector
         {
             logger.LogInformation("Mapping Last.fm {} ({}) to Spotify", Query, QueryType);
 
+            var netTime = Stopwatch.StartNew();
             currentTask = searchClient.Item(new (QueryType, Query));
             currentTask.ContinueWith(async t =>
             {
+                netTime.Stop();
+                logger.LogTrace("Network request took {:n} ms", netTime.ElapsedMilliseconds);
+
                 if (t.IsCompletedSuccessfully)
                 {
                     HandleResponse(t);

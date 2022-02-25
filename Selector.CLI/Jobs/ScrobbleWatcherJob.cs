@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace Selector.CLI.Jobs
 {
+    [DisallowConcurrentExecution]
     public class ScrobbleWatcherJob : IJob
     {
         private readonly ILogger<ScrobbleWatcherJob> logger;
