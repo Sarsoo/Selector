@@ -40,7 +40,7 @@ namespace Selector.CLI.Services
             await RunScrobbleSavers(db, cancellationToken);
         }
 
-        public async Task RunScrobbleSavers(ApplicationDbContext db, CancellationToken token)
+        public Task RunScrobbleSavers(ApplicationDbContext db, CancellationToken token)
         {
             using var scope = serviceScopeFactory.CreateScope();
 
@@ -51,6 +51,8 @@ namespace Selector.CLI.Services
             {
                 //TODO
             }
+
+            return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

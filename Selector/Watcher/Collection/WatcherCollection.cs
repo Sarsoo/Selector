@@ -40,7 +40,7 @@ namespace Selector
 
         public IWatcherContext Add(IWatcher watcher)
         {
-            return Add(watcher, default);
+            return Add(watcher, Enumerable.Empty<IConsumer>());
         }
 
         public IWatcherContext Add(IWatcher watcher, IEnumerable<IConsumer> consumers)

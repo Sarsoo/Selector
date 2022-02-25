@@ -54,8 +54,8 @@ namespace Selector
                     if(t.Exception.InnerException is APITooManyRequestsException ex)
                     {
                         logger.LogError("Spotify search request too many requests, waiting for {}", ex.RetryAfter);
-                        await Task.Delay(ex.RetryAfter);
-                        Execute();
+                        await Task.Delay(ex.RetryAfter.Add(TimeSpan.FromSeconds(1)));
+                        await Execute();
                     }
                     else
                     {

@@ -26,7 +26,7 @@ namespace Selector
             Creds = creds;
         }
 
-        public async Task<IConsumer> Get(LastfmClient fmClient = null, LastFmCredentials creds = null, IPlayerWatcher watcher = null)
+        public Task<IConsumer> Get(LastfmClient fmClient = null, LastFmCredentials creds = null, IPlayerWatcher watcher = null)
         {
             var client = fmClient ?? Client;
 
@@ -35,7 +35,7 @@ namespace Selector
                 throw new ArgumentNullException("No Last.fm client provided");
             }
 
-            return new PlayCounter(
+            return Task.FromResult<IConsumer>(new PlayCounter(
                 watcher,
                 client.Track,
                 client.Album,
@@ -43,7 +43,7 @@ namespace Selector
                 client.User,
                 credentials: creds ?? Creds,
                 LoggerFactory.CreateLogger<PlayCounter>()
-            );
+            ));
         }
     }
 }

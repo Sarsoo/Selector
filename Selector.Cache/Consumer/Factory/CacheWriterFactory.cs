@@ -25,13 +25,13 @@ namespace Selector.Cache
             LoggerFactory = loggerFactory;
         }
 
-        public async Task<IConsumer> Get(IPlayerWatcher watcher = null)
+        public Task<IConsumer> Get(IPlayerWatcher watcher = null)
         {
-            return new CacheWriter(
+            return Task.FromResult<IConsumer>(new CacheWriter(
                 watcher,
                 Cache,
                 LoggerFactory.CreateLogger<CacheWriter>()
-            );
+            ));
         }
     }
 }

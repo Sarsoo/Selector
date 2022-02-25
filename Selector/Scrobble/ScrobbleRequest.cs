@@ -51,7 +51,7 @@ namespace Selector
         {
             logger.LogInformation("Scrobble request #{} for {} by {} from {} to {}", pageNumber, username, pageSize, from, to);
             currentTask = userClient.GetRecentScrobbles(username, pagenumber: pageNumber, count: pageSize, from: from, to: to);
-            currentTask.ContinueWith(t =>
+            currentTask.ContinueWith(async t =>
             {
                 if (t.IsCompletedSuccessfully)
                 {
@@ -70,7 +70,7 @@ namespace Selector
                         if(Attempts < MaxAttempts)
                         {
                             logger.LogDebug("Request failed for {}, #{} by {}: {}, retrying ({} of {})", username, pageNumber, pageSize, result.Status, Attempts + 1, MaxAttempts);
-                            Execute();
+                            await Execute();
                         }
                         else
                         {
