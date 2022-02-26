@@ -93,6 +93,7 @@ namespace Selector.CLI.Extensions
                 );
 
                 services.AddTransient<IScrobbleRepository, ScrobbleRepository>();
+                services.AddTransient<IScrobbleMappingRepository, ScrobbleMappingRepository>();
 
                 services.AddHostedService<MigratorService>();
             }

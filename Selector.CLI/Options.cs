@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Selector.CLI
 {
@@ -12,15 +13,31 @@ namespace Selector.CLI
             config.GetSection(FormatKeys( new[] { RootOptions.Key, DatabaseOptions.Key})).Bind(options.DatabaseOptions);
             config.GetSection(FormatKeys( new[] { RootOptions.Key, RedisOptions.Key})).Bind(options.RedisOptions);
             config.GetSection(FormatKeys( new[] { RootOptions.Key, JobsOptions.Key})).Bind(options.JobOptions);
-            config.GetSection(FormatKeys( new[] { RootOptions.Key, JobsOptions.Key, ScrobbleWatcherJobOptions.Key})).Bind(options.JobOptions.Scrobble);
+            config.GetSection(FormatKeys( new[] { RootOptions.Key, JobsOptions.Key, ScrobbleWatcherJobOptions.Key })).Bind(options.JobOptions.Scrobble);
         }  
 
         public static RootOptions ConfigureOptions(this IConfiguration config)
         {
             var options = config.GetSection(RootOptions.Key).Get<RootOptions>();
+
             ConfigureOptions(options, config);
+
             return options;
-        }  
+        }
+
+        public static RootOptions ConfigureOptionsInjection(this IConfiguration config, IServiceCollection services)
+        {
+            var options = config.GetSection(RootOptions.Key).Get<RootOptions>();
+
+            services.Configure<DatabaseOptions>(config.GetSection(FormatKeys(new[] { RootOptions.Key, DatabaseOptions.Key })));
+            services.Configure<RedisOptions>(config.GetSection(FormatKeys(new[] { RootOptions.Key, RedisOptions.Key })));
+            services.Configure<WatcherOptions>(config.GetSection(FormatKeys(new[] { RootOptions.Key, WatcherOptions.Key })));
+
+            services.Configure<JobsOptions>(config.GetSection(FormatKeys(new[] { RootOptions.Key, JobsOptions.Key })));
+            services.Configure<ScrobbleWatcherJobOptions>(config.GetSection(FormatKeys(new[] { RootOptions.Key, JobsOptions.Key, ScrobbleWatcherJobOptions.Key })));
+
+            return options;
+        }
 
         public static string FormatKeys(string[] args) => string.Join(":", args);
     }
@@ -106,6 +123,7 @@ namespace Selector.CLI
     {
         public const string Key = "Scrobble";
 
+        public bool Enabled { get; set; } = true;
         public TimeSpan InterJobDelay { get; set; } = TimeSpan.FromMinutes(5);
         public TimeSpan InterRequestDelay { get; set; } = TimeSpan.FromMilliseconds(100);
         public DateTime? From { get; set; } = DateTime.UtcNow.AddDays(-14);

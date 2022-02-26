@@ -70,6 +70,7 @@ namespace Selector.CLI
             Console.WriteLine("> Configuring...");
             // CONFIG
             var config = ConfigureOptions(context, services);
+            context.Configuration.ConfigureOptionsInjection(services);
 
             Console.WriteLine("> Adding Services...");
             // SERVICES
