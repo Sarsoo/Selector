@@ -23,6 +23,10 @@ namespace Selector.CLI.Jobs
         private readonly ApplicationDbContext db;
         private readonly ScrobbleWatcherJobOptions options;
 
+        private static object databaseLock = new();
+
+        public bool IsFull { get; set; }
+
         public ScrobbleWatcherJob(
             IUserApi _userApi,
             IScrobbleRepository _scrobbleRepo,
@@ -42,47 +46,50 @@ namespace Selector.CLI.Jobs
 
         public async Task Execute(IJobExecutionContext context)
         {
-            logger.LogInformation("Starting scrobble watching job");
-
-            var users = db.Users
-                .AsEnumerable()
-                .Where(u => u.ScrobbleSavingEnabled())
-                .ToArray();
-
-            foreach (var user in users)
+            try
             {
-                logger.LogInformation("Saving scrobbles for {}/{}", user.UserName, user.LastFmUsername);
+                logger.LogInformation("Starting scrobble watching job");
 
-                if (options.From is not null && options.From.Value.Kind != DateTimeKind.Utc)
+                var users = db.Users
+                    .AsEnumerable()
+                    .Where(u => u.ScrobbleSavingEnabled())
+                    .ToArray();
+
+                foreach (var user in users)
                 {
-                    options.From = options.From.Value.ToUniversalTime();
-                }
+                    logger.LogInformation("Saving scrobbles for {}/{}", user.UserName, user.LastFmUsername);
 
-                if (options.To is not null && options.To.Value.Kind != DateTimeKind.Utc)
-                {
-                    options.To = options.To.Value.ToUniversalTime();
-                }
-
-                var saver = new ScrobbleSaver(
-                    userApi,
-                    new()
+                    DateTime? from = null;
+                    if (options.From is not null && !IsFull)
                     {
-                        User = user,
-                        InterRequestDelay = options.InterRequestDelay,
-                        From = options.From,
-                        To = options.To,
-                        PageSize = options.PageSize,
-                        DontAdd = false,
-                        DontRemove = false,
-                        SimultaneousConnections = options.Simultaneous
-                    },
-                    scrobbleRepo,
-                    loggerFactory.CreateLogger<ScrobbleSaver>(),
-                    loggerFactory);
+                        from = options.From.Value.ToUniversalTime();
+                    }
 
-                await saver.Execute(context.CancellationToken);
+                    var saver = new ScrobbleSaver(
+                        userApi,
+                        new()
+                        {
+                            User = user,
+                            InterRequestDelay = options.InterRequestDelay,
+                            From = from,
+                            PageSize = options.PageSize,
+                            DontAdd = false,
+                            DontRemove = false,
+                            SimultaneousConnections = options.Simultaneous
+                        },
+                        scrobbleRepo,
+                        loggerFactory.CreateLogger<ScrobbleSaver>(),
+                        loggerFactory,
+                        databaseLock);
 
-                logger.LogInformation("Finished scrobbles for {}/{}", user.UserName, user.LastFmUsername);
+                    await saver.Execute(context.CancellationToken);
+
+                    logger.LogInformation("Finished scrobbles for {}/{}", user.UserName, user.LastFmUsername);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occured while saving scrobbles");
             }
         }
     }

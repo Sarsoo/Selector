@@ -16,7 +16,12 @@
                 <input asp-for="Input.Username" class="form-control" />
                 <span asp-validation-for="Input.Username" class="text-danger"></span>
             </div>
-            <button id="change-username-button" type="submit" asp-page-handler="ChangeUsername" class="btn btn-primary form-element">Change Username</button>
+            <div class="form-group form-element">
+                <label asp-for="Input.ScrobbleSaving"></label>
+                <input asp-for="Input.ScrobbleSaving" />
+                <span asp-validation-for="Input.ScrobbleSaving" class="text-danger"></span>
+            </div>
+            <button id="save-button" type="submit" asp-page-handler="Save" class="btn btn-primary form-element">Save</button>
         </form>
     </div>
 </div>

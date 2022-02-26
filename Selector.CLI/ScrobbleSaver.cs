@@ -36,18 +36,21 @@ namespace Selector
 
         private readonly IUserApi userClient;
         private readonly ScrobbleSaverConfig config;
-        private Task batchTask;
         private BatchingOperation<ScrobbleRequest> batchOperation;
 
         private readonly IScrobbleRepository scrobbleRepo;
 
-        public ScrobbleSaver(IUserApi _userClient, ScrobbleSaverConfig _config, IScrobbleRepository _scrobbleRepository, ILogger<ScrobbleSaver> _logger, ILoggerFactory _loggerFactory = null)
+        private readonly object dbLock;
+
+        public ScrobbleSaver(IUserApi _userClient, ScrobbleSaverConfig _config, IScrobbleRepository _scrobbleRepository, ILogger<ScrobbleSaver> _logger, ILoggerFactory _loggerFactory = null, object _dbLock = null)
         {
             userClient = _userClient;
             config = _config;
             scrobbleRepo = _scrobbleRepository;
             logger = _logger;
             loggerFactory = _loggerFactory;
+
+            dbLock = _dbLock ?? new();
         }
 
         public async Task Execute(CancellationToken token)
@@ -74,17 +77,7 @@ namespace Selector
                         GetRequestsFromPageNumbers(2, page1.TotalPages)
                     );
 
-                    batchTask = batchOperation.TriggerRequests(token);
-                }
-
-
-                logger.LogDebug("Pulling currently stored scrobbles");
-
-                var currentScrobbles = scrobbleRepo.GetAll(userId: config.User.Id, from: config.From, to: config.To);
-
-                if(batchTask is not null)
-                {
-                    await batchTask;
+                    await batchOperation.TriggerRequests(token);
                 }
 
                 IEnumerable<LastTrack> scrobbles;
@@ -108,50 +101,57 @@ namespace Selector
                     .Select(s => (UserScrobble) s)
                     .ToArray();
 
-                logger.LogInformation("Completed database scrobble pulling for {}, pulled {:n0}", config.User.UserName, nativeScrobbles.Length);
+                logger.LogInformation("Completed network scrobble pulling for {}, pulled {:n0}", config.User.UserName, nativeScrobbles.Length);
 
-                logger.LogDebug("Identifying difference sets");
-                var time = Stopwatch.StartNew();
+                logger.LogDebug("Pulling currently stored scrobbles");
 
-                (var toAdd, var toRemove) = ScrobbleMatcher.IdentifyDiffs(currentScrobbles, nativeScrobbles);
-
-                time.Stop();
-                logger.LogTrace("Finished diffing: {:n}ms", time.ElapsedMilliseconds);
-
-                var timeDbOps = Stopwatch.StartNew();
-
-                if(!config.DontAdd)
+                lock (dbLock)
                 {
-                    foreach(var add in toAdd)
+                    var currentScrobbles = scrobbleRepo.GetAll(userId: config.User.Id, from: config.From, to: config.To);
+
+                    logger.LogDebug("Identifying difference sets");
+                    var time = Stopwatch.StartNew();
+
+                    (var toAdd, var toRemove) = ScrobbleMatcher.IdentifyDiffs(currentScrobbles, nativeScrobbles);
+
+                    time.Stop();
+                    logger.LogTrace("Finished diffing: {:n}ms", time.ElapsedMilliseconds);
+
+                    var timeDbOps = Stopwatch.StartNew();
+
+                    if (!config.DontAdd)
                     {
-                        var scrobble = (UserScrobble) add;
-                        scrobble.UserId = config.User.Id;
-                        scrobbleRepo.Add(scrobble);
+                        foreach (var add in toAdd)
+                        {
+                            var scrobble = (UserScrobble)add;
+                            scrobble.UserId = config.User.Id;
+                            scrobbleRepo.Add(scrobble);
+                        }
                     }
-                }
-                else
-                {
-                    logger.LogInformation("Skipping adding of {} scrobbles", toAdd.Count());
-                }
-                if (!config.DontRemove)
-                {
-                    foreach (var remove in toRemove)
+                    else
                     {
-                        var scrobble = (UserScrobble) remove;
-                        scrobble.UserId = config.User.Id;
-                        scrobbleRepo.Remove(scrobble);
+                        logger.LogInformation("Skipping adding of {} scrobbles", toAdd.Count());
                     }
-                }
-                else
-                {
-                    logger.LogInformation("Skipping removal of {} scrobbles", toRemove.Count());
-                }
-                await scrobbleRepo.Save();
+                    if (!config.DontRemove)
+                    {
+                        foreach (var remove in toRemove)
+                        {
+                            var scrobble = (UserScrobble)remove;
+                            scrobble.UserId = config.User.Id;
+                            scrobbleRepo.Remove(scrobble);
+                        }
+                    }
+                    else
+                    {
+                        logger.LogInformation("Skipping removal of {} scrobbles", toRemove.Count());
+                    }
+                    _ = scrobbleRepo.Save().Result;
 
-                timeDbOps.Stop();
-                logger.LogTrace("DB ops: {:n}ms", timeDbOps.ElapsedMilliseconds);
+                    timeDbOps.Stop();
+                    logger.LogTrace("DB ops: {:n}ms", timeDbOps.ElapsedMilliseconds);
 
-                logger.LogInformation("Completed scrobble pulling for {}, +{:n0}, -{:n0}", config.User.UserName, toAdd.Count(), toRemove.Count());
+                    logger.LogInformation("Completed scrobble pulling for {}, +{:n0}, -{:n0}", config.User.UserName, toAdd.Count(), toRemove.Count());
+                }
             }
             else
             {

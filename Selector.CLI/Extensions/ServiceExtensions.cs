@@ -55,23 +55,48 @@ namespace Selector.CLI.Extensions
                         tp.MaxConcurrency = 5;
                     });
 
-                    var scrobbleKey = new JobKey("scrobble-watcher", "scrobble");
+                    if (config.JobOptions.Scrobble.Enabled)
+                    {
+                        Console.WriteLine("> Adding Scrobble Jobs...");
 
-                    options.AddJob<ScrobbleWatcherJob>(j => j
-                        .WithDescription("Watch recent scrobbles and mirror to database")
-                        .WithIdentity(scrobbleKey)
-                    );
+                        var scrobbleKey = new JobKey("scrobble-watcher-agile", "scrobble");
 
-                    options.AddTrigger(t => t
-                        .WithIdentity("scrobble-watcher-trigger")
-                        .ForJob(scrobbleKey)
-                        .StartNow()
-                        .WithSimpleSchedule(x => x.WithInterval(config.JobOptions.Scrobble.InterJobDelay).RepeatForever())
-                        .WithDescription("Periodic trigger for scrobble watcher")
-                    );
+                        options.AddJob<ScrobbleWatcherJob>(j => j
+                            .WithDescription("Watch recent scrobbles and mirror to database")
+                            .WithIdentity(scrobbleKey)
+                            .UsingJobData("IsFull", false)
+                        );
+
+                        options.AddTrigger(t => t
+                            .WithIdentity("scrobble-watcher-agile-trigger")
+                            .ForJob(scrobbleKey)
+                            .StartNow()
+                            .WithSimpleSchedule(x => x.WithInterval(config.JobOptions.Scrobble.InterJobDelay).RepeatForever())
+                            .WithDescription("Periodic trigger for scrobble watcher")
+                        );
+
+                        var fullScrobbleKey = new JobKey("scrobble-watcher-full", "scrobble");
+
+                        options.AddJob<ScrobbleWatcherJob>(j => j
+                            .WithDescription("Check all scrobbles and mirror to database")
+                            .WithIdentity(fullScrobbleKey)
+                            .UsingJobData("IsFull", true)
+                        );
+
+                        options.AddTrigger(t => t
+                            .WithIdentity("scrobble-watcher-full-trigger")
+                            .ForJob(fullScrobbleKey)
+                            .WithCronSchedule(config.JobOptions.Scrobble.FullScrobbleCron)
+                            .WithDescription("Periodic trigger for scrobble watcher")
+                        );
+                    }   
+                    else
+                    {
+                        Console.WriteLine("> Skipping Scrobble Jobs...");
+                    }
                 });
 
-                services.AddQuartzHostedService(options =>{
+                services.AddQuartzHostedService(options => {
 
                     options.WaitForJobsToComplete = true;
                 });

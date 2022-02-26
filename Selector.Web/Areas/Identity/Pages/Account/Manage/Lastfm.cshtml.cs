@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.WebUtilities;
 
 using Selector.Model;
 using Selector.Events;
+using Microsoft.Extensions.Logging;
 
 namespace Selector.Web.Areas.Identity.Pages.Account.Manage
 {
@@ -21,12 +22,17 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly UserEventBus UserEvent;
 
+        private readonly ILogger<LastFmModel> logger;
+
         public LastFmModel(
             UserManager<ApplicationUser> userManager,
-            UserEventBus userEvent)
+            UserEventBus userEvent,
+            ILogger<LastFmModel> _logger)
         {
             _userManager = userManager;
             UserEvent = userEvent;
+
+            logger = _logger;
         }
 
         [TempData]
@@ -39,6 +45,9 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
         {
             [Display(Name = "Username")]
             public string Username { get; set; }
+
+            [Display(Name = "Scrobble Saving")]
+            public bool ScrobbleSaving { get; set; }
         }
 
         private Task LoadAsync(ApplicationUser user)
@@ -46,6 +55,7 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
             Input = new InputModel
             {
                 Username = user.LastFmUsername,
+                ScrobbleSaving = user.SaveScrobbles
             };
 
             return Task.CompletedTask;
@@ -63,7 +73,7 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
             return Page();
         }
 
-        public async Task<IActionResult> OnPostChangeUsernameAsync()
+        public async Task<IActionResult> OnPostSaveAsync()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -77,23 +87,54 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
+            var changed = false;
+
             if (Input.Username != user.LastFmUsername)
             {
                 var oldUsername = user.LastFmUsername;
                 user.LastFmUsername = Input.Username?.Trim();
-                
-                await _userManager.UpdateAsync(user);
+
+                changed = true;
+
                 UserEvent.OnLastfmCredChange(this, new LastfmChange { 
                     UserId = user.Id, 
                     PreviousUsername = oldUsername, 
                     NewUsername = user.LastFmUsername
                 });
 
+                logger.LogInformation("Changing username from {} to {}", oldUsername, user.LastFmUsername);
+
                 StatusMessage = "Username changed";
-                return RedirectToPage();
             }
 
-            StatusMessage = "Username unchanged";
+            if (Input.ScrobbleSaving != user.SaveScrobbles)
+            {
+                user.SaveScrobbles = Input.ScrobbleSaving;
+
+                logger.LogInformation("Changing scrobble saving from {} to {}", !Input.ScrobbleSaving, Input.ScrobbleSaving);
+                
+                if (changed)
+                {
+                    StatusMessage += ", scrobble saving updated";
+                }
+                else
+                {
+                    StatusMessage = "Scrobble saving updated";
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                logger.LogInformation("Saving Last.fm settings for {}", user.LastFmUsername);
+
+                await _userManager.UpdateAsync(user);
+            }
+            else
+            {
+                StatusMessage = "Settings unchanged";
+            }
+
             return RedirectToPage();
         }
     }
