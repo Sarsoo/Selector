@@ -35,3 +35,8 @@ services:
     ports:
       - "5432:5432"
     env_file: .env # set POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+    volumes:
+      - database-data:/var/lib/postgresql/data
+
+volumes:
+  database-data:
