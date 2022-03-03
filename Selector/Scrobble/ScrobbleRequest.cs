@@ -56,39 +56,47 @@ namespace Selector
             currentTask = userClient.GetRecentScrobbles(username, pagenumber: pageNumber, count: pageSize, from: from, to: to);
             currentTask.ContinueWith(async t =>
             {
-                netTime.Stop();
-                logger.LogTrace("Network request took {:n} ms", netTime.ElapsedMilliseconds);
-
-                if (t.IsCompletedSuccessfully)
+                try
                 {
-                    var result = t.Result;
-                    Succeeded = result.Success;
+                    netTime.Stop();
+                    logger.LogTrace("Network request took {:n} ms", netTime.ElapsedMilliseconds);
 
-                    if (Succeeded)
+                    if (t.IsCompletedSuccessfully)
                     {
-                        Scrobbles = result.Content.ToArray();
-                        TotalPages = result.TotalPages;
-                        OnSuccess();
-                        AggregateTaskSource.SetResult();
-                    }
-                    else
-                    {
-                        if(Attempts < MaxAttempts)
+                        var result = t.Result;
+                        Succeeded = result.Success;
+
+                        if (Succeeded)
                         {
-                            logger.LogDebug("Request failed for {}, #{} by {}: {}, retrying ({} of {})", username, pageNumber, pageSize, result.Status, Attempts + 1, MaxAttempts);
-                            await Execute();
+                            Scrobbles = result.Content.ToArray();
+                            TotalPages = result.TotalPages;
+                            OnSuccess();
+                            AggregateTaskSource.SetResult();
                         }
                         else
                         {
-                            logger.LogDebug("Request failed for {}, #{} by {}: {}, max retries exceeded {}, not retrying", username, pageNumber, pageSize, result.Status, MaxAttempts);
-                            AggregateTaskSource.SetCanceled();
+                            if (Attempts < MaxAttempts)
+                            {
+                                logger.LogDebug("Request failed for {}, #{} by {}: {}, retrying ({} of {})", username, pageNumber, pageSize, result.Status, Attempts + 1, MaxAttempts);
+                                await Execute();
+                            }
+                            else
+                            {
+                                logger.LogDebug("Request failed for {}, #{} by {}: {}, max retries exceeded {}, not retrying", username, pageNumber, pageSize, result.Status, MaxAttempts);
+                                AggregateTaskSource.SetCanceled();
+                            }
                         }
                     }
+                    else
+                    {
+                        logger.LogError("Scrobble request task faulted, {}", t.Exception);
+                        AggregateTaskSource.SetException(t.Exception);
+                    }
                 }
-                else
+                catch(Exception e)
                 {
-                    logger.LogError("Scrobble request task faulted, {}", t.Exception);
-                    AggregateTaskSource.SetException(t.Exception);
+                    logger.LogError(e, "Error while making scrobble request #{} for {} by {} from {} to {} on attempt {}", pageNumber, username, pageSize, from, to, Attempts);
+                    Succeeded = false;
                 }
             });
 

@@ -124,7 +124,7 @@ namespace Selector.CLI
         public const string Key = "Scrobble";
 
         public bool Enabled { get; set; } = true;
-        public string FullScrobbleCron { get; set; } = "0 0 2 * * *";
+        public string FullScrobbleCron { get; set; } = "0 0 2 * * ?";
         public TimeSpan InterJobDelay { get; set; } = TimeSpan.FromMinutes(5);
         public TimeSpan InterRequestDelay { get; set; } = TimeSpan.FromMilliseconds(100);
         public DateTime? From { get; set; } = DateTime.UtcNow.AddDays(-14);
