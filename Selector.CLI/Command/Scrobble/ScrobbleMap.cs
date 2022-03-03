@@ -24,26 +24,14 @@ namespace Selector.CLI
             simulOption.AddAlias("-s");
             AddOption(simulOption);
 
-            var limitOption = new Option<int?>("--limit", "limit number of objects to poll");
+            var limitOption = new Option<int?>("--limit", getDefaultValue: () => 200, "limit number of objects to poll");
             limitOption.AddAlias("-l");
             AddOption(limitOption);
 
-            var artists = new Option("--artist", "map scrobble artists to spotify");
-            artists.AddAlias("-ar");
-            AddOption(artists);
-
-            var albums = new Option("--album", "map scrobble albums to spotify");
-            albums.AddAlias("-al");
-            AddOption(albums);
-
-            var tracks = new Option("--track", "map scrobble tracks to spotify");
-            tracks.AddAlias("-tr");
-            AddOption(tracks);
-
-            Handler = CommandHandler.Create(async (int delay, int simultaneous, int? limit, bool artist, bool album, bool track, CancellationToken token) => await Execute(delay, simultaneous, limit, artist, album, track, token));
+            Handler = CommandHandler.Create(async (int delay, int simultaneous, int? limit, CancellationToken token) => await Execute(delay, simultaneous, limit, token));
         }
 
-        public static async Task<int> Execute(int delay, int simultaneous, int? limit, bool artists, bool albums, bool tracks, CancellationToken token)
+        public static async Task<int> Execute(int delay, int simultaneous, int? limit, CancellationToken token)
         {
             try
             {
@@ -58,10 +46,7 @@ namespace Selector.CLI
                     {
                         InterRequestDelay = new TimeSpan(0, 0, 0, 0, delay),
                         SimultaneousConnections = simultaneous,
-                        Limit = limit,
-                        Artists = artists,
-                        Albums = albums,
-                        Tracks = tracks
+                        Limit = limit
                     }, 
                     new ScrobbleRepository(db), 
                     new ScrobbleMappingRepository(db),

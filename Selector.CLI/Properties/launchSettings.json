@@ -33,7 +33,7 @@
     },
     "Selector.CLI.Scrobble.Map": {
       "commandName": "Project",
-      "commandLineArgs": "scrobble map --artist -l 50 --album --track",
+      "commandLineArgs": "scrobble map",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       },

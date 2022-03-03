@@ -80,7 +80,9 @@ namespace Selector.CLI.Extensions
 
                 using var db = new ApplicationDbContext(context.DatabaseConfig.Options, NullLogger<ApplicationDbContext>.Instance);
 
-                refreshToken = db.Users.FirstOrDefault(u => u.UserName == "sarsoo")?.SpotifyRefreshToken;
+                var user = db.Users.FirstOrDefault(u => u.UserName == "sarsoo");
+
+                refreshToken = user?.SpotifyRefreshToken;
             }
 
             var configFactory = new RefreshTokenFactory(context.Config.ClientId, context.Config.ClientSecret, refreshToken);
