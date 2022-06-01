@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 
 namespace Selector.Web
@@ -8,6 +9,7 @@ namespace Selector.Web
         {
             config.GetSection(RootOptions.Key).Bind(options);
             config.GetSection(FormatKeys(new[] { RootOptions.Key, RedisOptions.Key })).Bind(options.RedisOptions);
+            config.GetSection(FormatKeys(new[] { RootOptions.Key, NowPlayingOptions.Key })).Bind(options.NowOptions);
         }
 
         public static RootOptions ConfigureOptions(IConfiguration config)
@@ -40,6 +42,7 @@ namespace Selector.Web
         public string LastfmSecret { get; set; }
 
         public RedisOptions RedisOptions { get; set; } = new();
+        public NowPlayingOptions NowOptions { get; set; } = new();
 
     }
 
@@ -49,5 +52,19 @@ namespace Selector.Web
 
         public bool Enabled { get; set; } = false;
         public string ConnectionString { get; set; }
+    }
+
+    public class NowPlayingOptions
+    {
+        public const string Key = "Now";
+
+        public TimeSpan ArtistDensityWindow { get; set; } = TimeSpan.FromDays(10);
+        public decimal ArtistDensityThreshold { get; set; } = 5;
+
+        public TimeSpan AlbumDensityWindow { get; set; } = TimeSpan.FromDays(10);
+        public decimal AlbumDensityThreshold { get; set; } = 5;
+
+        public TimeSpan TrackDensityWindow { get; set; } = TimeSpan.FromDays(10);
+        public decimal TrackDensityThreshold { get; set; } = 5;
     }
 }

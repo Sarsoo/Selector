@@ -14,7 +14,7 @@
         <audio-feature-card :feature="trackFeatures" v-if="trackFeatures !== null && trackFeatures !== undefined" /></audio-feature-card>
         <audio-feature-chart-card :feature="trackFeatures" v-if="trackFeatures !== null && trackFeatures !== undefined" /></audio-feature-chart-card>
         <play-count-card :count="playCount" :track="lastfmTrack" :username="playCount.username" v-if="playCount !== null && playCount !== undefined" /></play-count-card>
-        <info-card v-for="card in cards" :html="card.html"></info-card>
+        <info-card v-for="card in cards" :html="card.content"></info-card>
     </div>
 </div>
 

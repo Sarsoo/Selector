@@ -17,7 +17,7 @@ connection.start()
 .catch(err => console.error(err));
 
 interface InfoCard {
-    html: string
+    Content: string
 }
 
 interface NowPlaying {
@@ -64,6 +64,12 @@ const app = Vue.createApp({
                     context.track.album.name,
                     context.track.album.artists[0].name
                 );
+                connection.invoke("SendFacts",
+                    context.track.name,
+                    context.track.artists[0].name,
+                    context.track.album.name,
+                    context.track.album.artists[0].name
+                );
             }
         });
 
@@ -77,6 +83,12 @@ const app = Vue.createApp({
 
             console.log(count);
             this.playCount = count;
+        });
+
+        connection.on("OnNewCard", (card: InfoCard) => {
+
+            console.log(card);
+            this.cards.push(card);
         });
     }
 });
