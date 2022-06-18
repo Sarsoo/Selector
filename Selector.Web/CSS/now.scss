@@ -43,6 +43,10 @@ $shadow-color: #1e1e1e;
     }
 }
 
+.chart-card {
+    width: 500px;
+}
+
 @media only screen and (min-width: 768px) {
     .app {
         display: flex;

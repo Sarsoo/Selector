@@ -7,13 +7,33 @@
 <div class="text-center">
     <h1 class="display-4">Now</h1>
     <div id="app" class="app col-12">
-        <now-playing-card :track="currentlyPlaying.track" v-if="currentlyPlaying !== null && currentlyPlaying !== undefined" ></now-playing-card>
-        <now-playing-card v-else ></now-playing-card>
+        <now-playing-card :track="currentlyPlaying.track" v-if="currentlyPlaying !== null && currentlyPlaying !== undefined"></now-playing-card>
+        <now-playing-card v-else></now-playing-card>
 
-        <popularity :track="currentlyPlaying.track" v-if="currentlyPlaying !== null && currentlyPlaying !== undefined && currentlyPlaying.track != null && currentlyPlaying.track != undefined" ></popularity>
-        <audio-feature-card :feature="trackFeatures" v-if="trackFeatures !== null && trackFeatures !== undefined" /></audio-feature-card>
-        <audio-feature-chart-card :feature="trackFeatures" v-if="trackFeatures !== null && trackFeatures !== undefined" /></audio-feature-chart-card>
-        <play-count-card :count="playCount" :track="lastfmTrack" :username="playCount.username" v-if="playCount !== null && playCount !== undefined" /></play-count-card>
+        <popularity :track="currentlyPlaying.track"
+                    v-if="currentlyPlaying !== null && currentlyPlaying !== undefined && currentlyPlaying.track != null && currentlyPlaying.track != undefined"></popularity>
+
+        <audio-feature-card :feature="trackFeatures"
+                            v-if="trackFeatures !== null && trackFeatures !== undefined"></audio-feature-card>
+        <audio-feature-chart-card :feature="trackFeatures"
+                                  v-if="trackFeatures !== null && trackFeatures !== undefined"></audio-feature-chart-card>
+
+        <play-count-card :count="playCount"
+                         :track="lastfmTrack"
+                         :username="playCount.username"
+                         v-if="playCount !== null && playCount !== undefined"></play-count-card>
+        <play-count-chart-card :data_points="playCount.trackCountData"
+                               :title="currentlyPlaying.track.name"
+                               :chart_id="'track'"
+                               v-if="showTrackChart"></play-count-chart-card>
+        <play-count-chart-card :data_points="playCount.albumCountData"
+                               :title="currentlyPlaying.track.album.name"
+                               :chart_id="'album'"
+                               v-if="showAlbumChart"></play-count-chart-card>
+        <play-count-chart-card :data_points="playCount.artistCountData"
+                               :title="lastfmArtist"
+                               :chart_id="'artist'"
+                               v-if="showArtistChart"></play-count-chart-card>
         <info-card v-for="card in cards" :html="card.content"></info-card>
     </div>
 </div>

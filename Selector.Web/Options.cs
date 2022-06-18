@@ -58,6 +58,10 @@ namespace Selector.Web
     {
         public const string Key = "Now";
 
+        public TimeSpan ArtistResampleWindow { get; set; } = TimeSpan.FromDays(30);
+        public TimeSpan AlbumResampleWindow { get; set; } = TimeSpan.FromDays(30);
+        public TimeSpan TrackResampleWindow { get; set; } = TimeSpan.FromDays(30);
+
         public TimeSpan ArtistDensityWindow { get; set; } = TimeSpan.FromDays(10);
         public decimal ArtistDensityThreshold { get; set; } = 5;
 

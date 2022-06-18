@@ -8,12 +8,21 @@ let component: Vue.Component = {
         },
         IsEpisodePlaying() {
             return this.episode !== null && this.episode !== undefined;
+        },
+        ImageUrl() {
+            if(this.track.album.images.length > 0)
+            {
+                return this.track.album.images[0].url;
+            }
+            else{
+                return "";
+            }
         }
     },
     template: 
     `
         <div class="card now-playing-card" v-if="IsTrackPlaying">
-            <img :src="track.album.images[0].url" class="cover-art">
+            <img :src="ImageUrl" class="cover-art">
             <h4>{{ track.name }}</h4>
             <h6>
                 {{ track.album.name }}

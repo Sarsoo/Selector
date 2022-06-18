@@ -6,6 +6,8 @@ namespace Selector
 {
 	public static class PlayDensity
 	{
+		public static decimal Density(this IEnumerable<Scrobble> scrobbles, TimeSpan window) => scrobbles.Density(DateTime.UtcNow - window, DateTime.UtcNow);
+
 		public static decimal Density(this IEnumerable<Scrobble> scrobbles, DateTime from, DateTime to)
         {
 			var filteredScrobbles = scrobbles.Where(s => s.Timestamp > from && s.Timestamp < to);

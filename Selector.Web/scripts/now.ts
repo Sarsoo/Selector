@@ -3,6 +3,7 @@ import * as Vue from "vue";
 import { TrackAudioFeatures, PlayCount, CurrentlyPlayingDTO } from "./HubInterfaces";
 import NowPlayingCard from "./Now/NowPlayingCard";
 import { AudioFeatureCard, AudioFeatureChartCard, PopularityCard, SpotifyLogoLink } from "./Now/Spotify";
+import { PlayCountChartCard } from "./Now/PlayCountGraph";
 import { PlayCountCard, LastFmLogoLink } from "./Now/LastFm";
 import BaseInfoCard from "./Now/BaseInfoCard";
 
@@ -44,6 +45,23 @@ const app = Vue.createApp({
                 album: this.currentlyPlaying.track.album.name,
                 album_artist: this.currentlyPlaying.track.album.artists[0].name,
             };
+        },
+        lastfmArtist(){
+
+            // if(this.currentlyPlaying.track.artists[0].length > 0)
+            {
+                return this.currentlyPlaying.track.artists[0].name;
+            }
+            return "";
+        },
+        showArtistChart(){
+            return this.playCount !== null && this.playCount !== undefined && this.playCount.artistCountData.length > 0;
+        },
+        showAlbumChart() {
+            return this.playCount !== null && this.playCount !== undefined && this.playCount.albumCountData.length > 0;
+        },
+        showTrackChart(){
+            return this.playCount !== null && this.playCount !== undefined && this.playCount.trackCountData.length > 0;
         }
     },
     created() {
@@ -57,7 +75,10 @@ const app = Vue.createApp({
 
             if(context.track !== null && context.track !== undefined)
             {
-                connection.invoke("SendAudioFeatures", context.track.id);
+                if(context.track.id !== null)
+                {
+                    connection.invoke("SendAudioFeatures", context.track.id);
+                }
                 connection.invoke("SendPlayCount",
                     context.track.name,
                     context.track.artists[0].name,
@@ -101,4 +122,5 @@ app.component("popularity", PopularityCard);
 app.component("spotify-logo", SpotifyLogoLink);
 app.component("lastfm-logo", LastFmLogoLink);
 app.component("play-count-card", PlayCountCard);
+app.component("play-count-chart-card", PlayCountChartCard);
 const vm = app.mount('#app');

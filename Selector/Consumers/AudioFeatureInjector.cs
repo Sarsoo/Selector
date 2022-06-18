@@ -53,6 +53,8 @@ namespace Selector
         {
             if (e.Current.Item is FullTrack track)
             {
+                if (string.IsNullOrWhiteSpace(track.Id)) return;
+
                 try {
                     Logger.LogTrace("Making Spotify call");
                     var audioFeatures = await TrackClient.GetAudioFeatures(track.Id);
@@ -81,6 +83,8 @@ namespace Selector
             }
             else if (e.Current.Item is FullEpisode episode)
             {
+                if (string.IsNullOrWhiteSpace(episode.Id)) return;
+
                 Logger.LogDebug($"Ignoring podcast episdoe [{episode.DisplayString()}]");
             }
             else if (e.Current.Item is null)

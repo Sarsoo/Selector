@@ -23,7 +23,15 @@ export interface PlayCount {
     artist: number | null;
     user: number | null;
     username: string;
+    trackCountData: CountSample[];
+    albumCountData: CountSample[];
+    artistCountData: CountSample[];
     listeningEvent: ListeningChangeEventArgs;
+}
+
+export interface CountSample {
+    timeStamp: Date;
+    value: number;
 }
 
 export interface CurrentlyPlayingDTO {

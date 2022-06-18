@@ -208,6 +208,9 @@ namespace Selector
         public int? Artist { get; set; }
         public int? User { get; set; }
         public string Username { get; set; }
+        public IEnumerable<CountSample> TrackCountData { get; set; }
+        public IEnumerable<CountSample> AlbumCountData { get; set; }
+        public IEnumerable<CountSample> ArtistCountData { get; set; }
         public ListeningChangeEventArgs ListeningEvent { get; set; }
     }
 

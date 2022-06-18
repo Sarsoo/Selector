@@ -1,20 +1,19 @@
 using System;
+using System.Collections.Generic;
+using System.Data.SqlTypes;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Data.SqlTypes;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-
-using SpotifyAPI.Web;
-using StackExchange.Redis;
-
+using Microsoft.Extensions.Options;
 using Selector.Cache;
 using Selector.Model;
 using Selector.Model.Extensions;
 using Selector.Web.NowPlaying;
-using Microsoft.Extensions.Options;
-using System.Collections.Generic;
+using SpotifyAPI.Web;
+using StackExchange.Redis;
 
 namespace Selector.Web.Hubs
 {
@@ -70,6 +69,8 @@ namespace Selector.Web.Hubs
 
         public async Task SendAudioFeatures(string trackId)
         {
+            if (string.IsNullOrWhiteSpace(trackId)) return;
+
             var user = Db.Users
                         .AsNoTracking()
                         .Where(u => u.Id == Context.UserIdentifier)
@@ -106,13 +107,34 @@ namespace Selector.Web.Hubs
 
                     if (user.ScrobbleSavingEnabled())
                     {
-                        playCount.Artist = ScrobbleRepository.GetAll(userId: user.Id, artistName: artist).Count();
+                        var artistScrobbles = ScrobbleRepository.GetAll(userId: user.Id, artistName: artist).ToArray();
+
+                        playCount.Artist = artistScrobbles.Length;
+
+                        playCount.ArtistCountData = artistScrobbles
+                            //.Resample(nowOptions.Value.ArtistResampleWindow)
+                            .ResampleByMonth()
+                            .ToArray();
+
+                        var postCalc = playCount.ArtistCountData.Select(s => s.Value).Sum();
+                        Debug.Assert(postCalc == artistScrobbles.Count());
+
+                        playCount.AlbumCountData = artistScrobbles
+                            .Where(s => s.AlbumName.Equals(album, StringComparison.CurrentCultureIgnoreCase))
+                            //.Resample(nowOptions.Value.AlbumResampleWindow)
+                            .ResampleByMonth()
+                            .ToArray();
+
+                        playCount.TrackCountData = artistScrobbles
+                            .Where(s => s.TrackName.Equals(track, StringComparison.CurrentCultureIgnoreCase))
+                            //.Resample(nowOptions.Value.TrackResampleWindow)
+                            .ResampleByMonth()
+                            .ToArray();
                     }
 
-                    if (playCount is not null)
-                    {
-                        await Clients.Caller.OnNewPlayCount(playCount);
-                    }
+
+
+                    await Clients.Caller.OnNewPlayCount(playCount);
                 }
             }
         }
@@ -125,37 +147,49 @@ namespace Selector.Web.Hubs
                         .SingleOrDefault()
                             ?? throw new SqlNullValueException("No user returned");
 
+            await PlayDensityFacts(user, track, artist, album, albumArtist);
+        }
+
+        public async Task PlayDensityFacts(ApplicationUser user, string track, string artist, string album, string albumArtist)
+        {
             if (user.ScrobbleSavingEnabled())
             {
                 var artistScrobbles = ScrobbleRepository.GetAll(userId: user.Id, artistName: artist, from: GetMaximumWindow()).ToArray();
-                var artistDensity = artistScrobbles.Density(DateTime.UtcNow - nowOptions.Value.ArtistDensityWindow, DateTime.UtcNow);
+                var artistDensity = artistScrobbles.Density(nowOptions.Value.ArtistDensityWindow);
+
+                var tasks = new List<Task>(3);
 
                 if (artistDensity > nowOptions.Value.ArtistDensityThreshold)
                 {
-                    await Clients.Caller.OnNewCard(new()
+                    tasks.Add(Clients.Caller.OnNewCard(new()
                     {
                         Content = $"You're on a {artist} binge! {artistDensity} plays/day recently"
-                    });
+                    }));
                 }
 
-                var albumDensity = artistScrobbles.Where(s => s.AlbumName.Equals(album, StringComparison.InvariantCultureIgnoreCase)).Density(DateTime.UtcNow - nowOptions.Value.AlbumDensityWindow, DateTime.UtcNow);
+                var albumDensity = artistScrobbles.Where(s => s.AlbumName.Equals(album, StringComparison.InvariantCultureIgnoreCase)).Density(nowOptions.Value.AlbumDensityWindow);
 
                 if (albumDensity > nowOptions.Value.AlbumDensityThreshold)
                 {
-                    await Clients.Caller.OnNewCard(new()
+                    tasks.Add(Clients.Caller.OnNewCard(new()
                     {
                         Content = $"You're on a {album} binge! {albumDensity} plays/day recently"
-                    });
+                    }));
                 }
 
-                var trackDensity = artistScrobbles.Where(s => s.TrackName.Equals(track, StringComparison.InvariantCultureIgnoreCase)).Density(DateTime.UtcNow - nowOptions.Value.TrackDensityWindow, DateTime.UtcNow);
+                var trackDensity = artistScrobbles.Where(s => s.TrackName.Equals(track, StringComparison.InvariantCultureIgnoreCase)).Density(nowOptions.Value.TrackDensityWindow);
 
                 if (albumDensity > nowOptions.Value.TrackDensityThreshold)
                 {
-                    await Clients.Caller.OnNewCard(new()
+                    tasks.Add(Clients.Caller.OnNewCard(new()
                     {
                         Content = $"You're on a {track} binge! {trackDensity} plays/day recently"
-                    });
+                    }));
+                }
+
+                if(tasks.Any())
+                {
+                    await Task.WhenAll(tasks);
                 }
             }
         }
