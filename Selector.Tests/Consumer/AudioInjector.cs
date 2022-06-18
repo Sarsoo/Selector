@@ -70,7 +70,7 @@ namespace Selector.Tests
         }
 
         [Fact]
-        public async void Callback()
+        public async void CallbackNoId()
         {
             var watcherMock = new Mock<IPlayerWatcher>();
             var spotifyMock = new Mock<ITracksClient>();
@@ -82,6 +82,34 @@ namespace Selector.Tests
 
             eventArgsMock.Object.Current = playingMock.Object;
             playingMock.Object.Item = trackMock.Object;
+
+            spotifyMock.Setup(m => m.GetAudioFeatures(It.IsAny<string>()).Result).Returns(() => featureMock.Object);
+
+            var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object)
+            {
+                Timeline = timelineMock.Object
+            };
+
+            await featureInjector.AsyncCallback(eventArgsMock.Object);
+
+            spotifyMock.VerifyNoOtherCalls();
+            timelineMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async void CallbackWithId()
+        {
+            var watcherMock = new Mock<IPlayerWatcher>();
+            var spotifyMock = new Mock<ITracksClient>();
+            var timelineMock = new Mock<AnalysedTrackTimeline>();
+            var eventArgsMock = new Mock<ListeningChangeEventArgs>();
+            var playingMock = new Mock<CurrentlyPlayingContext>();
+            var trackMock = new Mock<FullTrack>();
+            var featureMock = new Mock<TrackAudioFeatures>();
+
+            eventArgsMock.Object.Current = playingMock.Object;
+            playingMock.Object.Item = trackMock.Object;
+            trackMock.Object.Id = "Fake-Id";
 
             spotifyMock.Setup(m => m.GetAudioFeatures(It.IsAny<string>()).Result).Returns(() => featureMock.Object);
 
