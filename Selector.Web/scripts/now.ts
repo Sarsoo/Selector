@@ -55,13 +55,13 @@ const app = Vue.createApp({
             return "";
         },
         showArtistChart(){
-            return this.playCount !== null && this.playCount !== undefined && this.playCount.artistCountData.length > 0;
+            return this.playCount !== null && this.playCount !== undefined && this.playCount.artistCountData.length > 3;
         },
         showAlbumChart() {
-            return this.playCount !== null && this.playCount !== undefined && this.playCount.albumCountData.length > 0;
+            return this.playCount !== null && this.playCount !== undefined && this.playCount.albumCountData.length > 3;
         },
         showTrackChart(){
-            return this.playCount !== null && this.playCount !== undefined && this.playCount.trackCountData.length > 0;
+            return this.playCount !== null && this.playCount !== undefined && this.playCount.trackCountData.length > 3;
         }
     },
     created() {

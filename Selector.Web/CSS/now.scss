@@ -5,20 +5,6 @@
 $text-color: white;
 $shadow-color: #1e1e1e;
 
-.card {
-    background-color: #333232;
-    color: $text-color;
-    margin: 5px;
-    padding: 15px;
-    box-shadow: 4px 4px 2px $shadow-color;
-    transition: box-shadow 0.5s;
-
-    &:hover {
-        box-shadow: none;
-        offset: 4px 4px;
-    }
-}
-
 .now-playing-card {
     // max-width: 300px;
 

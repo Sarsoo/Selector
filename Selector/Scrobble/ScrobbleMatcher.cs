@@ -23,27 +23,36 @@ namespace Selector
             var toAdd = new List<Scrobble>();
             var toRemove = new List<Scrobble>();
 
+            var toApplyOverrun = false;
+
             if (toApplyIter.MoveNext())
             {
                 if (existing.Any())
                 {
                     foreach (var currentExisting in existing)
                     {
-                        while (toApplyIter.Current.Timestamp < currentExisting.Timestamp)
+                        if (!toApplyOverrun)
                         {
-                            toAdd.Add(toApplyIter.Current);
-
-                            toApplyIter.MoveNext();
-                        }
-
-                        if (MatchTime(currentExisting, toApplyIter.Current))
-                        {
-                            if (matchContents)
+                            while (toApplyIter.Current.Timestamp < currentExisting.Timestamp)
                             {
-                                MatchData(currentExisting, toApplyIter.Current);
+                                toAdd.Add(toApplyIter.Current);
+
+                                toApplyIter.MoveNext();
                             }
 
-                            toApplyIter.MoveNext();
+                            if (MatchTime(currentExisting, toApplyIter.Current))
+                            {
+                                if (matchContents)
+                                {
+                                    MatchData(currentExisting, toApplyIter.Current);
+                                }
+
+                                toApplyOverrun = !toApplyIter.MoveNext();
+                            }
+                            else
+                            {
+                                toRemove.Add(currentExisting);
+                            }
                         }
                         else
                         {
@@ -51,7 +60,7 @@ namespace Selector
                         }
                     }
 
-                    if (toApplyIter.Current is not null)
+                    if (toApplyIter.Current is not null && !toApplyOverrun)
                     {
                         toAdd.Add(toApplyIter.Current);
 

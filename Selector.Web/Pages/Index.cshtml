@@ -1,13 +1,23 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Selector";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+    <h1 class="display-4">run that</h1>
 
-    <p>Selector is a tool for monitoring Spotify usage.</p>
+    <p>Selector is a live dashboard that presents Spotify data with Last.fm listening stats.</p>
 
     <a href="/now" class="dash-underline-lg link-dark" style="">Now Playing</a>
+
+    @if(Model.DailyScrobbles is not null)
+    {
+        <div class="card daily-scrobbles-card">
+            <h3>Today</h3>
+            <p style="margin: 30px">@Model.DailyScrobbles</p>
+            <img src="/last-fm.png" class="lastfm-logo" v-else>
+        </div>
+    }
+
 </div>

@@ -7,7 +7,7 @@ Chart.register(LineController, CategoryScale, LinearScale, TimeSeriesScale, Poin
 const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
 export let PlayCountChartCard: Vue.Component = {
-    props: ['data_points', 'title', 'chart_id'],
+    props: ['data_points', 'title', 'chart_id', 'link'],
     data() {
         return {
             chartData: {
@@ -33,6 +33,7 @@ export let PlayCountChartCard: Vue.Component = {
         <div class="card info-card chart-card">
             <h1>{{ title }}</h1>
             <canvas :id="chartId"></canvas>
+            <lastfm-logo :link="link" />
         </div>
     `, 
     mounted() {
@@ -56,6 +57,9 @@ export let PlayCountChartCard: Vue.Component = {
                     // }
                 },
                 scales: {
+                    yAxis: {
+                        suggestedMin: 0
+                    }
                 }
             }
         })
