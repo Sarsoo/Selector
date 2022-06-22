@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-
+using Selector.Cache;
 using Selector.Model.Authorisation;
 
 namespace Selector.Model.Extensions
@@ -20,6 +20,13 @@ namespace Selector.Model.Extensions
 
             services.AddScoped<IAuthorizationHandler, UserIsSelfAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, UserIsAdminAuthHandler>();
+        }
+
+        public static IServiceCollection AddDBPlayCountPuller(this IServiceCollection services)
+        {
+            services.AddTransient<DBPlayCountPuller>();
+
+            return services;
         }
     }
 }

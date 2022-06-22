@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,10 +13,12 @@ namespace Selector
         protected readonly ILogger<BaseWatcher> Logger;
         public string Id { get; set; }
         public string SpotifyUsername { get; set; }
+        private Stopwatch ExecutionTimer { get; set; }
 
         public BaseWatcher(ILogger<BaseWatcher> logger = null)
         {
             Logger = logger ?? NullLogger<BaseWatcher>.Instance;
+            ExecutionTimer = new Stopwatch();
         }
 
         public abstract Task WatchOne(CancellationToken token);
@@ -28,6 +28,9 @@ namespace Selector
         {
             Logger.LogDebug("Starting watcher");
             while (true) {
+
+                ExecutionTimer.Start();
+
                 cancelToken.ThrowIfCancellationRequested();
 
                 try
@@ -38,9 +41,13 @@ namespace Selector
                 {
                     Logger.LogError(ex, "Exception occured while conducting single poll operation");
                 }
-                
-                Logger.LogTrace($"Finished watch one, delaying {PollPeriod}ms...");
-                await Task.Delay(PollPeriod, cancelToken);
+
+                ExecutionTimer.Stop();
+                var waitTime = decimal.ToInt32(Math.Max(0, PollPeriod - ExecutionTimer.ElapsedMilliseconds));
+                ExecutionTimer.Reset();
+
+                Logger.LogTrace($"Finished watch one, delaying \"{PollPeriod}\"ms (\"{waitTime}\"ms)...");
+                await Task.Delay(waitTime, cancelToken);
             }
         }
 

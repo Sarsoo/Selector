@@ -30,6 +30,7 @@ namespace Selector.Web.Hubs
         private readonly IDatabaseAsync Cache;
         private readonly AudioFeaturePuller AudioFeaturePuller;
         private readonly PlayCountPuller PlayCountPuller;
+        private readonly DBPlayCountPuller DBPlayCountPuller;
         private readonly ApplicationDbContext Db;
         private readonly IScrobbleRepository ScrobbleRepository;
 
@@ -41,12 +42,14 @@ namespace Selector.Web.Hubs
             ApplicationDbContext db,
             IScrobbleRepository scrobbleRepository,
             IOptions<NowPlayingOptions> options,
+            DBPlayCountPuller dbPlayCountPuller,
             PlayCountPuller playCountPuller = null
         )
         {
             Cache = cache;
             AudioFeaturePuller = featurePuller;
             PlayCountPuller = playCountPuller;
+            DBPlayCountPuller = dbPlayCountPuller;
             Db = db;
             ScrobbleRepository = scrobbleRepository;
             nowOptions = options;
@@ -103,36 +106,16 @@ namespace Selector.Web.Hubs
 
                 if (user.LastFmConnected())
                 {
-                    var playCount = await PlayCountPuller.Get(user.LastFmUsername, track, artist, album, albumArtist);
+                    PlayCount playCount;
 
                     if (user.ScrobbleSavingEnabled())
                     {
-                        var artistScrobbles = ScrobbleRepository.GetAll(userId: user.Id, artistName: artist).ToArray();
-
-                        playCount.Artist = artistScrobbles.Length;
-
-                        playCount.ArtistCountData = artistScrobbles
-                            //.Resample(nowOptions.Value.ArtistResampleWindow)
-                            .ResampleByMonth()
-                            .ToArray();
-
-                        var postCalc = playCount.ArtistCountData.Select(s => s.Value).Sum();
-                        Debug.Assert(postCalc == artistScrobbles.Count());
-
-                        playCount.AlbumCountData = artistScrobbles
-                            .Where(s => s.AlbumName.Equals(album, StringComparison.CurrentCultureIgnoreCase))
-                            //.Resample(nowOptions.Value.AlbumResampleWindow)
-                            .ResampleByMonth()
-                            .ToArray();
-
-                        playCount.TrackCountData = artistScrobbles
-                            .Where(s => s.TrackName.Equals(track, StringComparison.CurrentCultureIgnoreCase))
-                            //.Resample(nowOptions.Value.TrackResampleWindow)
-                            .ResampleByMonth()
-                            .ToArray();
+                        playCount = await DBPlayCountPuller.Get(user.UserName, track, artist, album, albumArtist);
                     }
-
-
+                    else
+                    {
+                        playCount = await PlayCountPuller.Get(user.LastFmUsername, track, artist, album, albumArtist);
+                    }
 
                     await Clients.Caller.OnNewPlayCount(playCount);
                 }

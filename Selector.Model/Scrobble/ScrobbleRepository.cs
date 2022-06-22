@@ -39,7 +39,7 @@ namespace Selector.Model
             return scrobbles.FirstOrDefault();
         }
 
-        public IEnumerable<UserScrobble> GetAll(string include = null, string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null)
+        private IQueryable<UserScrobble> GetAllQueryable(string include = null, string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null)
         {
             var scrobbles = db.Scrobble.AsQueryable();
 
@@ -55,7 +55,8 @@ namespace Selector.Model
 
             if (!string.IsNullOrWhiteSpace(username))
             {
-                var user = db.Users.AsNoTracking().Where(u => u.UserName.Equals(username, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                var normalUsername = username.ToUpperInvariant();
+                var user = db.Users.AsNoTracking().Where(u => u.NormalizedUserName == normalUsername).FirstOrDefault();
                 if (user is not null)
                 {
                     scrobbles = scrobbles.Where(s => s.UserId == user.Id);
@@ -91,8 +92,11 @@ namespace Selector.Model
                 scrobbles = scrobbles.Where(u => u.Timestamp < to.Value);
             }
 
-            return scrobbles.AsEnumerable();
+            return scrobbles;
         }
+
+        public IEnumerable<UserScrobble> GetAll(string include = null, string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null)
+            => GetAllQueryable(include: include, userId: userId, username: username, trackName: trackName, albumName: albumName, artistName: artistName, from: from, to: to).AsEnumerable();
 
         public void Remove(int key)
         {
@@ -118,5 +122,8 @@ namespace Selector.Model
         {
             return db.SaveChangesAsync();
         }
+
+        public int Count(string include = null, string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null)
+            => GetAllQueryable(include: include, userId: userId, username: username, trackName: trackName, albumName: albumName, artistName: artistName, from: from, to: to).Count();
     }
 }

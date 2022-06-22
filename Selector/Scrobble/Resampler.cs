@@ -26,25 +26,37 @@ namespace Selector
 			var earliest = sortedScrobbles.First().Timestamp;
 			var latest = sortedScrobbles.Last().Timestamp;
 
-			for (var counter = earliest; counter <= latest; counter += window)
+			var enumeratorExhausted = false;
+
+			for (var windowStart = earliest; windowStart <= latest; windowStart += window)
 			{
-				var windowEnd = counter + window;
+				var windowEnd = windowStart + window;
 
 				var count = 0;
+				var windowOverran = false;
 
-				if (sortedScrobblesIter.Current is not null)
+				while(!windowOverran && !enumeratorExhausted)
                 {
-					count++;
-				}
-
-				while (sortedScrobblesIter.MoveNext() && counter <= sortedScrobblesIter.Current.Timestamp && sortedScrobblesIter.Current.Timestamp < windowEnd)
-				{
-					count++;
+					if (windowStart <= sortedScrobblesIter.Current.Timestamp)
+					{
+						if(sortedScrobblesIter.Current.Timestamp < windowEnd)
+                        {
+							count++;
+							if (!sortedScrobblesIter.MoveNext())
+                            {
+								enumeratorExhausted = true;
+							}
+						}
+						else
+                        {
+							windowOverran = true;
+                        }
+					}
 				}
 
 				yield return new CountSample()
 				{
-					TimeStamp = counter + (window / 2),
+					TimeStamp = windowStart + (window / 2),
 					Value = count
 				};
 			}
@@ -91,6 +103,21 @@ namespace Selector
 					Value = count
 				};
 			}
+		}
+
+		public static IEnumerable<CountSample> CumulativeSum(this IEnumerable<CountSample> samples)
+		{
+			var sum = 0;
+			foreach(var sample in samples)
+            {
+				sum += sample.Value;
+
+				yield return new CountSample
+				{
+					TimeStamp = sample.TimeStamp,
+					Value = sum
+                };
+            }
 		}
 	}
 }

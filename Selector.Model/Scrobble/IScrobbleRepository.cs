@@ -17,5 +17,6 @@ namespace Selector.Model
         public void RemoveRange(IEnumerable<UserScrobble> scrobbles);
         void Update(UserScrobble item);
         Task<int> Save();
+        int Count(string include = null, string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null);
     }
 }

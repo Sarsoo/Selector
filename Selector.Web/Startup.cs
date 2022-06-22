@@ -54,6 +54,7 @@ namespace Selector.Web
             services.AddDbContext<ApplicationDbContext>(options => 
                 options.UseNpgsql(Configuration.GetConnectionString("Default"))
             );
+            services.AddDBPlayCountPuller();
             services.AddTransient<IScrobbleRepository, ScrobbleRepository>();
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
