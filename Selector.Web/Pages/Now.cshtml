@@ -22,19 +22,37 @@
                          :track="lastfmTrack"
                          :username="playCount.username"
                          v-if="playCount !== null && playCount !== undefined"></play-count-card>
+
+        <info-card v-for="card in cards" :html="card.content"></info-card>
+
+        <artist-breakdown :play_count="playCount"
+                            v-if="playCount !== null && playCount !== undefined"></artist-breakdown>
+
+        <play-count-chart-card-comb :data_points="combinedData"
+                                    :chart_id="'combined'"
+                                    :earliest_date="earliestDate"
+                                    v-if="showArtistChart"></play-count-chart-card-comb>
         <play-count-chart-card :data_points="playCount.trackCountData"
-                               :title="currentlyPlaying.track.name"
+                               :title="trackGraphTitle"
                                :chart_id="'track'"
+                               :earliest_date="earliestDate"
+                               :latest_date="latestDate"
+                               :colour="'#7a99c2'"
                                v-if="showTrackChart"></play-count-chart-card>
         <play-count-chart-card :data_points="playCount.albumCountData"
-                               :title="currentlyPlaying.track.album.name"
+                               :title="albumGraphTitle"
                                :chart_id="'album'"
+                               :earliest_date="earliestDate"
+                               :latest_date="latestDate"
+                               :colour="'#a34c77'"
                                v-if="showAlbumChart"></play-count-chart-card>
         <play-count-chart-card :data_points="playCount.artistCountData"
-                               :title="lastfmArtist"
+                               :title="artistGraphTitle"
                                :chart_id="'artist'"
+                               :earliest_date="earliestDate"
+                               :latest_date="latestDate"
+                               :colour="'#598556'"
                                v-if="showArtistChart"></play-count-chart-card>
-        <info-card v-for="card in cards" :html="card.content"></info-card>
     </div>
 </div>
 

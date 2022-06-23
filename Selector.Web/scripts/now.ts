@@ -1,11 +1,13 @@
 import * as signalR from "@microsoft/signalr";
 import * as Vue from "vue";
-import { TrackAudioFeatures, PlayCount, CurrentlyPlayingDTO } from "./HubInterfaces";
+import { TrackAudioFeatures, PlayCount, CurrentlyPlayingDTO, CountSample } from "./HubInterfaces";
 import NowPlayingCard from "./Now/NowPlayingCard";
 import { AudioFeatureCard, AudioFeatureChartCard, PopularityCard, SpotifyLogoLink } from "./Now/Spotify";
-import { PlayCountChartCard } from "./Now/PlayCountGraph";
+import { PlayCountChartCard, CombinedPlayCountChartCard } from "./Now/PlayCountGraph";
+import { ArtistBreakdownChartCard } from "./Now/ArtistBreakdownGraph";
 import { PlayCountCard, LastFmLogoLink } from "./Now/LastFm";
 import BaseInfoCard from "./Now/BaseInfoCard";
+import { DateTime } from "luxon";
 
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/hub")
@@ -28,6 +30,12 @@ interface NowPlaying {
     cards: InfoCard[]
 }
 
+export interface ScrobbleDataSeries {
+    label: string,
+    colour: string,
+    data: CountSample[]
+}
+
 const app = Vue.createApp({
     data() {
         return {
@@ -46,14 +54,6 @@ const app = Vue.createApp({
                 album_artist: this.currentlyPlaying.track.album.artists[0].name,
             };
         },
-        lastfmArtist(){
-
-            // if(this.currentlyPlaying.track.artists[0].length > 0)
-            {
-                return this.currentlyPlaying.track.artists[0].name;
-            }
-            return "";
-        },
         showArtistChart(){
             return this.playCount !== null && this.playCount !== undefined && this.playCount.artistCountData.length > 3;
         },
@@ -62,6 +62,33 @@ const app = Vue.createApp({
         },
         showTrackChart(){
             return this.playCount !== null && this.playCount !== undefined && this.playCount.trackCountData.length > 3;
+        },
+        earliestDate(){
+            return this.playCount.artistCountData[0].timeStamp;
+        },
+        latestDate(){
+            return this.playCount.artistCountData.at(-1).timeStamp;
+        },
+        trackGraphTitle() { return `${this.currentlyPlaying.track.name} 🎵`},
+        albumGraphTitle() { return `${this.currentlyPlaying.track.album.name} 💿`},
+        artistGraphTitle() { return `${this.currentlyPlaying.track.artists[0].name} 🎤`},
+        combinedData(){
+            return [
+            { 
+                label: "artist",
+                colour: "#598556",
+                data: this.playCount.artistCountData
+            }, 
+            { 
+                label: "album",
+                colour: "#a34c77",
+                data: this.playCount.albumCountData
+            },
+            { 
+                label: "track",
+                colour: "#7a99c2",
+                data: this.playCount.trackCountData
+            }];
         }
     },
     created() {
@@ -123,4 +150,6 @@ app.component("spotify-logo", SpotifyLogoLink);
 app.component("lastfm-logo", LastFmLogoLink);
 app.component("play-count-card", PlayCountCard);
 app.component("play-count-chart-card", PlayCountChartCard);
+app.component("play-count-chart-card-comb", CombinedPlayCountChartCard);
+app.component("artist-breakdown", ArtistBreakdownChartCard);
 const vm = app.mount('#app');
