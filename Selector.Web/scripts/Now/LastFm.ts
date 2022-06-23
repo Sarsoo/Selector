@@ -40,17 +40,17 @@ export let PlayCountCard: Vue.Component = {
     `
         <div class="card info-card">
             <h5 v-if="count.track != null && count.track != undefined" >
-                <a :href="TrackLink" class="subtle-link">
+                <a :href="TrackLink" class="subtle-link" style="color: #7a99c2">
                     Track: {{ count.track.toLocaleString() }} <small v-if="TrackPercent >= 0.01">({{ this.TrackPercentStr }}%)</small>
                 </a>
             </h5>
             <h5 v-if="count.album != null && count.album != undefined" >
-                <a :href="AlbumLink" class="subtle-link">
+                <a :href="AlbumLink" class="subtle-link" style="color: #a34c77">
                     Album: {{ count.album.toLocaleString() }} <small v-if="AlbumPercent >= 0.01">({{ this.AlbumPercentStr }}%)</small>
                 </a>
             </h5>
             <h5 v-if="count.artist != null && count.artist != undefined" >
-                <a :href="ArtistLink" class="subtle-link">
+                <a :href="ArtistLink" class="subtle-link" style="color: #598556">
                     Artist: {{ count.artist.toLocaleString() }} <small v-if="ArtistPercent >= 0.1">({{ this.ArtistPercentStr }}%)</small>
                 </a>
             </h5>
