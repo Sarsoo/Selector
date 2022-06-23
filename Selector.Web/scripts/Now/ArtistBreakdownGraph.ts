@@ -27,7 +27,7 @@ export let ArtistBreakdownChartCard: Vue.Component = {
             return this.albumPercent - this.trackPercent;
         },
         artistPercent() {
-            return 100 - this.albumDiff + this.trackPercent;
+            return 100 - this.albumDiff - this.trackPercent;
         }
     },
     template: 
