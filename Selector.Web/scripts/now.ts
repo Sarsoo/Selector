@@ -7,7 +7,6 @@ import { PlayCountChartCard, CombinedPlayCountChartCard } from "./Now/PlayCountG
 import { ArtistBreakdownChartCard } from "./Now/ArtistBreakdownGraph";
 import { PlayCountCard, LastFmLogoLink } from "./Now/LastFm";
 import BaseInfoCard from "./Now/BaseInfoCard";
-import { DateTime } from "luxon";
 
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/hub")
@@ -62,6 +61,9 @@ const app = Vue.createApp({
         },
         showTrackChart(){
             return this.playCount !== null && this.playCount !== undefined && this.playCount.trackCountData.length > 3;
+        },
+        showArtistBreakdown(){
+            return this.playCount !== null && this.playCount !== undefined && this.playCount.artist > 0;
         },
         earliestDate(){
             return this.playCount.artistCountData[0].timeStamp;

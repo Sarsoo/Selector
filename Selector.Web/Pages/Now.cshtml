@@ -26,7 +26,7 @@
         <info-card v-for="card in cards" :html="card.content"></info-card>
 
         <artist-breakdown :play_count="playCount"
-                            v-if="playCount !== null && playCount !== undefined"></artist-breakdown>
+                            v-if="showArtistBreakdown"></artist-breakdown>
 
         <play-count-chart-card-comb :data_points="combinedData"
                                     :chart_id="'combined'"
