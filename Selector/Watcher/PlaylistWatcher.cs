@@ -183,16 +183,22 @@ namespace Selector
                     break;
                 case (not null, not null): // continuing non-null
 
-                    if (!Live.Name.Equals(Previous.Name))
+                    if((Previous, Live) is ({ Name: not null }, { Name: not null }))
                     {
-                        Logger.LogDebug("Name changed: {previous} -> {current}", Previous.SnapshotId, Live.SnapshotId);
-                        OnNameChanged(GetEvent());
+                        if (!Live.Name.Equals(Previous.Name))
+                        {
+                            Logger.LogDebug("Name changed: {previous} -> {current}", Previous.SnapshotId, Live.SnapshotId);
+                            OnNameChanged(GetEvent());
+                        }
                     }
 
-                    if (!Live.Description.Equals(Previous.Description))
+                    if ((Previous, Live) is ({ Description: not null }, { Description: not null }))
                     {
-                        Logger.LogDebug("Description changed: {previous} -> {current}", Previous.SnapshotId, Live.SnapshotId);
-                        OnDescriptionChanged(GetEvent());
+                        if (!Live.Description.Equals(Previous.Description))
+                        {
+                            Logger.LogDebug("Description changed: {previous} -> {current}", Previous.SnapshotId, Live.SnapshotId);
+                            OnDescriptionChanged(GetEvent());
+                        }
                     }
 
                     break;
