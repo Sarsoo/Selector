@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Selector.Events
 {
-    public class UserEventFirer : IConsumer
+    public class UserEventFirer : IPlayerConsumer
     {
         protected readonly IPlayerWatcher Watcher;
         protected readonly ILogger<UserEventFirer> Logger;

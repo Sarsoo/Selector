@@ -9,7 +9,7 @@ using StackExchange.Redis;
 namespace Selector.Cache
 {
     public interface ICacheWriterFactory {
-        public Task<IConsumer> Get(IPlayerWatcher watcher = null);
+        public Task<IPlayerConsumer> Get(IPlayerWatcher watcher = null);
     }
 
     public class CacheWriterFactory: ICacheWriterFactory {
@@ -25,9 +25,9 @@ namespace Selector.Cache
             LoggerFactory = loggerFactory;
         }
 
-        public Task<IConsumer> Get(IPlayerWatcher watcher = null)
+        public Task<IPlayerConsumer> Get(IPlayerWatcher watcher = null)
         {
-            return Task.FromResult<IConsumer>(new CacheWriter(
+            return Task.FromResult<IPlayerConsumer>(new CacheWriter(
                 watcher,
                 Cache,
                 LoggerFactory.CreateLogger<CacheWriter>()

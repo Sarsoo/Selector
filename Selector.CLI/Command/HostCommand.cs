@@ -9,6 +9,7 @@ using Selector.Extensions;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Threading.Tasks;
 
 namespace Selector.CLI
 {
@@ -31,9 +32,14 @@ namespace Selector.CLI
         {
             try
             {
-                CreateHostBuilder(Environment.GetCommandLineArgs(), ConfigureDefault, ConfigureDefaultNlog)
-                    .Build()
-                    .Run();
+                var host = CreateHostBuilder(Environment.GetCommandLineArgs(),ConfigureDefault, ConfigureDefaultNlog)
+                    .Build();
+
+                var logger = host.Services.GetRequiredService<ILogger<HostCommand>>();
+                var env = host.Services.GetRequiredService<IHostEnvironment>();
+                SetupExceptionHandling(logger, env);
+
+                host.Run();
             }
             catch(Exception ex)
             {
@@ -42,6 +48,22 @@ namespace Selector.CLI
             }
 
             return 0;
+        }
+
+        private static void SetupExceptionHandling(ILogger logger, IHostEnvironment env)
+        {
+            AppDomain.CurrentDomain.UnhandledException += (obj, e) =>
+            {
+                if(e.ExceptionObject is Exception ex)
+                {
+                    logger.LogError(ex as Exception, "Unhandled exception thrown");
+
+                    if (env.IsDevelopment())
+                    {
+                        throw ex;
+                    }
+                }
+            };
         }
 
         public static RootOptions ConfigureOptions(HostBuilderContext context, IServiceCollection services)

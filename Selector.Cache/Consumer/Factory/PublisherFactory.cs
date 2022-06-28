@@ -9,7 +9,7 @@ using StackExchange.Redis;
 namespace Selector.Cache
 {
     public interface IPublisherFactory {
-        public Task<IConsumer> Get(IPlayerWatcher watcher = null);
+        public Task<IPlayerConsumer> Get(IPlayerWatcher watcher = null);
     }
 
     public class PublisherFactory: IPublisherFactory {
@@ -25,9 +25,9 @@ namespace Selector.Cache
             LoggerFactory = loggerFactory;
         }
 
-        public Task<IConsumer> Get(IPlayerWatcher watcher = null)
+        public Task<IPlayerConsumer> Get(IPlayerWatcher watcher = null)
         {
-            return Task.FromResult<IConsumer>(new Publisher(
+            return Task.FromResult<IPlayerConsumer>(new Publisher(
                 watcher,
                 Subscriber,
                 LoggerFactory.CreateLogger<Publisher>()

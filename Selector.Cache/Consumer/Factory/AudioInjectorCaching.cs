@@ -22,7 +22,7 @@ namespace Selector.Cache
             Db = db;
         }
 
-        public async Task<IConsumer> Get(ISpotifyConfigFactory spotifyFactory, IPlayerWatcher watcher = null)
+        public async Task<IPlayerConsumer> Get(ISpotifyConfigFactory spotifyFactory, IPlayerWatcher watcher = null)
         {
             var config = await spotifyFactory.GetConfig();
             var client = new SpotifyClient(config);

@@ -13,7 +13,7 @@ using IF.Lastfm.Core.Api.Helpers;
 
 namespace Selector
 {
-    public class PlayCounter : IConsumer
+    public class PlayCounter : IPlayerConsumer
     {
         protected readonly IPlayerWatcher Watcher;
         protected readonly ITrackApi TrackClient;

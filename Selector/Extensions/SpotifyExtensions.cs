@@ -9,6 +9,8 @@ namespace Selector
 {
     public static class SpotifyExtensions
     {
+        public static string DisplayString(this FullPlaylist playlist) => $"{playlist.Name}";
+
         public static string DisplayString(this FullTrack track) => $"{track.Name} / {track.Album?.Name} / {track.Artists?.DisplayString()}";
         public static string DisplayString(this SimpleAlbum album) => $"{album.Name} / {album.Artists?.DisplayString()}";
         public static string DisplayString(this SimpleArtist artist) => artist.Name;
@@ -48,5 +50,37 @@ namespace Selector
         public static bool IsSpokenWord(this TrackAudioFeatures feature) => feature.Speechiness > 0.66f;
         public static bool IsSpeechAndMusic(this TrackAudioFeatures feature) => feature.Speechiness is >= 0.33f and <= 0.66f;
         public static bool IsNotSpeech(this TrackAudioFeatures feature) => feature.Speechiness < 0.33f;
+
+        public static string GetUri(this IPlayableItem y)
+        {
+            if (y is FullTrack track)
+            {
+                return track.Uri;
+            }
+            else if (y is FullEpisode episode)
+            {
+                return episode.Uri;
+            }
+            else
+            {
+                throw new ArgumentException(nameof(y));
+            }
+        }
+
+        public static string GetUri(this PlaylistTrack<IPlayableItem> y)
+        {
+            if (y.Track is FullTrack track)
+            {
+                return track.Uri;
+            }
+            else if (y.Track is FullEpisode episode)
+            {
+                return episode.Uri;
+            }
+            else
+            {
+                throw new ArgumentException(nameof(y.Track));
+            }
+        }
     }
 }

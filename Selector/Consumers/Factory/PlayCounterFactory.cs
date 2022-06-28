@@ -10,7 +10,7 @@ namespace Selector
 {
     public interface IPlayCounterFactory
     {
-        public Task<IConsumer> Get(LastfmClient fmClient = null, LastFmCredentials creds = null, IPlayerWatcher watcher = null);
+        public Task<IPlayerConsumer> Get(LastfmClient fmClient = null, LastFmCredentials creds = null, IPlayerWatcher watcher = null);
     }
     
     public class PlayCounterFactory: IPlayCounterFactory {
@@ -26,7 +26,7 @@ namespace Selector
             Creds = creds;
         }
 
-        public Task<IConsumer> Get(LastfmClient fmClient = null, LastFmCredentials creds = null, IPlayerWatcher watcher = null)
+        public Task<IPlayerConsumer> Get(LastfmClient fmClient = null, LastFmCredentials creds = null, IPlayerWatcher watcher = null)
         {
             var client = fmClient ?? Client;
 
@@ -35,7 +35,7 @@ namespace Selector
                 throw new ArgumentNullException("No Last.fm client provided");
             }
 
-            return Task.FromResult<IConsumer>(new PlayCounter(
+            return Task.FromResult<IPlayerConsumer>(new PlayCounter(
                 watcher,
                 client.Track,
                 client.Album,

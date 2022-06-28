@@ -9,7 +9,7 @@ using SpotifyAPI.Web;
 
 namespace Selector
 {
-    public class AudioFeatureInjector : IConsumer
+    public class AudioFeatureInjector : IPlayerConsumer
     {
         protected readonly IPlayerWatcher Watcher;
         protected readonly ITracksClient TrackClient;

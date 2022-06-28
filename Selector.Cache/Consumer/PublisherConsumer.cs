@@ -10,7 +10,7 @@ using StackExchange.Redis;
 
 namespace Selector.Cache
 {
-    public class Publisher : IConsumer
+    public class Publisher : IPlayerConsumer
     {
         private readonly IPlayerWatcher Watcher;
         private readonly ISubscriber Subscriber;

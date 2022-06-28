@@ -38,6 +38,15 @@ namespace Selector.Web
             {
                 OptionsHelper.ConfigureOptions(options, Configuration);
             });
+            services.Configure<RedisOptions>(options =>
+            {
+                Configuration.GetSection(string.Join(':', RootOptions.Key, RedisOptions.Key)).Bind(options);
+            });
+            services.Configure<NowPlayingOptions>(options =>
+            {
+                Configuration.GetSection(string.Join(':', RootOptions.Key, NowPlayingOptions.Key)).Bind(options);
+            });
+
             var config = OptionsHelper.ConfigureOptions(Configuration);
 
             services.Configure<SpotifyAppCredentials>(options =>

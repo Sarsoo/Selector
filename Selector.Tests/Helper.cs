@@ -133,5 +133,15 @@ namespace Selector.Tests
                 VolumePercent = volume
             };
         }
+
+        public static FullPlaylist FullPlaylist(string name, string id = null, string snapshotId = null)
+        {
+            return new FullPlaylist()
+            {
+                Name = name,
+                Id = id ?? name,
+                SnapshotId = snapshotId ?? id ?? name
+            };
+        }
     }
 }

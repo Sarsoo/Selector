@@ -95,41 +95,48 @@ namespace Selector.CLI
                         watcher = await WatcherFactory.Get<PlayerWatcher>(spotifyFactory, id: watcherOption.Name, pollPeriod: watcherOption.PollPeriod);
                         break;
                     case WatcherType.Playlist:
-                        throw new NotImplementedException("Playlist watchers not implemented");
-                        // break;
+                        var playlistWatcher = await WatcherFactory.Get<PlaylistWatcher>(spotifyFactory, id: watcherOption.Name, pollPeriod: watcherOption.PollPeriod) as PlaylistWatcher;
+                        playlistWatcher.config = new() { PlaylistId = watcherOption.PlaylistUri };
+
+                        watcher = playlistWatcher;
+                        break;
                 }
 
                 List<IConsumer> consumers = new();
-                foreach(var consumer in watcherOption.Consumers)
+
+                if (watcherOption.Consumers is not null)
                 {
-                    switch(consumer)
+                    foreach (var consumer in watcherOption.Consumers)
                     {
-                        case Consumers.AudioFeatures:
-                            consumers.Add(await ServiceProvider.GetService<AudioFeatureInjectorFactory>().Get(spotifyFactory));
-                            break;
+                        switch (consumer)
+                        {
+                            case Consumers.AudioFeatures:
+                                consumers.Add(await ServiceProvider.GetService<AudioFeatureInjectorFactory>().Get(spotifyFactory));
+                                break;
 
-                        case Consumers.AudioFeaturesCache:
-                            consumers.Add(await ServiceProvider.GetService<CachingAudioFeatureInjectorFactory>().Get(spotifyFactory));
-                            break;
+                            case Consumers.AudioFeaturesCache:
+                                consumers.Add(await ServiceProvider.GetService<CachingAudioFeatureInjectorFactory>().Get(spotifyFactory));
+                                break;
 
-                        case Consumers.CacheWriter:
-                            consumers.Add(await ServiceProvider.GetService<CacheWriterFactory>().Get());
-                            break;
+                            case Consumers.CacheWriter:
+                                consumers.Add(await ServiceProvider.GetService<CacheWriterFactory>().Get());
+                                break;
 
-                        case Consumers.Publisher:
-                            consumers.Add(await ServiceProvider.GetService<PublisherFactory>().Get());
-                            break;
+                            case Consumers.Publisher:
+                                consumers.Add(await ServiceProvider.GetService<PublisherFactory>().Get());
+                                break;
 
-                        case Consumers.PlayCounter:
-                            if(!string.IsNullOrWhiteSpace(watcherOption.LastFmUsername))
-                            {
-                                consumers.Add(await ServiceProvider.GetService<PlayCounterFactory>().Get(creds: new() { Username = watcherOption.LastFmUsername }));
-                            }
-                            else 
-                            {
-                                Logger.LogError("No Last.fm username provided, skipping play counter");
-                            }
-                            break;
+                            case Consumers.PlayCounter:
+                                if (!string.IsNullOrWhiteSpace(watcherOption.LastFmUsername))
+                                {
+                                    consumers.Add(await ServiceProvider.GetService<PlayCounterFactory>().Get(creds: new() { Username = watcherOption.LastFmUsername }));
+                                }
+                                else
+                                {
+                                    Logger.LogError("No Last.fm username provided, skipping play counter");
+                                }
+                                break;
+                        }
                     }
                 }
 

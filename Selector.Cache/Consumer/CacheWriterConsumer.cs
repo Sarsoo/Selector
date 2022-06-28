@@ -10,7 +10,7 @@ using StackExchange.Redis;
 
 namespace Selector.Cache
 {
-    public class CacheWriter : IConsumer
+    public class CacheWriter : IPlayerConsumer
     {
         private readonly IPlayerWatcher Watcher;
         private readonly IDatabaseAsync Db;

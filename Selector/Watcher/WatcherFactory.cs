@@ -40,10 +40,25 @@ namespace Selector
                     Id = id
                 };
             }
-            //else if (typeof(T).IsAssignableFrom(typeof(PlaylistWatcher)))
-            //{
+            else if (typeof(T).IsAssignableFrom(typeof(PlaylistWatcher)))
+            {
+                var config = await spotifyFactory.GetConfig();
+                var client = new SpotifyClient(config);
 
-            //}
+                // TODO: catch spotify exceptions
+                var user = await client.UserProfile.Current();
+
+                return new PlaylistWatcher(
+                    new(),
+                    client,
+                    LoggerFactory?.CreateLogger<PlaylistWatcher>() ?? NullLogger<PlaylistWatcher>.Instance,
+                    pollPeriod: pollPeriod
+                )
+                {
+                    SpotifyUsername = user.DisplayName,
+                    Id = id
+                };
+            }
             else
             {
                 throw new ArgumentException("Type unsupported");

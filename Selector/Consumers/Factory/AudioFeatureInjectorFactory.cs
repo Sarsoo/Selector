@@ -10,7 +10,7 @@ namespace Selector
 {
     public interface IAudioFeatureInjectorFactory
     {
-        public Task<IConsumer> Get(ISpotifyConfigFactory spotifyFactory, IPlayerWatcher watcher = null);
+        public Task<IPlayerConsumer> Get(ISpotifyConfigFactory spotifyFactory, IPlayerWatcher watcher = null);
     }
     
     public class AudioFeatureInjectorFactory: IAudioFeatureInjectorFactory {
@@ -22,7 +22,7 @@ namespace Selector
             LoggerFactory = loggerFactory;
         }
 
-        public async Task<IConsumer> Get(ISpotifyConfigFactory spotifyFactory, IPlayerWatcher watcher = null)
+        public async Task<IPlayerConsumer> Get(ISpotifyConfigFactory spotifyFactory, IPlayerWatcher watcher = null)
         {
             var config = await spotifyFactory.GetConfig();
             var client = new SpotifyClient(config);

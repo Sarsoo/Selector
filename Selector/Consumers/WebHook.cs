@@ -30,7 +30,7 @@ namespace Selector
         }
     }
 
-    public class WebHook : IConsumer
+    public class WebHook : IPlayerConsumer
     {
         protected readonly IPlayerWatcher Watcher;
         protected readonly HttpClient HttpClient;
