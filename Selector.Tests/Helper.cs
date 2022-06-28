@@ -140,7 +140,12 @@ namespace Selector.Tests
             {
                 Name = name,
                 Id = id ?? name,
-                SnapshotId = snapshotId ?? id ?? name
+                SnapshotId = snapshotId ?? id ?? name,
+                Tracks = new()
+                {
+                    Items = new List<PlaylistTrack<IPlayableItem>>(),
+                    Total = 0
+                }
             };
         }
     }

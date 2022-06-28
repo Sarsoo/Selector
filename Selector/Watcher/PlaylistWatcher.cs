@@ -139,7 +139,7 @@ namespace Selector
 
         private async Task PageLiveTracks()
         {
-            if (config.PullTracks)
+            if (config.PullTracks && Live.Tracks.Items.Count > 0)
             {
                 Logger.LogDebug("Paging current tracks");
 
