@@ -97,7 +97,7 @@ namespace Selector.Model
         {
             if(Watcher.Any(w => w.UserId == userId && w.Type == WatcherType.Player))
             {
-                Logger.LogWarning($"Trying to create more than one player watcher for user [{userId}]");
+                Logger.LogWarning("Trying to create more than one player watcher for user [{id}]", userId);
                 return;
             }
 

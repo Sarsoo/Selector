@@ -48,14 +48,16 @@ namespace Selector.Cache
 
         public async Task AsyncCallback(ListeningChangeEventArgs e)
         {
+            using var scope = Logger.GetListeningEventArgsScope(e);
+
             var payload = JsonSerializer.Serialize((CurrentlyPlayingDTO) e, JsonContext.Default.CurrentlyPlayingDTO);
 
-            Logger.LogTrace($"Publishing current for [{e.Id}/{e.SpotifyUsername}]");
+            Logger.LogTrace("Publishing current");
             
             // TODO: currently using spotify username for cache key, use db username
             var receivers = await Subscriber.PublishAsync(Key.CurrentlyPlaying(e.Id), payload);
 
-            Logger.LogDebug($"Published current for [{e.Id}/{e.SpotifyUsername}], {receivers} receivers");
+            Logger.LogDebug("Published current, {receivers} receivers", receivers);
         }
 
         public void Subscribe(IWatcher watch = null)

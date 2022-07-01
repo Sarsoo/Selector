@@ -53,7 +53,7 @@ namespace Selector.Web.Controller
 
             if (user is null)
             {
-                Logger.LogWarning($"No user found for [{userId}], even though the 'me' route was used");
+                Logger.LogWarning("No user found for [{id}], even though the 'me' route was used", userId);
                 return NotFound();
             }
 
@@ -61,7 +61,7 @@ namespace Selector.Web.Controller
 
             if (!isAuthed.Succeeded)
             {
-                Logger.LogWarning($"User [{user.UserName}] not authorised to view themselves?");
+                Logger.LogWarning("User [{username}] not authorised to view themselves?", user.UserName);
                 return Unauthorized();
             }
 

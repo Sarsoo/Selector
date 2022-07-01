@@ -50,7 +50,9 @@ namespace Selector
 
         public Task Execute()
         {
-            logger.LogInformation("Scrobble request #{} for {} by {} from {} to {}", pageNumber, username, pageSize, from, to);
+            using var scope = logger.BeginScope(new Dictionary<string, object>() { { "username", username }, { "page_number", pageNumber }, { "page_size", pageSize }, { "from", from }, { "to", to } });
+
+            logger.LogInformation("Starting request");
 
             var netTime = Stopwatch.StartNew();
             currentTask = userClient.GetRecentScrobbles(username, pagenumber: pageNumber, count: pageSize, from: from, to: to);
@@ -77,12 +79,12 @@ namespace Selector
                         {
                             if (Attempts < MaxAttempts)
                             {
-                                logger.LogDebug("Request failed for {}, #{} by {}: {}, retrying ({} of {})", username, pageNumber, pageSize, result.Status, Attempts + 1, MaxAttempts);
+                                logger.LogDebug("Request failed: {}, retrying ({} of {})", result.Status, Attempts + 1, MaxAttempts);
                                 await Execute();
                             }
                             else
                             {
-                                logger.LogDebug("Request failed for {}, #{} by {}: {}, max retries exceeded {}, not retrying", username, pageNumber, pageSize, result.Status, MaxAttempts);
+                                logger.LogDebug("Request failed: {}, max retries exceeded {}, not retrying", result.Status, MaxAttempts);
                                 AggregateTaskSource.SetCanceled();
                             }
                         }
@@ -95,7 +97,7 @@ namespace Selector
                 }
                 catch(Exception e)
                 {
-                    logger.LogError(e, "Error while making scrobble request #{} for {} by {} from {} to {} on attempt {}", pageNumber, username, pageSize, from, to, Attempts);
+                    logger.LogError(e, "Error while making scrobble request on attempt {}", Attempts);
                     Succeeded = false;
                 }
             });

@@ -42,14 +42,14 @@ namespace Selector.Web.Controller
         {
             if (Config.ClientId is null)
             {
-                Logger.LogError($"Cannot link user, no Spotify client ID");
+                Logger.LogError("Cannot link user, no Spotify client ID");
                 TempData["StatusMessage"] = "Could not link Spotify, no app credentials";
                 return Redirect(ManageSpotifyPath);
             }
 
             if (Config.ClientSecret is null)
             {
-                Logger.LogError($"Cannot link user, no Spotify client secret");
+                Logger.LogError("Cannot link user, no Spotify client secret");
                 TempData["StatusMessage"] = "Could not link Spotify, no app credentials";
                 return Redirect(ManageSpotifyPath);
             }

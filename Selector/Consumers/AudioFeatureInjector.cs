@@ -51,6 +51,8 @@ namespace Selector
 
         public async Task AsyncCallback(ListeningChangeEventArgs e)
         {
+            using var scope = Logger.GetListeningEventArgsScope(e);
+
             if (e.Current.Item is FullTrack track)
             {
                 if (string.IsNullOrWhiteSpace(track.Id)) return;
@@ -58,7 +60,7 @@ namespace Selector
                 try {
                     Logger.LogTrace("Making Spotify call");
                     var audioFeatures = await TrackClient.GetAudioFeatures(track.Id);
-                    Logger.LogDebug($"Adding audio features [{track.DisplayString()}]: [{audioFeatures.DisplayString()}]");
+                    Logger.LogDebug("Adding audio features [{track}]: [{audio_features}]", track.DisplayString(), audioFeatures.DisplayString());
 
                     var analysedTrack = AnalysedTrack.From(track, audioFeatures);
 
@@ -67,17 +69,17 @@ namespace Selector
                 }
                 catch (APIUnauthorizedException ex)
                 {
-                    Logger.LogDebug($"Unauthorised error: [{ex.Message}] (should be refreshed and retried?)");
+                    Logger.LogDebug("Unauthorised error: [{message}] (should be refreshed and retried?)", ex.Message);
                     //throw ex;
                 }
                 catch (APITooManyRequestsException ex)
                 {
-                    Logger.LogDebug($"Too many requests error: [{ex.Message}]");
+                    Logger.LogDebug("Too many requests error: [{message}]", ex.Message);
                     throw ex;
                 }
                 catch (APIException ex)
                 {
-                    Logger.LogDebug($"API error: [{ex.Message}]");
+                    Logger.LogDebug("API error: [{message}]", ex.Message);
                     throw ex;
                 }
             }
@@ -85,15 +87,15 @@ namespace Selector
             {
                 if (string.IsNullOrWhiteSpace(episode.Id)) return;
 
-                Logger.LogDebug($"Ignoring podcast episdoe [{episode.DisplayString()}]");
+                Logger.LogDebug("Ignoring podcast episdoe [{episode}]", episode.DisplayString());
             }
             else if (e.Current.Item is null)
             {
-                Logger.LogDebug($"Skipping audio feature pulling for null item [{e.Current.DisplayString()}]");
+                Logger.LogDebug("Skipping audio feature pulling for null item [{context}]", e.Current.DisplayString());
             }
             else
             {
-                Logger.LogError($"Unknown item pulled from API [{e.Current.Item}]");
+                Logger.LogError("Unknown item pulled from API [{item}]", e.Current.Item);
             }
         }
 

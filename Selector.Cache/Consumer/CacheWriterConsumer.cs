@@ -50,13 +50,15 @@ namespace Selector.Cache
 
         public async Task AsyncCallback(ListeningChangeEventArgs e)
         {
+            using var scope = Logger.GetListeningEventArgsScope(e);
+
             var payload = JsonSerializer.Serialize((CurrentlyPlayingDTO) e, JsonContext.Default.CurrentlyPlayingDTO);
             
-            Logger.LogTrace($"Caching current for [{e.Id}/{e.SpotifyUsername}]");
+            Logger.LogTrace("Caching current");
 
             var resp = await Db.StringSetAsync(Key.CurrentlyPlaying(e.Id), payload, expiry: CacheExpiry);
 
-            Logger.LogDebug($"Cached current for [{e.Id}/{e.SpotifyUsername}], {(resp ? "value set" : "value NOT set")}");
+            Logger.LogDebug("Cached current, {state}", (resp ? "value set" : "value NOT set"));
 
         }
 

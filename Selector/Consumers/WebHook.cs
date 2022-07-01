@@ -79,23 +79,25 @@ namespace Selector
 
         public async Task AsyncCallback(ListeningChangeEventArgs e)
         {
-            if(Config.ShouldRequest(e))
+            using var scope = Logger.BeginScope(new Dictionary<string, object>() { { "spotify_username", e.SpotifyUsername }, { "id", e.Id }, { "name", Config.Name }, { "url", Config.Url } });
+
+            if (Config.ShouldRequest(e))
             {
                 try
                 {
-                    Logger.LogDebug("[{name}] predicate passed, making request to [{url}]", Config.Name, Config.Url);
+                    Logger.LogDebug("Predicate passed, making request");
                     OnPredicatePass(new EventArgs());
 
                     var response = await HttpClient.PostAsync(Config.Url, Config.Content, CancelToken);
 
                     if (response.IsSuccessStatusCode)
                     {
-                        Logger.LogDebug("[{name}] request success", Config.Name);
+                        Logger.LogDebug("Request success");
                         OnSuccessfulRequest(new EventArgs());
                     }
                     else
                     {
-                        Logger.LogDebug("[{name}] request failed [{error}] [{content}]", Config.Name, response.StatusCode, response.Content);
+                        Logger.LogDebug("Request failed [{error}] [{content}]", response.StatusCode, response.Content);
                         OnFailedRequest(new EventArgs());
                     }
                 }
@@ -110,7 +112,7 @@ namespace Selector
             }
             else
             {
-                Logger.LogTrace("[{name}] predicate failed, skipping", Config.Name);
+                Logger.LogTrace("Predicate failed, skipping");
             }
         }
 

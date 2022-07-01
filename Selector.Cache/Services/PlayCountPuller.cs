@@ -110,7 +110,7 @@ namespace Selector.Cache
                 }
                 else
                 {
-                    Logger.LogDebug($"Track info error [{username}] [{trackHttp.Result.Status}]");
+                    Logger.LogDebug("Track info error [{username}] [{status}]", username, trackHttp.Result.Status);
                 }
             }
 
@@ -122,7 +122,7 @@ namespace Selector.Cache
                 }
                 else
                 {
-                    Logger.LogDebug($"Album info error [{username}] [{albumHttp.Result.Status}]");
+                    Logger.LogDebug("Album info error [{username}] [{status}]", username, albumHttp.Result.Status);
                 }
             }
 
@@ -136,7 +136,7 @@ namespace Selector.Cache
                 }
                 else
                 {
-                    Logger.LogDebug($"User info error [{username}] [{userHttp.Result.Status}]");
+                    Logger.LogDebug("User info error [{username}] [{userHttp.Result.Status}]", username, userHttp.Result.Status);
                 }
             }
 

@@ -52,7 +52,7 @@ namespace Selector.Cache
         public async Task AsyncCacheCallback(PlayCount e)
         {
             var track = e.ListeningEvent.Current.Item as FullTrack;
-            Logger.LogTrace($"Caching play count for [{track.DisplayString()}]");
+            Logger.LogTrace("Caching play count for [{track}]", track.DisplayString());
 
             var tasks = new Task[]
             {
@@ -64,7 +64,7 @@ namespace Selector.Cache
 
             await Task.WhenAll(tasks);
 
-            Logger.LogDebug($"Cached play count for [{track.DisplayString()}]");
+            Logger.LogDebug("Cached play count for [{track}]", track.DisplayString());
         }
     }
 }

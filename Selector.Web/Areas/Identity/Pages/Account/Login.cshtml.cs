@@ -85,7 +85,7 @@ namespace Selector.Web.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Username, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation($"[{Input.Username}] logged in.");
+                    _logger.LogInformation("[{username}] logged in.", Input.Username);
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
@@ -94,7 +94,7 @@ namespace Selector.Web.Areas.Identity.Pages.Account
                 }
                 if (result.IsLockedOut)
                 {
-                    _logger.LogWarning($"[{Input.Username}] locked out.");
+                    _logger.LogWarning("[{username}] locked out.", Input.Username);
                     return RedirectToPage("./Lockout");
                 }
                 else

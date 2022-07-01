@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +27,8 @@ namespace Selector
 
         public async Task Watch(CancellationToken cancelToken)
         {
+            using var logScope = Logger.BeginScope(new Dictionary<string, object>() { { "spotify_username", SpotifyUsername }, { "id", Id } });
+
             Logger.LogDebug("Starting watcher");
             while (true) {
 
@@ -46,7 +49,7 @@ namespace Selector
                 var waitTime = decimal.ToInt32(Math.Max(0, PollPeriod - ExecutionTimer.ElapsedMilliseconds));
                 ExecutionTimer.Reset();
 
-                Logger.LogTrace($"Finished watch one, delaying \"{PollPeriod}\"ms (\"{waitTime}\"ms)...");
+                Logger.LogTrace("Finished watch one, delaying \"{poll_period}\"ms ({wait_time}ms)...", PollPeriod, waitTime);
                 await Task.Delay(waitTime, cancelToken);
             }
         }

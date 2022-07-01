@@ -47,11 +47,11 @@ namespace Selector.Cache
         {
             var payload = JsonSerializer.Serialize(e.Features, JsonContext.Default.TrackAudioFeatures);
             
-            Logger.LogTrace($"Caching current for [{e.Track.DisplayString()}]");
+            Logger.LogTrace("Caching current for [{track}]", e.Track.DisplayString());
 
             var resp = await Db.StringSetAsync(Key.AudioFeature(e.Track.Id), payload, expiry: CacheExpiry);
 
-            Logger.LogDebug($"Cached audio feature for [{e.Track.DisplayString()}], {(resp ? "value set" : "value NOT set")}");
+            Logger.LogDebug("Cached audio feature for [{track}], {state}", e.Track.DisplayString(), (resp ? "value set" : "value NOT set"));
         }
     }
 }

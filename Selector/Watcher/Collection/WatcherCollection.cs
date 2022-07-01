@@ -59,7 +59,7 @@ namespace Selector
         {
             if (IsRunning) return;
 
-            Logger.LogDebug($"Starting {Count} watcher(s)");
+            Logger.LogDebug("Starting {} watcher(s)", Count);
             foreach(var watcher in Watchers)
             {
                 watcher.Start();
@@ -73,7 +73,7 @@ namespace Selector
 
             try
             {
-                Logger.LogDebug($"Stopping {Count} watcher(s)");
+                Logger.LogDebug("Stopping {} watcher(s)", Count);
                 foreach (var watcher in Watchers)
                 {
                     watcher.Stop();

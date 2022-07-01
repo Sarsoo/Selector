@@ -68,7 +68,9 @@ namespace Selector
 
         public async Task AsyncCallback(ListeningChangeEventArgs e)
         {
-            if(Credentials is null || string.IsNullOrWhiteSpace(Credentials.Username))
+            using var scope = Logger.BeginScope(new Dictionary<string, object>() { { "spotify_username", e.SpotifyUsername }, { "id", e.Id }, { "username", Credentials.Username } });
+
+            if (Credentials is null || string.IsNullOrWhiteSpace(Credentials.Username))
             {
                 Logger.LogDebug("No Last.fm username, skipping play count");
                 return;
@@ -76,6 +78,8 @@ namespace Selector
 
             if (e.Current.Item is FullTrack track)
             {
+                using var trackScope = Logger.BeginScope(new Dictionary<string, object>() { { "track", track.DisplayString() } });
+
                 Logger.LogTrace("Making Last.fm call");
 
                 var trackInfo = TrackClient.GetInfoAsync(track.Name, track.Artists[0].Name, username: Credentials?.Username);
@@ -95,12 +99,12 @@ namespace Selector
                     }
                     else
                     {
-                        Logger.LogDebug($"Track info error [{e.Id}/{e.SpotifyUsername}] [{trackInfo.Result.Status}]");
+                        Logger.LogDebug("Track info error [{status}]", trackInfo.Result.Status);
                     }
                 }
                 else
                 {
-                    Logger.LogError(trackInfo.Exception, $"Track info task faulted, [{e.Id}/{e.SpotifyUsername}] [{e.Current.DisplayString()}]");
+                    Logger.LogError(trackInfo.Exception, "Track info task faulted, [{context}]", e.Current.DisplayString());
                 }
 
                 if (albumInfo.IsCompletedSuccessfully)
@@ -111,12 +115,12 @@ namespace Selector
                     }
                     else
                     {
-                        Logger.LogDebug($"Album info error [{e.Id}/{e.SpotifyUsername}] [{albumInfo.Result.Status}]");
+                        Logger.LogDebug("Album info error [{status}]", albumInfo.Result.Status);
                     }
                 }
                 else
                 {
-                    Logger.LogError(albumInfo.Exception, $"Album info task faulted, [{e.Id}/{e.SpotifyUsername}] [{e.Current.DisplayString()}]");
+                    Logger.LogError(albumInfo.Exception, "Album info task faulted, [{context}]", e.Current.DisplayString());
                 }
 
                 //TODO: Add artist count
@@ -129,15 +133,15 @@ namespace Selector
                     }
                     else
                     {
-                        Logger.LogDebug($"User info error [{e.Id}/{e.SpotifyUsername}] [{userInfo.Result.Status}]");
+                        Logger.LogDebug("User info error [{status}]", userInfo.Result.Status);
                     }
                 }
                 else
                 {
-                    Logger.LogError(userInfo.Exception, $"User info task faulted, [{e.Id}/{e.SpotifyUsername}] [{e.Current.DisplayString()}]");
+                    Logger.LogError(userInfo.Exception, "User info task faulted, [{context}]", e.Current.DisplayString());
                 }
 
-                Logger.LogDebug($"Adding Last.fm data [{e.Id}/{e.SpotifyUsername}/{Credentials.Username}] [{track.DisplayString()}], track: {trackCount}, album: {albumCount}, artist: {artistCount}, user: {userCount}");
+                Logger.LogDebug("Adding Last.fm data [{username}], track: {track_count}, album: {album_count}, artist: {artist_count}, user: {user_count}", Credentials.Username, trackCount, albumCount, artistCount, userCount);
 
                 PlayCount playCount = new()
                 {
@@ -155,15 +159,15 @@ namespace Selector
             }
             else if (e.Current.Item is FullEpisode episode)
             {
-                Logger.LogDebug($"Ignoring podcast episdoe [{episode.DisplayString()}]");
+                Logger.LogDebug("Ignoring podcast episdoe [{episode}]", episode.DisplayString());
             }
             else if (e.Current.Item is null)
             {
-                Logger.LogDebug($"Skipping play count pulling for null item [{e.Current.DisplayString()}]");
+                Logger.LogDebug("Skipping play count pulling for null item [{context}]", e.Current.DisplayString());
             }
             else
             {
-                Logger.LogError($"Unknown item pulled from API [{e.Current.Item}]");
+                Logger.LogError("Unknown item pulled from API [{item}]", e.Current.Item);
             }
         }
 

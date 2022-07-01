@@ -35,7 +35,7 @@ namespace Selector
             }
             else 
             {
-                Logger.LogDebug($"New user token factory added [{userDetails.DisplayName}]");
+                Logger.LogDebug("New user token factory added [{spotify_name}]", userDetails.DisplayName);
                 Configs[userDetails.Id] = configProvider;
                 return configProvider;
             }

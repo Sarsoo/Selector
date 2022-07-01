@@ -68,7 +68,7 @@ namespace Selector
         {
             token.ThrowIfCancellationRequested();
 
-            using var logScope = Logger.BeginScope(new Dictionary<string, object> { { "playlist_id", config.PlaylistId } });
+            using var logScope = Logger.BeginScope(new Dictionary<string, object> { { "playlist_id", config.PlaylistId }, { "pull_tracks", config.PullTracks } });
             
             try{
                 string id;
@@ -99,18 +99,18 @@ namespace Selector
             }
             catch(APIUnauthorizedException e)
             {
-                Logger.LogDebug($"Unauthorised error: [{e.Message}] (should be refreshed and retried?)");
+                Logger.LogDebug("Unauthorised error: [{message}] (should be refreshed and retried?)", e.Message);
                 //throw e;
             }
             catch(APITooManyRequestsException e)
             {
-                Logger.LogDebug($"Too many requests error: [{e.Message}]");
+                Logger.LogDebug("Too many requests error: [{message}]", e.Message);
                 await Task.Delay(e.RetryAfter, token);
                 // throw e;
             }
             catch(APIException e)
             {
-                Logger.LogDebug($"API error: [{e.Message}]");
+                Logger.LogDebug("API error: [{message}]", e.Message);
                 // throw e;
             }
         }

@@ -58,7 +58,10 @@ namespace Selector
             try{
                 Logger.LogTrace("Making Spotify call");
                 var polledCurrent = await spotifyClient.GetCurrentPlayback();
-                Logger.LogTrace("Received Spotify call [{context}]", polledCurrent?.DisplayString());
+
+                using var polledLogScope = Logger.BeginScope(new Dictionary<string, object>() { { "context", polledCurrent?.DisplayString() } });
+
+                Logger.LogTrace("Received Spotify call");
 
                 if (polledCurrent != null) StoreCurrentPlaying(polledCurrent);
 
@@ -76,18 +79,18 @@ namespace Selector
             }
             catch(APIUnauthorizedException e)
             {
-                Logger.LogDebug($"Unauthorised error: [{e.Message}] (should be refreshed and retried?)");
+                Logger.LogDebug("Unauthorised error: [{message}] (should be refreshed and retried?)", e.Message);
                 //throw e;
             }
             catch(APITooManyRequestsException e)
             {
-                Logger.LogDebug($"Too many requests error: [{e.Message}]");
+                Logger.LogDebug("Too many requests error: [{message}]", e.Message);
                 await Task.Delay(e.RetryAfter, token);
                 // throw e;
             }
             catch(APIException e)
             {
-                Logger.LogDebug($"API error: [{e.Message}]");
+                Logger.LogDebug("API error: [{message}]", e.Message);
                 // throw e;
             }
         }
@@ -153,7 +156,7 @@ namespace Selector
                 case ({ Item: FullEpisode previousEp }, { Item: FullEpisode currentEp }):
                     if (!eq.IsEqual(previousEp, currentEp))
                     {
-                        Logger.LogDebug($"Podcast changed: {previousEp.DisplayString()} -> {currentEp.DisplayString()}");
+                        Logger.LogDebug("Podcast changed: {previous_ep} -> {current_ep}", previousEp.DisplayString(), currentEp.DisplayString());
                         OnItemChange(GetEvent());
                     }
                     break;
@@ -170,7 +173,7 @@ namespace Selector
             }
             else if (!eq.IsEqual(Previous?.Context, Live?.Context))
             {
-                Logger.LogDebug($"Context changed: {Previous?.Context?.DisplayString() ?? "none"} -> {Live?.Context?.DisplayString() ?? "none"}");
+                Logger.LogDebug("Context changed: {previous_context} -> {live_context}", Previous?.Context?.DisplayString() ?? "none", Live?.Context?.DisplayString() ?? "none");
                 OnContextChange(GetEvent());
             }
         }
@@ -193,7 +196,7 @@ namespace Selector
             // IS PLAYING
             if (Previous?.IsPlaying != Live?.IsPlaying)
             {
-                Logger.LogDebug($"Playing state changed: {Previous?.IsPlaying} -> {Live?.IsPlaying}");
+                Logger.LogDebug("Playing state changed: {previous_playing} -> {live_playing}", Previous?.IsPlaying, Live?.IsPlaying);
                 OnPlayingChange(GetEvent());
             }
         }
@@ -203,14 +206,14 @@ namespace Selector
             // DEVICE
             if (!eq.IsEqual(Previous?.Device, Live?.Device))
             {
-                Logger.LogDebug($"Device changed: {Previous?.Device?.DisplayString() ?? "none"} -> {Live?.Device?.DisplayString() ?? "none"}");
+                Logger.LogDebug("Device changed: {previous_device} -> {live_device}", Previous?.Device?.DisplayString() ?? "none", Live?.Device?.DisplayString() ?? "none");
                 OnDeviceChange(GetEvent());
             }
 
             // VOLUME
             if (Previous?.Device?.VolumePercent != Live?.Device?.VolumePercent)
             {
-                Logger.LogDebug($"Volume changed: {Previous?.Device?.VolumePercent}% -> {Live?.Device?.VolumePercent}%");
+                Logger.LogDebug("Volume changed: {previous_volume}% -> {live_volume}%", Previous?.Device?.VolumePercent, Live?.Device?.VolumePercent);
                 OnVolumeChange(GetEvent());
             }
         }

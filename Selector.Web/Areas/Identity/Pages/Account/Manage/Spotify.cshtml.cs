@@ -67,14 +67,14 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
 
             if(Config.ClientId is null)
             {
-                Logger.LogError($"Cannot link user, no Spotify client ID");
+                Logger.LogError("Cannot link user, no Spotify client ID");
                 StatusMessage = "Could not link Spotify, no app credentials";
                 return RedirectToPage();
             }
 
             if (Config.ClientSecret is null)
             {
-                Logger.LogError($"Cannot link user, no Spotify client secret");
+                Logger.LogError("Cannot link user, no Spotify client secret");
                 StatusMessage = "Could not link Spotify, no app credentials";
                 return RedirectToPage();
             }

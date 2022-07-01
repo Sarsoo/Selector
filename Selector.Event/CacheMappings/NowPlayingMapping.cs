@@ -41,7 +41,7 @@ namespace Selector.Events
                     }
                     catch (Exception e)
                     {
-                        Logger.LogError(e, $"Error parsing new currently playing [{message}]");
+                        Logger.LogError(e, "Error parsing new currently playing [{message}]", message);
                     }
                 });
             }
