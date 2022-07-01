@@ -58,6 +58,8 @@ namespace Selector
             currentTask = userClient.GetRecentScrobbles(username, pagenumber: pageNumber, count: pageSize, from: from, to: to);
             currentTask.ContinueWith(async t =>
             {
+                using var scope = logger.BeginScope(new Dictionary<string, object>() { { "username", username }, { "page_number", pageNumber }, { "page_size", pageSize }, { "from", from }, { "to", to } });
+
                 try
                 {
                     netTime.Stop();
