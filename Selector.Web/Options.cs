@@ -41,6 +41,8 @@ namespace Selector.Web
         public string LastfmClient { get; set; }
         public string LastfmSecret { get; set; }
 
+        public TimeSpan CookieExpiry { get; set; } = TimeSpan.FromDays(30);
+
         public RedisOptions RedisOptions { get; set; } = new();
         public NowPlayingOptions NowOptions { get; set; } = new();
 

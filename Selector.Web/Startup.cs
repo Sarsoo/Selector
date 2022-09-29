@@ -97,7 +97,7 @@ namespace Selector.Web
             {
                 // Cookie settings
                 options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromDays(1);
+                options.ExpireTimeSpan = config.CookieExpiry;
 
                 options.LoginPath = "/Identity/Account/Login";
                 options.AccessDeniedPath = "/Identity/Account/AccessDenied";
