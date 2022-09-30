@@ -13,6 +13,7 @@ using Selector.Model;
 using Selector.Model.Extensions;
 using Selector.Events;
 using System.Collections.Concurrent;
+using Selector.CLI.Consumer;
 
 namespace Selector.CLI
 {
@@ -35,6 +36,9 @@ namespace Selector.CLI
 
         private readonly IPublisherFactory PublisherFactory;
         private readonly ICacheWriterFactory CacheWriterFactory;
+
+        private readonly IMappingPersisterFactory MappingPersisterFactory;
+
         private ConcurrentDictionary<string, IWatcherCollection> Watchers { get; set; } = new();
 
         public DbWatcherService(
@@ -52,6 +56,8 @@ namespace Selector.CLI
 
             IPublisherFactory publisherFactory = null,
             ICacheWriterFactory cacheWriterFactory = null,
+
+            IMappingPersisterFactory mappingPersisterFactory = null,
 
             IUserEventFirerFactory userEventFirerFactory = null
         )
@@ -71,6 +77,8 @@ namespace Selector.CLI
 
             PublisherFactory = publisherFactory;
             CacheWriterFactory = cacheWriterFactory;
+
+            MappingPersisterFactory = mappingPersisterFactory;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -129,6 +137,8 @@ namespace Selector.CLI
                     consumers.Add(await AudioFeatureInjectorFactory.Get(spotifyFactory));
                     if (CacheWriterFactory is not null) consumers.Add(await CacheWriterFactory.Get());
                     if (PublisherFactory is not null) consumers.Add(await PublisherFactory.Get());
+
+                    if (MappingPersisterFactory is not null) consumers.Add(await MappingPersisterFactory.Get());
 
                     if (UserEventFirerFactory is not null) consumers.Add(await UserEventFirerFactory.Get());
 

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using Selector.Cache.Extensions;
+using Selector.CLI.Consumer;
 using Selector.CLI.Jobs;
 using Selector.Extensions;
 using Selector.Model;
@@ -139,6 +140,14 @@ namespace Selector.CLI.Extensions
                     services.AddSingleton<IEqual, StringEqual>();
                     break;
             }
+
+            return services;
+        }
+
+        public static IServiceCollection AddCLIConsumerFactories(this IServiceCollection services)
+        {
+            services.AddTransient<IMappingPersisterFactory, MappingPersisterFactory>();
+            services.AddTransient<MappingPersisterFactory>();
 
             return services;
         }

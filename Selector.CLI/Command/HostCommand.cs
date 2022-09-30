@@ -100,6 +100,7 @@ namespace Selector.CLI
                     .ConfigureDb(config);
 
             services.AddConsumerFactories();
+            services.AddCLIConsumerFactories();
             if (config.RedisOptions.Enabled)
             {
                 Console.WriteLine("> Adding caching consumers...");

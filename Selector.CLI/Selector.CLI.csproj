@@ -35,6 +35,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Consumer\" />
+    <None Remove="Consumer\Factory\" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="appsettings.Development.json" Condition="Exists('appsettings.Development.json')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -49,4 +53,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Consumer\" />
+    <Folder Include="Consumer\Factory\" />
+  </ItemGroup>
 </Project>

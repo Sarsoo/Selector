@@ -100,7 +100,7 @@ namespace Selector.CLI
 
     public enum Consumers
     {
-        AudioFeatures, AudioFeaturesCache, CacheWriter, Publisher, PlayCounter
+        AudioFeatures, AudioFeaturesCache, CacheWriter, Publisher, PlayCounter, MappingPersister
     }
 
     public class RedisOptions

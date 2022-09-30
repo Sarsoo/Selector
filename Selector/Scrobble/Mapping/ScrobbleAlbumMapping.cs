@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Selector
 {
+    /// <inheritdoc/>
     public class ScrobbleAlbumMapping : ScrobbleMapping
     {
         public string AlbumName { get; set; }
@@ -18,6 +19,7 @@ namespace Selector
         }
 
         private SimpleAlbum result;
+        public SimpleAlbum Album => result;
         public override object Result => result;
 
         public override string Query => $"{AlbumName} {ArtistName}";

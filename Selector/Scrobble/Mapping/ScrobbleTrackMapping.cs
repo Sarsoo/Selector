@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Selector
 {
+    /// <inheritdoc/>
     public class ScrobbleTrackMapping : ScrobbleMapping
     {
         public string TrackName { get; set; }
@@ -20,6 +21,7 @@ namespace Selector
         }
 
         private FullTrack result;
+        public FullTrack Track => result;
         public override object Result => result;
 
         public override string Query => $"{TrackName} {ArtistName}";

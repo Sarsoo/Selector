@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Selector.Cache;
+using Selector.CLI.Consumer;
 
 namespace Selector.CLI
 {
@@ -135,6 +136,10 @@ namespace Selector.CLI
                                 {
                                     Logger.LogError("No Last.fm username provided, skipping play counter");
                                 }
+                                break;
+
+                            case Consumers.MappingPersister:
+                                consumers.Add(await ServiceProvider.GetService<MappingPersisterFactory>().Get());
                                 break;
                         }
                     }

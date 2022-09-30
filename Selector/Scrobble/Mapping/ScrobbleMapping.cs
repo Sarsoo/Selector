@@ -11,6 +11,9 @@ namespace Selector
         Track, Album, Artist
     }
 
+    /// <summary>
+    /// Map Last.fm resources to Spotify resources using the Spotify search endpoint before saving mappings to database
+    /// </summary>
     public abstract class ScrobbleMapping : IOperation
     {
         private readonly ILogger<ScrobbleMapping> logger;

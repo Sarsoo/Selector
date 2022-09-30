@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Selector
 {
+    /// <inheritdoc/>
     public class ScrobbleArtistMapping : ScrobbleMapping
     {
         public string ArtistName { get; set; }
@@ -18,6 +19,7 @@ namespace Selector
         }
 
         private FullArtist result;
+        public FullArtist Artist => result;
         public override object Result => result;
 
         public override string Query => ArtistName;
