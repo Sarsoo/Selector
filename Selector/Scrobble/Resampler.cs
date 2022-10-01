@@ -20,13 +20,19 @@ namespace Selector
 				yield break;
 			}
 
-			var sortedScrobblesIter = sortedScrobbles.GetEnumerator();
+            var sortedScrobblesIter = sortedScrobbles.GetEnumerator();
 			sortedScrobblesIter.MoveNext();
 
 			var earliest = sortedScrobbles.First().Timestamp;
 			var latest = sortedScrobbles.Last().Timestamp;
 
-			var enumeratorExhausted = false;
+            yield return new CountSample()
+            {
+                TimeStamp = earliest - (window / 2),
+                Value = 0
+            };
+
+            var enumeratorExhausted = false;
 
 			for (var windowStart = earliest; windowStart <= latest; windowStart += window)
 			{
