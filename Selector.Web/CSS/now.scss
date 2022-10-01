@@ -30,7 +30,9 @@ $shadow-color: #1e1e1e;
 }
 
 .chart-card {
-    width: 500px;
+    // width: 500px;
+    width: 100%;
+    max-width: max-content;
 }
 
 @media only screen and (min-width: 768px) {
@@ -47,6 +49,10 @@ $shadow-color: #1e1e1e;
       bottom: 20px;
 
       width: 250px;
+    }
+
+    .chart-card {
+        width: 500px;
     }
 }
 
