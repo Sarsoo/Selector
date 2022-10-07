@@ -87,7 +87,12 @@ namespace Selector.Model
                 .Property(s => s.LastfmArtistName)
                 .UseCollation("case_insensitive");
 
-            modelBuilder.Entity<SpotifyListen>().HasKey(s => s.Timestamp);
+            modelBuilder.Entity<ArtistLastfmSpotifyMapping>().HasKey(s => s.SpotifyUri);
+            modelBuilder.Entity<ArtistLastfmSpotifyMapping>()
+                .Property(s => s.LastfmArtistName)
+                .UseCollation("case_insensitive");
+
+            modelBuilder.Entity<SpotifyListen>().HasKey(s => s.Id);
             modelBuilder.Entity<SpotifyListen>()
                 .Property(s => s.TrackName)
                 .UseCollation("case_insensitive");

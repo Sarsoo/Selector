@@ -95,7 +95,7 @@ namespace Selector.Model
             return listens;
         }
 
-        public IEnumerable<SpotifyListen> GetAll(string include = null, string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null)
+        public IEnumerable<IListen> GetAll(string include = null, string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null)
             => GetAllQueryable(include: include, userId: userId, username: username, trackName: trackName, albumName: albumName, artistName: artistName, from: from, to: to).AsEnumerable();
 
         public void Remove(DateTime key)
@@ -123,7 +123,7 @@ namespace Selector.Model
             return db.SaveChangesAsync();
         }
 
-        public int Count(string include = null, string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null)
-            => GetAllQueryable(include: include, userId: userId, username: username, trackName: trackName, albumName: albumName, artistName: artistName, from: from, to: to).Count();
+        public int Count(string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null)
+            => GetAllQueryable(userId: userId, username: username, trackName: trackName, albumName: albumName, artistName: artistName, from: from, to: to).Count();
     }
 }

@@ -6,22 +6,22 @@ using System.Linq;
 
 namespace Selector
 {
-    public static class ScrobbleMatcher
+    public static class ListenMatcher
     {
-        public static bool MatchTime(Scrobble nativeScrobble, LastTrack serviceScrobble) 
+        public static bool MatchTime(IListen nativeScrobble, LastTrack serviceScrobble) 
             => serviceScrobble.TimePlayed.Equals(nativeScrobble);
 
-        public static bool MatchTime(Scrobble nativeScrobble, Scrobble serviceScrobble)
+        public static bool MatchTime(IListen nativeScrobble, IListen serviceScrobble)
             => serviceScrobble.Timestamp.Equals(nativeScrobble.Timestamp);
 
-        public static (IEnumerable<Scrobble>, IEnumerable<Scrobble>) IdentifyDiffs(IEnumerable<Scrobble> existing, IEnumerable<Scrobble> toApply, bool matchContents = true)
+        public static (IEnumerable<IListen>, IEnumerable<IListen>) IdentifyDiffs(IEnumerable<IListen> existing, IEnumerable<IListen> toApply, bool matchContents = true)
         {
             existing = existing.OrderBy(s => s.Timestamp);
             toApply = toApply.OrderBy(s => s.Timestamp);
             var toApplyIter = toApply.GetEnumerator();
 
-            var toAdd = new List<Scrobble>();
-            var toRemove = new List<Scrobble>();
+            var toAdd = new List<IListen>();
+            var toRemove = new List<IListen>();
 
             var toApplyOverrun = false;
 
@@ -79,7 +79,7 @@ namespace Selector
             return (toAdd, toRemove);
         }
 
-        public static void MatchData(Scrobble currentExisting, Scrobble toApply)
+        public static void MatchData(IListen currentExisting, IListen toApply)
         {
             if (!currentExisting.TrackName.Equals(toApply.TrackName, StringComparison.InvariantCultureIgnoreCase))
             {
@@ -97,19 +97,19 @@ namespace Selector
             }
         }
 
-        public static (IEnumerable<Scrobble>, IEnumerable<Scrobble>) IdentifyDiffsContains(IEnumerable<Scrobble> existing, IEnumerable<Scrobble> toApply)
+        public static (IEnumerable<IListen>, IEnumerable<IListen>) IdentifyDiffsContains(IEnumerable<IListen> existing, IEnumerable<IListen> toApply)
         {
-            var toAdd = toApply.Where(s => !existing.Contains(s, new ScrobbleComp()));
-            var toRemove = existing.Where(s => !toApply.Contains(s, new ScrobbleComp()));
+            var toAdd = toApply.Where(s => !existing.Contains(s, new ListenComp()));
+            var toRemove = existing.Where(s => !toApply.Contains(s, new ListenComp()));
 
             return (toAdd, toRemove);
         }
 
-        public class ScrobbleComp : IEqualityComparer<Scrobble>
+        public class ListenComp : IEqualityComparer<IListen>
         {
-            public bool Equals(Scrobble x, Scrobble y) => x.Timestamp == y.Timestamp;
+            public bool Equals(IListen x, IListen y) => x.Timestamp == y.Timestamp;
 
-            public int GetHashCode([DisallowNull] Scrobble obj) => obj.Timestamp.GetHashCode();
+            public int GetHashCode([DisallowNull] IListen obj) => obj.Timestamp.GetHashCode();
         }
     }
 }

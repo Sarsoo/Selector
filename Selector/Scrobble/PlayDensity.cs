@@ -6,9 +6,9 @@ namespace Selector
 {
 	public static class PlayDensity
 	{
-		public static decimal Density(this IEnumerable<Scrobble> scrobbles, TimeSpan window) => scrobbles.Density(DateTime.UtcNow - window, DateTime.UtcNow);
+		public static decimal Density(this IEnumerable<IListen> scrobbles, TimeSpan window) => scrobbles.Density(DateTime.UtcNow - window, DateTime.UtcNow);
 
-		public static decimal Density(this IEnumerable<Scrobble> scrobbles, DateTime from, DateTime to)
+		public static decimal Density(this IEnumerable<IListen> scrobbles, DateTime from, DateTime to)
         {
 			var filteredScrobbles = scrobbles.Where(s => s.Timestamp > from && s.Timestamp < to);
 
@@ -17,7 +17,7 @@ namespace Selector
 			return filteredScrobbles.Count() / dayDelta;
         }
 
-		public static decimal Density(this IEnumerable<Scrobble> scrobbles)
+		public static decimal Density(this IEnumerable<IListen> scrobbles)
 		{
 			var minDate = scrobbles.Select(s => s.Timestamp).Min();
 			var maxDate = scrobbles.Select(s => s.Timestamp).Max();

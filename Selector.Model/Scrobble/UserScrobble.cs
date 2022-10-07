@@ -2,7 +2,7 @@
 
 namespace Selector.Model
 {
-    public class UserScrobble: Scrobble
+    public class UserScrobble: Scrobble, IUserListen
     {
         public int Id { get; set; }
         public string UserId { get; set; }

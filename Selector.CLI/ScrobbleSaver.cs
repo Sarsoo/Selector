@@ -112,7 +112,7 @@ namespace Selector
                     logger.LogDebug("Identifying difference sets");
                     var time = Stopwatch.StartNew();
 
-                    (var toAdd, var toRemove) = ScrobbleMatcher.IdentifyDiffs(currentScrobbles, nativeScrobbles);
+                    (var toAdd, var toRemove) = ListenMatcher.IdentifyDiffs(currentScrobbles, nativeScrobbles);
 
                     time.Stop();
                     logger.LogTrace("Finished diffing: {:n}ms", time.ElapsedMilliseconds);

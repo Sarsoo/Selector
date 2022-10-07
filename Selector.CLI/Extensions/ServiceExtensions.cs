@@ -118,8 +118,12 @@ namespace Selector.CLI.Extensions
                     options.UseNpgsql(config.DatabaseOptions.ConnectionString)
                 );
 
-                services.AddTransient<IScrobbleRepository, ScrobbleRepository>();
-                services.AddTransient<ISpotifyListenRepository, SpotifyListenRepository>();
+                services.AddTransient<IScrobbleRepository, ScrobbleRepository>()
+                        .AddTransient<ISpotifyListenRepository, SpotifyListenRepository>();
+
+                //services.AddTransient<IListenRepository, MetaListenRepository>();
+                services.AddTransient<IListenRepository, SpotifyListenRepository>();
+
                 services.AddTransient<IScrobbleMappingRepository, ScrobbleMappingRepository>();
 
                 services.AddHostedService<MigratorService>();

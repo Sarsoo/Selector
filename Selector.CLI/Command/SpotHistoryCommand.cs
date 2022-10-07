@@ -52,7 +52,6 @@ namespace Selector.CLI
                 var directoryContents = Directory.EnumerateFiles(path);
                 var endSongs = directoryContents.Where(f => f.Contains("endsong_")).ToArray();
 
-
                 foreach(var file in endSongs)
                 {
                     streams.Add(File.OpenRead(file));

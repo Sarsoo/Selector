@@ -50,7 +50,7 @@ public class HistoryPersister
             var parsed = await JsonSerializer.DeserializeAsync(singleInput, Json.EndSongArray);
             songs = songs.Concat(parsed);
 
-            Logger?.LogDebug("Parsed {} items for {}", parsed.Length, Config.Username);
+            Logger?.LogDebug("Parsed {.2f} items for {}", parsed.Length, Config.Username);
         }
 
         await Process(songs);
@@ -67,7 +67,13 @@ public class HistoryPersister
 
         var counter = 0;
 
-        foreach(var item in input)
+        var filtered = input.Where(x => x.ms_played > 20000)
+            .DistinctBy(x => (x.offline_timestamp, x.ts, x.spotify_track_uri))
+            .ToArray();
+
+        Logger.LogInformation("{.2f} items after filtering", filtered.Length);
+
+        foreach (var item in filtered)
         {
             if(!string.IsNullOrWhiteSpace(item.master_metadata_track_name))
             {
