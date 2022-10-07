@@ -2,7 +2,7 @@
 
 namespace Selector
 {
-    public class Scrobble
+    public class Scrobble: IListen
     {
         public DateTime Timestamp { get; set; }
         public string TrackName { get; set; }

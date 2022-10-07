@@ -119,6 +119,7 @@ namespace Selector.CLI.Extensions
                 );
 
                 services.AddTransient<IScrobbleRepository, ScrobbleRepository>();
+                services.AddTransient<ISpotifyListenRepository, SpotifyListenRepository>();
                 services.AddTransient<IScrobbleMappingRepository, ScrobbleMappingRepository>();
 
                 services.AddHostedService<MigratorService>();
