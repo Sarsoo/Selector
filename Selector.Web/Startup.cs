@@ -64,7 +64,11 @@ namespace Selector.Web
                 options.UseNpgsql(Configuration.GetConnectionString("Default"))
             );
             services.AddDBPlayCountPuller();
-            services.AddTransient<IScrobbleRepository, ScrobbleRepository>();
+            services.AddTransient<IScrobbleRepository, ScrobbleRepository>()
+                    .AddTransient<ISpotifyListenRepository, SpotifyListenRepository>();
+
+            services.AddTransient<IListenRepository, MetaListenRepository>();
+            //services.AddTransient<IListenRepository, SpotifyListenRepository>();
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()

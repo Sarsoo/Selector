@@ -8,49 +8,49 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Selector.Model
 {
-    public class ScrobbleRepository : IScrobbleRepository
+    public class SpotifyListenRepository : ISpotifyListenRepository
     {
         private readonly ApplicationDbContext db;
 
-        public ScrobbleRepository(ApplicationDbContext context)
+        public SpotifyListenRepository(ApplicationDbContext context)
         {
             db = context;
         }
 
-        public void Add(UserScrobble item)
+        public void Add(SpotifyListen item)
         {
-            db.Scrobble.Add(item);
+            db.SpotifyListen.Add(item);
         }
 
-        public void AddRange(IEnumerable<UserScrobble> item)
+        public void AddRange(IEnumerable<SpotifyListen> item)
         {
-            db.Scrobble.AddRange(item);
+            db.SpotifyListen.AddRange(item);
         }
 
-        public UserScrobble Find(int key, string include = null)
+        public SpotifyListen Find(DateTime key, string include = null)
         {
-            var scrobbles = db.Scrobble.Where(s => s.Id == key);
+            var listens = db.SpotifyListen.Where(s => s.Timestamp == key);
             
             if (!string.IsNullOrWhiteSpace(include))
             {
-                scrobbles = scrobbles.Include(include);
+                listens = listens.Include(include);
             }
                 
-            return scrobbles.FirstOrDefault();
+            return listens.FirstOrDefault();
         }
 
-        private IQueryable<UserScrobble> GetAllQueryable(string include = null, string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null)
+        private IQueryable<SpotifyListen> GetAllQueryable(string include = null, string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null)
         {
-            var scrobbles = db.Scrobble.AsQueryable();
+            var listens = db.SpotifyListen.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(include))
             {
-                scrobbles = scrobbles.Include(include);
+                listens = listens.Include(include);
             }
 
             if (!string.IsNullOrWhiteSpace(userId))
             {
-                scrobbles = scrobbles.Where(s => s.UserId == userId);
+                listens = listens.Where(s => s.UserId == userId);
             }
 
             if (!string.IsNullOrWhiteSpace(username))
@@ -59,63 +59,63 @@ namespace Selector.Model
                 var user = db.Users.AsNoTracking().Where(u => u.NormalizedUserName == normalUsername).FirstOrDefault();
                 if (user is not null)
                 {
-                    scrobbles = scrobbles.Where(s => s.UserId == user.Id);
+                    listens = listens.Where(s => s.UserId == user.Id);
                 }
                 else
                 {
-                    scrobbles = Enumerable.Empty<UserScrobble>().AsQueryable();
+                    listens = Enumerable.Empty<SpotifyListen>().AsQueryable();
                 }
             }
 
             if (!string.IsNullOrWhiteSpace(trackName))
             {
-                scrobbles = scrobbles.Where(s => s.TrackName == trackName);
+                listens = listens.Where(s => s.TrackName == trackName);
             }
 
             if (!string.IsNullOrWhiteSpace(albumName))
             {
-                scrobbles = scrobbles.Where(s => s.AlbumName == albumName);
+                listens = listens.Where(s => s.AlbumName == albumName);
             }
 
             if (!string.IsNullOrWhiteSpace(artistName))
             {
-                scrobbles = scrobbles.Where(s => s.ArtistName == artistName);
+                listens = listens.Where(s => s.ArtistName == artistName);
             }
 
             if (from is not null)
             {
-                scrobbles = scrobbles.Where(u => u.Timestamp >= from.Value);
+                listens = listens.Where(u => u.Timestamp >= from.Value);
             }
 
             if (to is not null)
             {
-                scrobbles = scrobbles.Where(u => u.Timestamp < to.Value);
+                listens = listens.Where(u => u.Timestamp < to.Value);
             }
 
-            return scrobbles;
+            return listens;
         }
 
         public IEnumerable<IListen> GetAll(string include = null, string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null)
             => GetAllQueryable(include: include, userId: userId, username: username, trackName: trackName, albumName: albumName, artistName: artistName, from: from, to: to).AsEnumerable();
 
-        public void Remove(int key)
+        public void Remove(DateTime key)
         {
             Remove(Find(key));
         }
 
-        public void Remove(UserScrobble scrobble)
+        public void Remove(SpotifyListen scrobble)
         {
-            db.Scrobble.Remove(scrobble);
+            db.SpotifyListen.Remove(scrobble);
         }
 
-        public void RemoveRange(IEnumerable<UserScrobble> scrobbles)
+        public void RemoveRange(IEnumerable<SpotifyListen> scrobbles)
         {
-            db.Scrobble.RemoveRange(scrobbles);
+            db.SpotifyListen.RemoveRange(scrobbles);
         }
 
-        public void Update(UserScrobble item)
+        public void Update(SpotifyListen item)
         {
-            db.Scrobble.Update(item);
+            db.SpotifyListen.Update(item);
         }
 
         public Task<int> Save()

@@ -11,7 +11,7 @@ namespace Selector
 
 	public static class Resampler
 	{
-		public static IEnumerable<CountSample> Resample(this IEnumerable<Scrobble> scrobbles, TimeSpan window)
+		public static IEnumerable<CountSample> Resample(this IEnumerable<IListen> scrobbles, TimeSpan window)
 		{
 			var sortedScrobbles = scrobbles.OrderBy(s => s.Timestamp).ToList();
 
@@ -68,7 +68,7 @@ namespace Selector
 			}
 		}
 
-		public static IEnumerable<CountSample> ResampleByMonth(this IEnumerable<Scrobble> scrobbles)
+		public static IEnumerable<CountSample> ResampleByMonth(this IEnumerable<IListen> scrobbles)
 		{
 			var sortedScrobbles = scrobbles.OrderBy(s => s.Timestamp).ToList();
 

@@ -24,6 +24,8 @@ namespace Selector.Model
         public DbSet<AlbumLastfmSpotifyMapping> AlbumMapping { get; set; }
         public DbSet<ArtistLastfmSpotifyMapping> ArtistMapping { get; set; }
 
+        public DbSet<SpotifyListen> SpotifyListen { get; set; }
+
         public ApplicationDbContext(
             DbContextOptions<ApplicationDbContext> options, 
             ILogger<ApplicationDbContext> logger
@@ -88,6 +90,17 @@ namespace Selector.Model
             modelBuilder.Entity<ArtistLastfmSpotifyMapping>().HasKey(s => s.SpotifyUri);
             modelBuilder.Entity<ArtistLastfmSpotifyMapping>()
                 .Property(s => s.LastfmArtistName)
+                .UseCollation("case_insensitive");
+
+            modelBuilder.Entity<SpotifyListen>().HasKey(s => s.Id);
+            modelBuilder.Entity<SpotifyListen>()
+                .Property(s => s.TrackName)
+                .UseCollation("case_insensitive");
+            modelBuilder.Entity<SpotifyListen>()
+                .Property(s => s.AlbumName)
+                .UseCollation("case_insensitive");
+            modelBuilder.Entity<SpotifyListen>()
+                .Property(s => s.ArtistName)
                 .UseCollation("case_insensitive");
 
             SeedData.Seed(modelBuilder);

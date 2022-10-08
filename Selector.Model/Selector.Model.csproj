@@ -30,6 +30,10 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
+    <Folder Include="Listen\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Listen\" />
+  </ItemGroup>
 </Project>

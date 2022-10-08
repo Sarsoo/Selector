@@ -9,12 +9,12 @@ namespace Selector.Cache
 {
     public class DBPlayCountPuller
     {
-        protected readonly IScrobbleRepository ScrobbleRepository;
+        protected readonly IListenRepository ScrobbleRepository;
         private readonly IOptions<NowPlayingOptions> nowOptions;
 
         public DBPlayCountPuller(
             IOptions<NowPlayingOptions> options,
-            IScrobbleRepository scrobbleRepository
+            IListenRepository scrobbleRepository
         )
         {
             ScrobbleRepository = scrobbleRepository;
