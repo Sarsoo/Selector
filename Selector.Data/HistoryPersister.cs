@@ -1,8 +1,6 @@
-﻿using System;
-using System.Text.Json;
-using Selector.Model;
+﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.Metrics;
+using Selector.Model;
 
 namespace Selector.Data;
 
@@ -60,14 +58,16 @@ public class HistoryPersister
     {
         if (Config.InitialClear)
         {
-            Db.SpotifyListen.RemoveRange(Db.SpotifyListen.Where(x => x.User.UserName == Config.Username));
+            var latestTime = input.OrderBy(x => x.ts).Last().ts;
+            var time = DateTime.Parse(latestTime).ToUniversalTime();
+            Db.SpotifyListen.RemoveRange(Db.SpotifyListen.Where(x => x.User.UserName == Config.Username && x.Timestamp <= time));
         }
 
         var user = Db.Users.Single(u => u.UserName == Config.Username);
 
         var counter = 0;
 
-        var filtered = input.Where(x => x.ms_played > 20000)
+        var filtered = input.Where(x => x.ms_played > 30000)
             .DistinctBy(x => (x.offline_timestamp, x.ts, x.spotify_track_uri))
             .ToArray();
 

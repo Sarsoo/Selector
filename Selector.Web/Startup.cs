@@ -67,8 +67,8 @@ namespace Selector.Web
             services.AddTransient<IScrobbleRepository, ScrobbleRepository>()
                     .AddTransient<ISpotifyListenRepository, SpotifyListenRepository>();
 
-            //services.AddTransient<IListenRepository, MetaListenRepository>();
-            services.AddTransient<IListenRepository, SpotifyListenRepository>();
+            services.AddTransient<IListenRepository, MetaListenRepository>();
+            //services.AddTransient<IListenRepository, SpotifyListenRepository>();
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()

@@ -4,11 +4,6 @@ using System.Linq;
 
 namespace Selector.Model;
 
-public enum PreferenceMode
-{
-    Greedy, LastFm, Spotify
-}
-
 public class MetaListenRepository: IListenRepository
 {
     private readonly IScrobbleRepository scrobbleRepository;
@@ -27,10 +22,13 @@ public class MetaListenRepository: IListenRepository
         string albumName = null,
         string artistName = null,
         DateTime? from = null,
-        DateTime? to = null)
-    {
-        throw new NotImplementedException();
-    }
+        DateTime? to = null) => GetAll(userId: userId,
+            username: username,
+            trackName: trackName,
+            albumName: albumName,
+            artistName: artistName,
+            from: from,
+            to:to).Count();
 
     public IEnumerable<IListen> GetAll(
         string includes = null,
@@ -62,14 +60,12 @@ public class MetaListenRepository: IListenRepository
             albumName: albumName,
             artistName: artistName,
             from: from,
-            to: to)
+            to: scrobbles.FirstOrDefault()?.Timestamp)
             .OrderBy(x => x.Timestamp)
             .ToArray();
+        
 
-        var scrobbleIter = scrobbles.GetEnumerator();
-        var spotIter = spotListens.GetEnumerator();
-
-        return scrobbles;
+        return spotListens.Concat(scrobbles);
     }
 }
 
