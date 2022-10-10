@@ -9,7 +9,7 @@ import { PlayCountCard, LastFmLogoLink } from "./Now/LastFm";
 import BaseInfoCard from "./Now/BaseInfoCard";
 
 const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/hub")
+    .withUrl("/nowhub")
     .build();
 
 connection.start()

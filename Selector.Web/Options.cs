@@ -10,6 +10,7 @@ namespace Selector.Web
             config.GetSection(RootOptions.Key).Bind(options);
             config.GetSection(FormatKeys(new[] { RootOptions.Key, RedisOptions.Key })).Bind(options.RedisOptions);
             config.GetSection(FormatKeys(new[] { RootOptions.Key, NowPlayingOptions.Key })).Bind(options.NowOptions);
+            config.GetSection(FormatKeys(new[] { RootOptions.Key, PastOptions.Key })).Bind(options.PastOptions);
         }
 
         public static RootOptions ConfigureOptions(IConfiguration config)
@@ -45,6 +46,7 @@ namespace Selector.Web
 
         public RedisOptions RedisOptions { get; set; } = new();
         public NowPlayingOptions NowOptions { get; set; } = new();
+        public PastOptions PastOptions { get; set; } = new();
 
     }
 

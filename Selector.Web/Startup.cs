@@ -159,7 +159,8 @@ namespace Selector.Web
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                endpoints.MapHub<NowPlayingHub>("/hub");
+                endpoints.MapHub<NowPlayingHub>("/nowhub");
+                endpoints.MapHub<PastHub>("/pasthub");
             });
         }
 

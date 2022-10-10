@@ -18,5 +18,12 @@ namespace Selector
         public TimeSpan TrackDensityWindow { get; set; } = TimeSpan.FromDays(10);
         public decimal TrackDensityThreshold { get; set; } = 5;
     }
+
+    public class PastOptions
+    {
+        public const string Key = "Past";
+
+
+    }
 }
 

@@ -37,10 +37,12 @@
   <ItemGroup>
     <Folder Include="wwwroot\" />
     <Folder Include="NowPlaying\" />
+    <Folder Include="Past\" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="NowPlaying\" />
+    <None Remove="Past\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.Development.json" Condition="Exists('appsettings.Development.json')">
