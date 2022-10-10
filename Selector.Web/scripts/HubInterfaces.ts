@@ -41,6 +41,8 @@ export interface RankResult {
     trackEntries: RankEntry[];
     albumEntries: RankEntry[];
     artistEntries: RankEntry[];
+    totalCount: number;
+    resampledSeries: CountSample[];
 }
 
 export interface RankEntry {

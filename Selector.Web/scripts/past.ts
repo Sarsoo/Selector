@@ -3,6 +3,9 @@ import * as signalR from "@microsoft/signalr";
 import * as Vue from "vue";
 import { RankResult, RankEntry, PastParams } from "./HubInterfaces";
 import { RankCard } from "./Past/RankCard";
+import { CountCard } from "./Past/CountCard";
+import { PlayCountChartCard } from "./Now/PlayCountGraph";
+import { LastFmLogoLink } from "./Now/LastFm";
 
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/pasthub")
@@ -27,6 +30,10 @@ const app = Vue.createApp({
             trackEntries: [],
             albumEntries: [],
             artistEntries: [],
+
+            resampledSeries: [],
+
+            totalCount: 0
         }
     },
     created() {
@@ -37,29 +44,30 @@ const app = Vue.createApp({
             this.trackEntries = result.trackEntries;
             this.albumEntries = result.albumEntries;
             this.artistEntries = result.artistEntries;
+            this.resampledSeries = result.resampledSeries;
+            this.totalCount = result.totalCount;
         });
     },
     methods: {
         submit() {
-            console.log({
-                "track": this.track,
-                "album": this.album,
-                "artist": this.artist,
-                "from": this.from,
-                "to": this.to,
-            });
-
-            connection.invoke("OnSubmitted", {
+            let context = {
                 track: this.track,
                 album: this.album,
                 artist: this.artist,
                 from: this.from,
                 to: this.to,
-            } as PastParams);
+            } as PastParams;
+
+            console.log(context);
+
+            connection.invoke("OnSubmitted", context);
         }
     }
 });
 
+app.component("play-count-chart-card", PlayCountChartCard);
 app.component("rank-card", RankCard);
+app.component("lastfm-logo", LastFmLogoLink);
+app.component("count-card", CountCard);
 
 const vm = app.mount('#pastapp');

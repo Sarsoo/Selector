@@ -23,7 +23,7 @@ namespace Selector
     {
         public const string Key = "Past";
 
-
+        public TimeSpan ResampleWindow { get; set; } = TimeSpan.FromDays(7);
     }
 }
 

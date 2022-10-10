@@ -107,6 +107,14 @@ namespace Selector.Web.Hubs
                     Name = x.Key,
                     Value = x.Item2
                 }).ToArray(),
+
+                ResampledSeries = listenQuery
+                    .Resample(pastOptions.Value.ResampleWindow)
+                    //.ResampleByMonth()
+                    .CumulativeSum()
+                    .ToArray(),
+
+                TotalCount = listenQuery.Length
             });
         }
     }

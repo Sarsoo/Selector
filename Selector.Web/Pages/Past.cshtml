@@ -24,10 +24,18 @@
             </div>
         </div>
 
+        <count-card :count="totalCount"></count-card>
+
+        <play-count-chart-card :data_points="resampledSeries"
+                               :title="'Time Series'"
+                               :chart_id="'time_series'"
+                               :colour="'#ffffff'"
+                               v-if="resampledSeries.length > 0"></play-count-chart-card>
+
         <div style="width: 100%">
-            <rank-card :title="'Track'" :entries="trackEntries" v-if="trackEntries.length > 0"></rank-card>
-            <rank-card :title="'Album'" :entries="albumEntries" v-if="albumEntries.length > 0"></rank-card>
-            <rank-card :title="'Artist'" :entries="artistEntries" v-if="artistEntries.length > 0"></rank-card>
+            <rank-card :title="'Track'" :entries="trackEntries" v-if="trackEntries.length > 1"></rank-card>
+            <rank-card :title="'Album'" :entries="albumEntries" v-if="albumEntries.length > 1"></rank-card>
+            <rank-card :title="'Artist'" :entries="artistEntries" v-if="artistEntries.length > 1"></rank-card>
         </div>
     </div>
 </div>
