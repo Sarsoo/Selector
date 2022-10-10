@@ -29,16 +29,16 @@ namespace Selector.CLI
             username.AddAlias("-u");
             AddOption(username);
 
-            Handler = CommandHandler.Create((string connectionString, string path, string username) => Execute(connectionString, path, username));
+            Handler = CommandHandler.Create((string connection, string path, string username) => Execute(connection, path, username));
         }
 
-        public static int Execute(string connectionString, string path, string username)
+        public static int Execute(string connection, string path, string username)
         {
             var streams = new List<FileStream>();
 
             try
             {
-                var context = new CommandContext().WithLogger().WithDb(connectionString).WithSpotify().WithRedis();
+                var context = new CommandContext().WithLogger().WithDb(connection).WithSpotify().WithRedis();
                 var logger = context.Logger.CreateLogger("Scrobble");
 
                 using var db = new ApplicationDbContext(context.DatabaseConfig.Options, context.Logger.CreateLogger<ApplicationDbContext>());
