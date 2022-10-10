@@ -9,6 +9,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Linq;
 using System.Collections.Generic;
+using Selector.Cache;
 
 namespace Selector.CLI
 {
@@ -37,15 +38,20 @@ namespace Selector.CLI
 
             try
             {
-                var context = new CommandContext().WithLogger().WithDb(connectionString).WithLastfmApi();
+                var context = new CommandContext().WithLogger().WithDb(connectionString).WithSpotify().WithRedis();
                 var logger = context.Logger.CreateLogger("Scrobble");
 
                 using var db = new ApplicationDbContext(context.DatabaseConfig.Options, context.Logger.CreateLogger<ApplicationDbContext>());
 
                 var historyPersister = new HistoryPersister(db, new DataJsonContext(), new()
                 {
-                    Username = username
-                }, context.Logger.CreateLogger<HistoryPersister>());
+                    Username = username,
+                    Apply50PercentRule = true
+                },
+                durationPuller: new(context.Logger.CreateLogger<DurationPuller>(),
+                                    context.Spotify.Tracks,
+                                    cache: context.RedisMux.GetDatabase()),
+                logger: context.Logger.CreateLogger<HistoryPersister>());
 
                 logger.LogInformation("Preparing to parse from {} for {}", path, username);
 

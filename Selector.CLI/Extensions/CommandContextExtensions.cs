@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Selector.Model;
 using SpotifyAPI.Web;
+using StackExchange.Redis;
 using System.Linq;
 
 namespace Selector.CLI.Extensions
@@ -88,6 +89,22 @@ namespace Selector.CLI.Extensions
             var configFactory = new RefreshTokenFactory(context.Config.ClientId, context.Config.ClientSecret, refreshToken);
 
             context.Spotify = new SpotifyClient(configFactory.GetConfig().Result);
+
+            return context;
+        }
+
+        public static CommandContext WithRedis(this CommandContext context)
+        {
+            if (context.Config is null)
+            {
+                context.WithConfig();
+            }
+
+            var connectionString = context.Config.RedisOptions.ConnectionString;
+
+            var connMulti = ConnectionMultiplexer.Connect(connectionString);
+
+            context.RedisMux = connMulti;
 
             return context;
         }
