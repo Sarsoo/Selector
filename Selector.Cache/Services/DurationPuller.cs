@@ -120,7 +120,7 @@ namespace Selector.Cache
             foreach(var chunk in toPullFromSpotify.Chunk(50))
             {
                 await PullChunk(chunk, ret);
-                await Task.Delay(TimeSpan.FromMilliseconds(200));
+                await Task.Delay(TimeSpan.FromMilliseconds(500));
             }            
 
             return ret;

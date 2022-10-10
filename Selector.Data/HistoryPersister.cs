@@ -119,9 +119,11 @@ public class HistoryPersister
             processedCounter += item.Length;
         }
 
-        Logger?.LogInformation("Added {:n0} historical items for {}", processedCounter, user.UserName);
+        Logger?.LogInformation("Saving {:n0} historical items for {}", processedCounter, user.UserName);
 
         await Db.SaveChangesAsync();
+
+        Logger?.LogInformation("Added {:n0} historical items for {}", processedCounter, user.UserName);
     }
 
     private const int FOUR_MINUTES = 4 * 60 * 1000;
