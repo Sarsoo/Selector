@@ -11,6 +11,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS base
 COPY *.sln .
 COPY Selector/*.csproj ./Selector/
 COPY Selector.Cache/*.csproj ./Selector.Cache/
+COPY Selector.Data/*.csproj ./Selector.Data/
 COPY Selector.Event/*.csproj ./Selector.Event/
 COPY Selector.Model/*.csproj ./Selector.Model/
 COPY Selector.Web/*.csproj ./Selector.Web/
