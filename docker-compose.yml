@@ -30,7 +30,7 @@ services:
     ports:
       - "6379:6379"
   database:
-    image: postgres
+    image: postgres:14
     restart: unless-stopped
     ports:
       - "5432:5432"
