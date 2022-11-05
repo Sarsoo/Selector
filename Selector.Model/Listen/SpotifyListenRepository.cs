@@ -39,9 +39,14 @@ namespace Selector.Model
             return listens.FirstOrDefault();
         }
 
-        private IQueryable<SpotifyListen> GetAllQueryable(string include = null, string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null)
+        private IQueryable<SpotifyListen> GetAllQueryable(string include = null, string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null, bool tracking = true, bool orderTime = false)
         {
             var listens = db.SpotifyListen.AsQueryable();
+
+            if (!tracking)
+            {
+                listens = listens.AsNoTracking();
+            }
 
             if (!string.IsNullOrWhiteSpace(include))
             {
@@ -92,11 +97,16 @@ namespace Selector.Model
                 listens = listens.Where(u => u.Timestamp < to.Value);
             }
 
+            if (orderTime)
+            {
+                listens = listens.OrderBy(x => x.Timestamp);
+            }
+
             return listens;
         }
 
-        public IEnumerable<IListen> GetAll(string include = null, string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null)
-            => GetAllQueryable(include: include, userId: userId, username: username, trackName: trackName, albumName: albumName, artistName: artistName, from: from, to: to).AsEnumerable();
+        public IEnumerable<IListen> GetAll(string include = null, string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null, bool tracking = true, bool orderTime = false)
+            => GetAllQueryable(include: include, userId: userId, username: username, trackName: trackName, albumName: albumName, artistName: artistName, from: from, to: to, tracking: tracking, orderTime: orderTime).AsEnumerable();
 
         public void Remove(DateTime key)
         {
@@ -124,6 +134,6 @@ namespace Selector.Model
         }
 
         public int Count(string userId = null, string username = null, string trackName = null, string albumName = null, string artistName = null, DateTime? from = null, DateTime? to = null)
-            => GetAllQueryable(userId: userId, username: username, trackName: trackName, albumName: albumName, artistName: artistName, from: from, to: to).Count();
+            => GetAllQueryable(userId: userId, username: username, trackName: trackName, albumName: albumName, artistName: artistName, from: from, to: to, tracking: false).Count();
     }
 }

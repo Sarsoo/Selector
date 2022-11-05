@@ -27,7 +27,7 @@ namespace Selector.Cache
 
             var userScrobbleCount = ScrobbleRepository.Count(username: username);
 
-            var artistScrobbles = ScrobbleRepository.GetAll(username: username, artistName: artist).ToArray();
+            var artistScrobbles = ScrobbleRepository.GetAll(username: username, artistName: artist, tracking: false, orderTime: true).ToArray();
             var albumScrobbles = artistScrobbles.Where(
                 s => s.AlbumName.Equals(album, StringComparison.CurrentCultureIgnoreCase)).ToArray();
             var trackScrobbles = artistScrobbles.Where(

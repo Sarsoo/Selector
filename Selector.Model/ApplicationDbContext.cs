@@ -70,6 +70,8 @@ namespace Selector.Model
             modelBuilder.Entity<UserScrobble>()
                 .Property(s => s.ArtistName)
                 .UseCollation("case_insensitive");
+            //modelBuilder.Entity<UserScrobble>()
+            //    .HasIndex(x => new { x.UserId, x.ArtistName, x.TrackName });
 
             modelBuilder.Entity<TrackLastfmSpotifyMapping>().HasKey(s => s.SpotifyUri);
             modelBuilder.Entity<TrackLastfmSpotifyMapping>()
@@ -102,6 +104,8 @@ namespace Selector.Model
             modelBuilder.Entity<SpotifyListen>()
                 .Property(s => s.ArtistName)
                 .UseCollation("case_insensitive");
+            //modelBuilder.Entity<SpotifyListen>()
+            //    .HasIndex(x => new { x.UserId, x.ArtistName, x.TrackName });
 
             SeedData.Seed(modelBuilder);
         }
