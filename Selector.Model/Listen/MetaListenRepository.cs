@@ -63,7 +63,7 @@ public class MetaListenRepository: IListenRepository
             albumName: albumName,
             artistName: artistName,
             from: from,
-            to: scrobbles.LastOrDefault()?.Timestamp,
+            to: scrobbles.FirstOrDefault()?.Timestamp,
             tracking: tracking,
             orderTime: orderTime);
 
