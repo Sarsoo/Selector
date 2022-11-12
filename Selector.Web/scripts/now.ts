@@ -10,6 +10,7 @@ import BaseInfoCard from "./Now/BaseInfoCard";
 
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/hub")
+    .withAutomaticReconnect()
     .build();
 
 connection.start()
