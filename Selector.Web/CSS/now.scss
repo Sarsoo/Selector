@@ -31,8 +31,10 @@ $shadow-color: #1e1e1e;
 
 .chart-card {
     // width: 500px;
-    width: 100%;
-    max-width: max-content;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    // width: 100%;
+    // max-width: max-content;
 }
 
 @media only screen and (min-width: 768px) {
@@ -50,16 +52,16 @@ $shadow-color: #1e1e1e;
 
       width: 250px;
     }
-
-    .chart-card {
-        width: 500px;
-    }
 }
 
 @media only screen and (min-width: 768px) {
     .info-card {
         min-width: 200px;
         max-width: 500px;
+    }
+
+    .chart-card {
+        width: 500px;
     }
 }
 
