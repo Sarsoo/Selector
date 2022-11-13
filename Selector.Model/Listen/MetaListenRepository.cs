@@ -28,7 +28,8 @@ public class MetaListenRepository: IListenRepository
             albumName: albumName,
             artistName: artistName,
             from: from,
-            to:to).Count();
+            to:to,
+            tracking: false).Count();
 
     public IEnumerable<IListen> GetAll(
         string includes = null,
@@ -38,7 +39,9 @@ public class MetaListenRepository: IListenRepository
         string albumName = null,
         string artistName = null,
         DateTime? from = null,
-        DateTime? to = null)
+        DateTime? to = null,
+        bool tracking = true,
+        bool orderTime = false)
     {
         var scrobbles = scrobbleRepository.GetAll(
             include: includes,
@@ -48,9 +51,9 @@ public class MetaListenRepository: IListenRepository
             albumName: albumName,
             artistName: artistName,
             from: from,
-            to: to)
-            .OrderBy(x => x.Timestamp)
-            .ToArray();
+            to: to,
+            tracking: tracking,
+            orderTime: true).ToArray();
 
         var spotListens = spotifyRepository.GetAll(
             include: includes,
@@ -60,10 +63,9 @@ public class MetaListenRepository: IListenRepository
             albumName: albumName,
             artistName: artistName,
             from: from,
-            to: scrobbles.FirstOrDefault()?.Timestamp)
-            .OrderBy(x => x.Timestamp)
-            .ToArray();
-        
+            to: scrobbles.FirstOrDefault()?.Timestamp,
+            tracking: tracking,
+            orderTime: orderTime);
 
         return spotListens.Concat(scrobbles);
     }

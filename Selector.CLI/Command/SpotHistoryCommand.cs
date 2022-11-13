@@ -9,6 +9,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Linq;
 using System.Collections.Generic;
+using Selector.Cache;
 
 namespace Selector.CLI
 {
@@ -28,24 +29,29 @@ namespace Selector.CLI
             username.AddAlias("-u");
             AddOption(username);
 
-            Handler = CommandHandler.Create((string connectionString, string path, string username) => Execute(connectionString, path, username));
+            Handler = CommandHandler.Create((string connection, string path, string username) => Execute(connection, path, username));
         }
 
-        public static int Execute(string connectionString, string path, string username)
+        public static int Execute(string connection, string path, string username)
         {
             var streams = new List<FileStream>();
 
             try
             {
-                var context = new CommandContext().WithLogger().WithDb(connectionString).WithLastfmApi();
+                var context = new CommandContext().WithLogger().WithDb(connection).WithSpotify().WithRedis();
                 var logger = context.Logger.CreateLogger("Scrobble");
 
                 using var db = new ApplicationDbContext(context.DatabaseConfig.Options, context.Logger.CreateLogger<ApplicationDbContext>());
 
                 var historyPersister = new HistoryPersister(db, new DataJsonContext(), new()
                 {
-                    Username = username
-                }, context.Logger.CreateLogger<HistoryPersister>());
+                    Username = username,
+                    Apply50PercentRule = true
+                },
+                durationPuller: new(context.Logger.CreateLogger<DurationPuller>(),
+                                    context.Spotify.Tracks,
+                                    cache: context.RedisMux.GetDatabase()),
+                logger: context.Logger.CreateLogger<HistoryPersister>());
 
                 logger.LogInformation("Preparing to parse from {} for {}", path, username);
 

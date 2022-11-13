@@ -20,6 +20,7 @@ namespace Selector.Cache
 
         public const string AudioFeatureName = "AUDIO_FEATURE";
         public const string PlayCountName = "PLAY_COUNT";
+        public const string Duration = "DURATION";
 
         public const string SpotifyName = "SPOTIFY";
         public const string LastfmName = "LASTFM";
@@ -33,6 +34,9 @@ namespace Selector.Cache
         /// <returns></returns>
         public static string CurrentlyPlaying(string user) => MajorNamespace(MinorNamespace(UserName, CurrentlyPlayingName), user);
         public static readonly string AllCurrentlyPlaying = CurrentlyPlaying(All);
+
+        public static string Track(string trackId) => MajorNamespace(TrackName, trackId);
+        public static readonly string AllTracks = Track(All);
 
         public static string AudioFeature(string trackId) => MajorNamespace(MinorNamespace(TrackName, AudioFeatureName), trackId);
         public static readonly string AllAudioFeatures = AudioFeature(All);

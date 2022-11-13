@@ -27,11 +27,11 @@ services:
       DOTNET_ENVIRONMENT: Production
 
   redis:
-    image: redis:alpine
+    image: redis:7
     ports:
       - "6379:6379"
   database:
-    image: postgres
+    image: postgres:14
     ports:
       - "5432:5432"
     env_file: .env # set POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB

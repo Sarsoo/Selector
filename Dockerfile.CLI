@@ -1,8 +1,9 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS base
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS base
 
 COPY *.sln .
 COPY Selector/*.csproj ./Selector/
 COPY Selector.Cache/*.csproj ./Selector.Cache/
+COPY Selector.Data/*.csproj ./Selector.Data/
 COPY Selector.Event/*.csproj ./Selector.Event/
 COPY Selector.Model/*.csproj ./Selector.Model/
 COPY Selector.CLI/*.csproj ./Selector.CLI/
@@ -14,7 +15,7 @@ COPY . ./
 FROM base as publish
 RUN dotnet publish Selector.CLI/Selector.CLI.csproj -c Release -o /app --no-restore
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /app
 COPY --from=publish /app ./
 ENV DOTNET_EnableDiagnostics=0

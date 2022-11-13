@@ -25,12 +25,12 @@ services:
       DOTNET_ENVIRONMENT: Production
 
   redis:
-    image: redis:alpine
+    image: redis:7
     restart: unless-stopped
     ports:
       - "6379:6379"
   database:
-    image: postgres
+    image: postgres:14
     restart: unless-stopped
     ports:
       - "5432:5432"

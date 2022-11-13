@@ -6,11 +6,12 @@ RUN npm ci
 COPY ./Selector.Web ./
 RUN npm run build
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS base
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS base
 
 COPY *.sln .
 COPY Selector/*.csproj ./Selector/
 COPY Selector.Cache/*.csproj ./Selector.Cache/
+COPY Selector.Data/*.csproj ./Selector.Data/
 COPY Selector.Event/*.csproj ./Selector.Event/
 COPY Selector.Model/*.csproj ./Selector.Model/
 COPY Selector.Web/*.csproj ./Selector.Web/
@@ -24,7 +25,7 @@ COPY --from=frontend /Selector.Web/wwwroot Selector.Web/wwwroot/
 COPY --from=frontend /Selector.Web/wwwroot Selector.Web/wwwroot/
 RUN dotnet publish Selector.Web/Selector.Web.csproj -c Release -o /app --no-restore
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:7.0
 EXPOSE 80
 WORKDIR /app
 COPY --from=publish /app ./
