@@ -28,7 +28,7 @@ export let PlayCountChartCard: Vue.Component = {
     },
     template: 
     `
-        <div class="card info-card chart-card">
+        <div class="chart-card card">
             <h1>{{ title }}</h1>
             <canvas :id="chartId"></canvas>
             <lastfm-logo :link="link" />
@@ -89,7 +89,7 @@ export let CombinedPlayCountChartCard: Vue.Component = {
     },
     template: 
     `
-        <div class="card info-card chart-card">
+        <div class="chart-card card">
             <canvas :id="chartId"></canvas>
             <lastfm-logo :link="link" />
         </div>
