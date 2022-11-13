@@ -1,0 +1,45 @@
+﻿@page
+@model PastModel
+@{
+    ViewData["Title"] = "Past - Selector";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Past</h1>
+    <div id="pastapp" class="app col-12">
+        <div class="card" style="width: 100%">
+            <div>
+                <input v-model="track" class="form-input form-control" placeholder="Track" />
+                <input v-model="album" class="form-input form-control" placeholder="Album" />
+                <input v-model="artist" class="form-input form-control" placeholder="Artist" />
+            </div>
+            <div>
+                <label for="from-picker">From</label>
+                <input type="date" v-model="from" class="form-input form-control" id="from-picker" />
+                <label for="to-picker">To</label>
+                <input type="date" v-model="to" class="form-input form-control" id="to-picker" />
+            </div>
+            <div>
+                <button type="button" v-on:click="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+
+        <count-card :count="totalCount"></count-card>
+
+        <play-count-chart-card :data_points="resampledSeries"
+                               :title="'Time Series'"
+                               :chart_id="'time_series'"
+                               :colour="'#ffffff'"
+                               v-if="resampledSeries.length > 0"></play-count-chart-card>
+
+        <div style="width: 100%">
+            <rank-card :title="'Track'" :entries="trackEntries" v-if="trackEntries.length > 1"></rank-card>
+            <rank-card :title="'Album'" :entries="albumEntries" v-if="albumEntries.length > 1"></rank-card>
+            <rank-card :title="'Artist'" :entries="artistEntries" v-if="artistEntries.length > 1"></rank-card>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="module" src="~/js/past.bundle.js"></script>
+}

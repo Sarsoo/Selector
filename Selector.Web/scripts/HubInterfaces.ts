@@ -29,6 +29,27 @@ export interface PlayCount {
     listeningEvent: ListeningChangeEventArgs;
 }
 
+export interface PastParams {
+    track: string;
+    album: string;
+    artist: string;
+    from: string;
+    to: string;
+}
+
+export interface RankResult {
+    trackEntries: RankEntry[];
+    albumEntries: RankEntry[];
+    artistEntries: RankEntry[];
+    totalCount: number;
+    resampledSeries: CountSample[];
+}
+
+export interface RankEntry {
+    name: string;
+    value: number;
+}
+
 export interface CountSample {
     timeStamp: Date;
     value: number;

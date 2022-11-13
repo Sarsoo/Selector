@@ -31,7 +31,7 @@ export let PlayCountChartCard: Vue.Component = {
         <div class="chart-card card">
             <h1>{{ title }}</h1>
             <canvas :id="chartId"></canvas>
-            <lastfm-logo :link="link" />
+            <lastfm-logo :link="link" v-if="link" />
         </div>
     `, 
     mounted() {
@@ -56,8 +56,8 @@ export let PlayCountChartCard: Vue.Component = {
                     },
                     xAxis: {
                         type: 'time',
-                        min: this.earliest_date,
-                        max: this.latest_date
+                        // min: this.earliest_date,
+                        // max: this.latest_date
                     }
                 }
             }
