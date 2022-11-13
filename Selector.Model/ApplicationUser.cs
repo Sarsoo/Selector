@@ -8,13 +8,17 @@ namespace Selector.Model
 {
     public class ApplicationUser : IdentityUser
     {
+        [PersonalData]
         public bool SpotifyIsLinked { get; set; }
+        [PersonalData]
         public DateTime SpotifyLastRefresh { get; set; }
         public int SpotifyTokenExpiry { get; set; }
         public string SpotifyAccessToken { get; set; }
         public string SpotifyRefreshToken { get; set; }
 
+        [PersonalData]
         public string LastFmUsername { get; set; }
+        [PersonalData]
         public bool SaveScrobbles { get; set; }
 
         public List<Watcher> Watchers { get; set; }
