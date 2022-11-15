@@ -10,6 +10,7 @@ services:
       - redis
     volumes:
       - "./Selector.Web/appsettings.Production.json:/app/appsettings.Production.json"
+      - "./Selector.Web/log:/app/log"
     environment:
       DOTNET_ENVIRONMENT: Production
 
@@ -21,6 +22,7 @@ services:
       - redis
     volumes:
       - "./Selector.CLI/appsettings.Production.json:/app/appsettings.Production.json"
+      - "./Selector.CLI/log:/app/log"
     environment:
       DOTNET_ENVIRONMENT: Production
 
