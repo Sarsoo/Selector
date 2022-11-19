@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IF.Lastfm.Core.Objects;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Selector.Cache;
@@ -49,6 +51,16 @@ namespace Selector.Web.Hubs
 
         }
 
+        private static IEnumerable<string> AlbumSuffixes = new[]
+        {
+            " (Deluxe)",
+            " (Deluxe Edition)",
+            " (Special)",
+            " (Special Edition)",
+            " (Expanded)",
+            " (Expanded Edition)",
+        };
+
         public async Task OnSubmitted(PastParams param)
         {
             param.Track = string.IsNullOrWhiteSpace(param.Track) ? null : param.Track;
@@ -67,38 +79,49 @@ namespace Selector.Web.Hubs
                 to: to
             ).ToArray();
 
+            Parallel.ForEach(listenQuery, (listen) =>
+            {
+                foreach (var suffix in AlbumSuffixes)
+                {
+                    if (listen.AlbumName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        listen.AlbumName = listen.AlbumName.Substring(0, listen.AlbumName.Length - suffix.Length);
+                    }
+                }
+            });
+
             var artistGrouped = listenQuery
-                .GroupBy(x => x.ArtistName)
+                .GroupBy(x => x.ArtistName.ToLowerInvariant())
                 .Select(x => (x.Key, x.Count()))
                 .OrderByDescending(x => x.Item2)
-                .Take(20)
+                .Take(pastOptions.Value.RankingCount)
                 .ToArray();
 
             var albumGrouped = listenQuery
-                .GroupBy(x => (x.AlbumName, x.ArtistName))
-                .Select(x => (x.Key, x.Count()))
+                .GroupBy(x => (x.AlbumName.ToLowerInvariant(), x.ArtistName.ToLowerInvariant()))
+                .Select(x => (x.Key, x.Count(), $"{x.FirstOrDefault()?.AlbumName} // {x.FirstOrDefault()?.ArtistName}"))
                 .OrderByDescending(x => x.Item2)
-                .Take(20)
+                .Take(pastOptions.Value.RankingCount)
                 .ToArray();
 
             var trackGrouped = listenQuery
-                .GroupBy(x => (x.TrackName, x.ArtistName))
-                .Select(x => (x.Key, x.Count()))
+                .GroupBy(x => (x.TrackName.ToLowerInvariant(), x.ArtistName.ToLowerInvariant()))
+                .Select(x => (x.Key, x.Count(), $"{x.FirstOrDefault()?.TrackName} // {x.FirstOrDefault()?.ArtistName}"))
                 .OrderByDescending(x => x.Item2)
-                .Take(20)
+                .Take(pastOptions.Value.RankingCount)
                 .ToArray();
 
             await Clients.Caller.OnRankResult(new()
             {
                 TrackEntries = trackGrouped.Select(x => new ChartEntry()
                 {
-                    Name = $"{x.Key.TrackName} - {x.Key.ArtistName}",
+                    Name = x.Item3,
                     Value = x.Item2
                 }).ToArray(),
 
                 AlbumEntries = albumGrouped.Select(x => new ChartEntry()
                 {
-                    Name = $"{x.Key.AlbumName} - {x.Key.ArtistName}",
+                    Name = x.Item3,
                     Value = x.Item2
                 }).ToArray(),
 

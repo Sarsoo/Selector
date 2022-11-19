@@ -52,7 +52,7 @@ export let PlayCountChartCard: Vue.Component = {
                 },
                 scales: {
                     yAxis: {
-                        suggestedMin: 0
+                        beginAtZero: true
                     },
                     xAxis: {
                         type: 'time',
@@ -112,7 +112,7 @@ export let CombinedPlayCountChartCard: Vue.Component = {
                 },
                 scales: {
                     yAxis: {
-                        suggestedMin: 0
+                        beginAtZero: true
                     },
                     xAxis: {
                         type: 'time',

@@ -6,9 +6,11 @@ import { RankCard } from "./Past/RankCard";
 import { CountCard } from "./Past/CountCard";
 import { PlayCountChartCard } from "./Now/PlayCountGraph";
 import { LastFmLogoLink } from "./Now/LastFm";
+import { BarChartCard } from "./Past/BarGraphCard";
 
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/pasthub")
+    .withAutomaticReconnect()
     .build();
 
 connection.start()
@@ -60,12 +62,26 @@ const app = Vue.createApp({
 
             console.log(context);
 
+            this.trackEntries = [];
+            this.albumEntries = [];
+            this.artistEntries = [];
+            this.resampledSeries = [];
+
             connection.invoke("OnSubmitted", context);
         }
-    }
+    },
+    computed: {
+        mutatedAlbums() {
+            return this.albumEntries.map((e: RankEntry) => {
+                e.name = e.name.split(' // ')[0];
+                return e;
+            });
+        }
+    },
 });
 
 app.component("play-count-chart-card", PlayCountChartCard);
+app.component("album-chart-card", BarChartCard);
 app.component("rank-card", RankCard);
 app.component("lastfm-logo", LastFmLogoLink);
 app.component("count-card", CountCard);

@@ -9,9 +9,9 @@
     <div id="pastapp" class="app col-12">
         <div class="card" style="width: 100%">
             <div>
-                <input v-model="track" class="form-input form-control" placeholder="Track" />
-                <input v-model="album" class="form-input form-control" placeholder="Album" />
-                <input v-model="artist" class="form-input form-control" placeholder="Artist" />
+                <input v-model="track" class="form-input form-control" placeholder="Track" v-on:keyup.enter="submit" />
+                <input v-model="album" class="form-input form-control" placeholder="Album" v-on:keyup.enter="submit" />
+                <input v-model="artist" class="form-input form-control" placeholder="Artist" v-on:keyup.enter="submit" />
             </div>
             <div>
                 <label for="from-picker">From</label>
@@ -27,7 +27,6 @@
         <count-card :count="totalCount"></count-card>
 
         <play-count-chart-card :data_points="resampledSeries"
-                               :title="'Time Series'"
                                :chart_id="'time_series'"
                                :colour="'#ffffff'"
                                v-if="resampledSeries.length > 0"></play-count-chart-card>
@@ -37,6 +36,11 @@
             <rank-card :title="'Album'" :entries="albumEntries" v-if="albumEntries.length > 1"></rank-card>
             <rank-card :title="'Artist'" :entries="artistEntries" v-if="artistEntries.length > 1"></rank-card>
         </div>
+
+        <album-chart-card :data_points="mutatedAlbums"
+                        :chart_id="'past'"
+                        :colour="'#ffffff'"
+                        v-if="albumEntries.length > 1"></album-chart-card>
     </div>
 </div>
 
