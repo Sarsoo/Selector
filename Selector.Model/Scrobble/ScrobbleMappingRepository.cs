@@ -47,7 +47,7 @@ namespace Selector.Model
             db.ArtistMapping.AddRange(item);
         }
 
-        public IEnumerable<AlbumLastfmSpotifyMapping> GetAlbums(string include = null, string albumName = null, string artistName = null)
+        public IQueryable<AlbumLastfmSpotifyMapping> GetAlbums(string include = null, string albumName = null, string artistName = null)
         {
             var mappings = db.AlbumMapping.AsQueryable();
 
@@ -66,10 +66,10 @@ namespace Selector.Model
                 mappings = mappings.Where(s => s.LastfmArtistName == artistName);
             }
 
-            return mappings.AsEnumerable();
+            return mappings;
         }
 
-        public IEnumerable<ArtistLastfmSpotifyMapping> GetArtists(string include = null, string artistName = null)
+        public IQueryable<ArtistLastfmSpotifyMapping> GetArtists(string include = null, string artistName = null)
         {
             var mappings = db.ArtistMapping.AsQueryable();
 
@@ -83,10 +83,10 @@ namespace Selector.Model
                 mappings = mappings.Where(s => s.LastfmArtistName == artistName);
             }
 
-            return mappings.AsEnumerable();
+            return mappings;
         }
 
-        public IEnumerable<TrackLastfmSpotifyMapping> GetTracks(string include = null, string trackName = null, string albumName = null, string artistName = null)
+        public IQueryable<TrackLastfmSpotifyMapping> GetTracks(string include = null, string trackName = null, string albumName = null, string artistName = null)
         {
             var mappings = db.TrackMapping.AsQueryable();
 
@@ -105,7 +105,7 @@ namespace Selector.Model
                 mappings = mappings.Where(s => s.LastfmArtistName == artistName);
             }
 
-            return mappings.AsEnumerable();
+            return mappings;
         }
 
         public void Remove(TrackLastfmSpotifyMapping mapping)

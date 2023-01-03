@@ -51,8 +51,9 @@ namespace Selector
         {
             logger.LogInformation("Mapping scrobble tracks");
 
-            var currentTracks = mappingRepo.GetTracks();
+            var currentTracks = mappingRepo.GetTracks().AsEnumerable();
             var scrobbleTracks = scrobbleRepo.GetAll()
+                .AsEnumerable()
                 .GroupBy(x => (x.ArtistName, x.TrackName))
                 .Select(x => (x.Key, x.Count()))
                 .OrderByDescending(x => x.Item2)

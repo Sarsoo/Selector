@@ -22,16 +22,33 @@ public class MetaListenRepository: IListenRepository
         string albumName = null,
         string artistName = null,
         DateTime? from = null,
-        DateTime? to = null) => GetAll(userId: userId,
+        DateTime? to = null)
+    {
+        var scrobbles = scrobbleRepository.GetAll(
+            userId: userId,
             username: username,
             trackName: trackName,
             albumName: albumName,
             artistName: artistName,
             from: from,
-            to:to,
-            tracking: false).Count();
+            to: to,
+            tracking: false,
+            orderTime: true);
 
-    public IEnumerable<IListen> GetAll(
+        var spotListens = spotifyRepository.GetAll(
+            userId: userId,
+            username: username,
+            trackName: trackName,
+            albumName: albumName,
+            artistName: artistName,
+            from: from,
+            to: scrobbles.FirstOrDefault()?.Timestamp,
+            tracking: false);
+
+        return scrobbles.Count() + spotListens.Count();
+    }
+
+    public IQueryable<IListen> GetAll(
         string includes = null,
         string userId = null,
         string username = null,
@@ -53,7 +70,7 @@ public class MetaListenRepository: IListenRepository
             from: from,
             to: to,
             tracking: tracking,
-            orderTime: true).ToArray();
+            orderTime: true);
 
         var spotListens = spotifyRepository.GetAll(
             include: includes,
@@ -67,7 +84,19 @@ public class MetaListenRepository: IListenRepository
             tracking: tracking,
             orderTime: orderTime);
 
-        return spotListens.Concat(scrobbles);
+        return spotListens.Select(sp => new Listen
+        {
+            Timestamp = sp.Timestamp,
+            TrackName = sp.TrackName,
+            AlbumName = sp.AlbumName,
+            ArtistName = sp.ArtistName
+        }).Concat(scrobbles.Select(sp => new Listen
+        {
+            Timestamp = sp.Timestamp,
+            TrackName = sp.TrackName,
+            AlbumName = sp.AlbumName,
+            ArtistName = sp.ArtistName
+        }));
     }
 }
 
