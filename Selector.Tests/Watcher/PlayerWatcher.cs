@@ -33,7 +33,7 @@ namespace Selector.Tests
             var spotMock = new Mock<IPlayerClient>();
             var eq = new UriEqual();
 
-            spotMock.Setup(s => s.GetCurrentPlayback().Result).Returns(playingQueue.Dequeue);
+            spotMock.Setup(s => s.GetCurrentPlayback(It.IsAny<CancellationToken>()).Result).Returns(playingQueue.Dequeue);
 
             var watcher = new PlayerWatcher(spotMock.Object, eq);
 
@@ -190,7 +190,7 @@ namespace Selector.Tests
             var eq = new UriEqual();
 
             spotMock.Setup(
-                s => s.GetCurrentPlayback().Result
+                s => s.GetCurrentPlayback(It.IsAny<CancellationToken>()).Result
             ).Returns(playingQueue.Dequeue);
 
             var watcher = new PlayerWatcher(spotMock.Object, eq);
@@ -224,7 +224,7 @@ namespace Selector.Tests
             await Task.Delay(execTime);
             tokenSource.Cancel();
 
-            spotMock.Verify(s => s.GetCurrentPlayback(), Times.Exactly(numberOfCalls));
+            spotMock.Verify(s => s.GetCurrentPlayback(It.IsAny<CancellationToken>()), Times.Exactly(numberOfCalls));
         }
 
         // [Fact]

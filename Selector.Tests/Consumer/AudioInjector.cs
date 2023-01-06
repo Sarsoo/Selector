@@ -8,6 +8,7 @@ using FluentAssertions;
 using SpotifyAPI.Web;
 
 using Selector;
+using System.Threading;
 
 namespace Selector.Tests
 {
@@ -83,7 +84,7 @@ namespace Selector.Tests
             eventArgsMock.Object.Current = playingMock.Object;
             playingMock.Object.Item = trackMock.Object;
 
-            spotifyMock.Setup(m => m.GetAudioFeatures(It.IsAny<string>()).Result).Returns(() => featureMock.Object);
+            spotifyMock.Setup(m => m.GetAudioFeatures(It.IsAny<string>(), It.IsAny<CancellationToken>()).Result).Returns(() => featureMock.Object);
 
             var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object)
             {
@@ -111,7 +112,7 @@ namespace Selector.Tests
             playingMock.Object.Item = trackMock.Object;
             trackMock.Object.Id = "Fake-Id";
 
-            spotifyMock.Setup(m => m.GetAudioFeatures(It.IsAny<string>()).Result).Returns(() => featureMock.Object);
+            spotifyMock.Setup(m => m.GetAudioFeatures(It.IsAny<string>(), It.IsAny<CancellationToken>()).Result).Returns(() => featureMock.Object);
 
             var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object)
             {
@@ -120,7 +121,7 @@ namespace Selector.Tests
 
             await featureInjector.AsyncCallback(eventArgsMock.Object);
 
-            spotifyMock.Verify(m => m.GetAudioFeatures(It.IsAny<string>()));
+            spotifyMock.Verify(m => m.GetAudioFeatures(It.IsAny<string>(), It.IsAny<CancellationToken>()));
             spotifyMock.VerifyNoOtherCalls();
 
             timelineMock.Verify(m => m.Add(It.IsAny<AnalysedTrack>(), It.IsAny<DateTime>()), Times.Once);

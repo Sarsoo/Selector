@@ -33,7 +33,7 @@ namespace Selector.Tests
 
             var spotMock = new Mock<ISpotifyClient>();
 
-            spotMock.Setup(s => s.Playlists.Get(It.IsAny<string>()).Result).Returns(playlistDequeue.Dequeue);
+            spotMock.Setup(s => s.Playlists.Get(It.IsAny<string>(), It.IsAny<CancellationToken>()).Result).Returns(playlistDequeue.Dequeue);
 
             var config = new PlaylistWatcherConfig() { PlaylistId = "spotify:playlist:test" };
             var watcher = new PlaylistWatcher(config, spotMock.Object);
@@ -80,7 +80,7 @@ namespace Selector.Tests
 
             var spotMock = new Mock<ISpotifyClient>();
 
-            spotMock.Setup(s => s.Playlists.Get(It.IsAny<string>()).Result).Returns(playlistDequeue.Dequeue);
+            spotMock.Setup(s => s.Playlists.Get(It.IsAny<string>(), It.IsAny<CancellationToken>()).Result).Returns(playlistDequeue.Dequeue);
 
             var config = new PlaylistWatcherConfig() { PlaylistId = "spotify:playlist:test" };
             var watcher = new PlaylistWatcher(config, spotMock.Object);
