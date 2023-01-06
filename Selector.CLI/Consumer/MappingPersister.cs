@@ -49,9 +49,9 @@ namespace Selector.CLI.Consumer
                 {
                     Logger.LogWarning("Failed to update database, likely a duplicate Spotify URI");
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Logger.LogError(e, "Error occured during callback");
+                    Logger.LogError(ex, "Error occured during callback");
                 }
             }, CancelToken);
         }
@@ -104,7 +104,7 @@ namespace Selector.CLI.Consumer
             }
             else if (e.Current.Item is FullEpisode episode)
             {
-                Logger.LogDebug("Ignoring podcast episdoe [{episode}]", episode.DisplayString());
+                Logger.LogDebug("Ignoring podcast episode [{episode}]", episode.DisplayString());
             }
             else if (e.Current.Item is null)
             {
@@ -118,7 +118,7 @@ namespace Selector.CLI.Consumer
 
         public void Subscribe(IWatcher watch = null)
         {
-            var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
+            var watcher = watch ?? Watcher ?? throw new ArgumentNullException(nameof(watch));
 
             if (watcher is IPlayerWatcher watcherCast)
             {
@@ -132,7 +132,7 @@ namespace Selector.CLI.Consumer
 
         public void Unsubscribe(IWatcher watch = null)
         {
-            var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
+            var watcher = watch ?? Watcher ?? throw new ArgumentNullException(nameof(watch));
 
             if (watcher is IPlayerWatcher watcherCast)
             {

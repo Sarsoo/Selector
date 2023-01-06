@@ -9,7 +9,6 @@ using Selector.Extensions;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.Threading.Tasks;
 
 namespace Selector.CLI
 {
@@ -52,11 +51,11 @@ namespace Selector.CLI
 
         private static void SetupExceptionHandling(ILogger logger, IHostEnvironment env)
         {
-            AppDomain.CurrentDomain.UnhandledException += (obj, e) =>
+            AppDomain.CurrentDomain.UnhandledException += (_, e) =>
             {
                 if(e.ExceptionObject is Exception ex)
                 {
-                    logger.LogError(ex as Exception, "Unhandled exception thrown");
+                    logger.LogError(ex, "Unhandled exception thrown");
 
                     if (env.IsDevelopment())
                     {
@@ -152,11 +151,11 @@ namespace Selector.CLI
                    .AddNLog(context.Configuration);
         }
 
-        static IHostBuilder CreateHostBuilder(string[] args, Action<HostBuilderContext, IServiceCollection> BuildServices, Action<HostBuilderContext, ILoggingBuilder> BuildLogs)
+        static IHostBuilder CreateHostBuilder(string[] args, Action<HostBuilderContext, IServiceCollection> buildServices, Action<HostBuilderContext, ILoggingBuilder> buildLogs)
             => Host.CreateDefaultBuilder(args)
                 .UseWindowsService()
                 .UseSystemd()
-                .ConfigureServices((context, services) => BuildServices(context, services))
-                .ConfigureLogging((context, builder) => BuildLogs(context, builder));
+                .ConfigureServices((context, services) => buildServices(context, services))
+                .ConfigureLogging((context, builder) => buildLogs(context, builder));
     }
 }

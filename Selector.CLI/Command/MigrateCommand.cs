@@ -33,7 +33,7 @@ namespace Selector.CLI
                 Console.WriteLine("Migrate database? (y/n) ");
                 var input = Console.ReadLine();
 
-                if (input.Trim().Equals("y", StringComparison.OrdinalIgnoreCase))
+                if (input?.Trim().Equals("y", StringComparison.OrdinalIgnoreCase) ?? false)
                 {
                     logger.LogInformation("Migrating database");
                     db.Database.Migrate();

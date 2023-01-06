@@ -8,10 +8,6 @@ using Selector.Extensions;
 using Selector.Model;
 using Selector.Model.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Selector.CLI.Extensions
 {

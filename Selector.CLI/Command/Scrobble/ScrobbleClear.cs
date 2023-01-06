@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Selector.CLI.Extensions;
 using Selector.Model;
-using Selector.Model.Extensions;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -21,17 +20,17 @@ namespace Selector.CLI.Extensions
             catch (APIUnauthorizedException e)
             {
                 logger?.LogDebug("Unauthorised error: [{message}] (should be refreshed and retried?)", e.Message);
-                throw e;
+                throw;
             }
             catch (APITooManyRequestsException e)
             {
                 logger?.LogDebug("Too many requests error: [{message}]", e.Message);
-                throw e;
+                throw;
             }
             catch (APIException e)
             {
                 logger?.LogDebug("API error: [{message}]", e.Message);
-                throw e;
+                throw;
             }
         }
     }

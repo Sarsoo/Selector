@@ -69,7 +69,7 @@ namespace Selector
 
             var requests = tracksToPull.Select(a => new ScrobbleTrackMapping(
                  searchClient,
-                 loggerFactory.CreateLogger<ScrobbleTrackMapping>() ?? NullLogger<ScrobbleTrackMapping>.Instance,
+                 loggerFactory.CreateLogger<ScrobbleTrackMapping>(),
                  a.TrackName, a.ArtistName)
             ).ToArray();
 

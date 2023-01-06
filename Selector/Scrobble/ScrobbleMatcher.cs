@@ -1,5 +1,4 @@
-﻿using IF.Lastfm.Core.Objects;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -8,8 +7,8 @@ namespace Selector
 {
     public static class ListenMatcher
     {
-        public static bool MatchTime(IListen nativeScrobble, LastTrack serviceScrobble) 
-            => serviceScrobble.TimePlayed.Equals(nativeScrobble);
+        // public static bool MatchTime(IListen nativeScrobble, LastTrack serviceScrobble) 
+        //     => serviceScrobble.TimePlayed.Equals(nativeScrobble);
 
         public static bool MatchTime(IListen nativeScrobble, IListen serviceScrobble)
             => serviceScrobble.Timestamp.Equals(nativeScrobble.Timestamp);
