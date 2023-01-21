@@ -18,6 +18,8 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: Install MAUI Workloads
+        run: dotnet workload install maui-ios maui-maccatalyst 
+      - name: Restore Workloads
         run: dotnet workload restore
       - name: Install Dependencies
         run: dotnet restore
