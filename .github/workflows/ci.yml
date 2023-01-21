@@ -17,16 +17,12 @@ jobs:
         uses: actions/setup-dotnet@v3.0.3
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
-      - name: Install MAUI Workloads
-        run: dotnet workload install maui-ios maui-maccatalyst 
-      - name: Restore Workloads
-        run: dotnet workload restore
       - name: Install Dependencies
-        run: dotnet restore
+        run: dotnet restore Selector.Core.sln
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build --configuration Release --no-restore Selector.Core.sln
       - name: Test
-        run: dotnet test --no-restore --verbosity normal
+        run: dotnet test --no-restore --verbosity normal Selector.Core.sln
 
   build-Docker:
 
