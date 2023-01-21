@@ -32,17 +32,21 @@
     <PackageReference Include="NLog" Version="5.1.1" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.2.1" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="wwwroot\" />
     <Folder Include="NowPlaying\" />
     <Folder Include="Past\" />
+    <Folder Include="Auth\" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="NowPlaying\" />
     <None Remove="Past\" />
+    <None Remove="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <None Remove="Auth\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.Development.json" Condition="Exists('appsettings.Development.json')">

@@ -9,12 +9,6 @@ namespace Selector.Model.Extensions
     {
         public static void AddAuthorisationHandlers(this IServiceCollection services)
         {
-            services.AddAuthorization(options =>
-            {
-                options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-            });
             services.AddScoped<IAuthorizationHandler, WatcherIsOwnerAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, WatcherIsAdminAuthHandler>();
 

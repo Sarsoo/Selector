@@ -57,4 +57,15 @@ namespace Selector.Web
         public bool Enabled { get; set; } = false;
         public string ConnectionString { get; set; }
     }
+
+    public class JwtOptions
+    {
+        public const string _Key = "Jwt";
+
+
+        public string Key { get; set; }
+        public string Issuer { get; set; }
+        public string Audience { get; set; }
+        public TimeSpan Expiry { get; set; } = TimeSpan.FromDays(7);
+    }
 }

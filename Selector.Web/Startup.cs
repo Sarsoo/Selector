@@ -1,24 +1,23 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
+using Microsoft.IdentityModel.Tokens;
+using Selector.Cache.Extensions;
 using Selector.Events;
-using Selector.Web.Hubs;
-using Selector.Web.Extensions;
 using Selector.Extensions;
 using Selector.Model;
 using Selector.Model.Extensions;
-using Selector.Cache;
-using Selector.Cache.Extensions;
+using Selector.Web.Auth;
+using Selector.Web.Extensions;
+using Selector.Web.Hubs;
 
 namespace Selector.Web
 {
@@ -46,6 +45,10 @@ namespace Selector.Web
             {
                 Configuration.GetSection(string.Join(':', RootOptions.Key, NowPlayingOptions.Key)).Bind(options);
             });
+            services.Configure<JwtOptions>(options =>
+            {
+                Configuration.GetSection(JwtOptions._Key).Bind(options);
+            });
 
             var config = OptionsHelper.ConfigureOptions(Configuration);
 
@@ -60,6 +63,20 @@ namespace Selector.Web
             services.AddSignalR(o => o.EnableDetailedErrors = true);
             services.AddHttpClient();
 
+            ConfigureDB(services, config);
+            ConfigureIdentity(services, config);
+            ConfigureAuth(services, config);
+
+            services.AddEvents();
+
+            services.AddSpotify();
+            ConfigureLastFm(config, services);
+
+            ConfigureRedis(services, config);
+        }
+
+        public void ConfigureDB(IServiceCollection services, RootOptions config)
+        {
             services.AddDbContext<ApplicationDbContext>(options => 
                 options.UseNpgsql(Configuration.GetConnectionString("Default"))
             );
@@ -69,7 +86,10 @@ namespace Selector.Web
 
             services.AddTransient<IListenRepository, MetaListenRepository>();
             //services.AddTransient<IListenRepository, SpotifyListenRepository>();
+        }
 
+        public void ConfigureIdentity(IServiceCollection services, RootOptions config)
+        {
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultUI()
@@ -96,7 +116,10 @@ namespace Selector.Web
                 options.User.RequireUniqueEmail = false;
                 options.SignIn.RequireConfirmedEmail = false;
             });
+        }
 
+        public void ConfigureAuth(IServiceCollection services, RootOptions config)
+        {
             services.ConfigureApplicationCookie(options =>
             {
                 // Cookie settings
@@ -108,13 +131,41 @@ namespace Selector.Web
                 options.SlidingExpiration = true;
             });
 
+            var jwtConfig = Configuration.GetSection(JwtOptions._Key).Get<JwtOptions>();
+
+            services.AddAuthentication()
+                .AddJwtBearer(o =>
+                {
+                    o.RequireHttpsMetadata = false;
+                    o.SaveToken = false;
+                    o.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero,
+                        ValidIssuer = jwtConfig.Issuer,
+                        ValidAudience = jwtConfig.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key))
+                    };
+                });
+
+            services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .AddAuthenticationSchemes(IdentityConstants.ApplicationScheme, JwtBearerDefaults.AuthenticationScheme)
+                    .Build();
+            });
+
+            services.AddTransient<JwtTokenService>();
+
             services.AddAuthorisationHandlers();
+        }
 
-            services.AddEvents();
-
-            services.AddSpotify();
-            ConfigureLastFm(config, services);
-
+        public void ConfigureRedis(IServiceCollection services, RootOptions config)
+        {
             if (config.RedisOptions.Enabled)
             {
                 Console.WriteLine("> Adding Redis...");
