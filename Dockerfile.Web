@@ -15,6 +15,7 @@ COPY Selector.Data/*.csproj ./Selector.Data/
 COPY Selector.Event/*.csproj ./Selector.Event/
 COPY Selector.Model/*.csproj ./Selector.Model/
 COPY Selector.Web/*.csproj ./Selector.Web/
+COPY Selector.SignalR/*.csproj ./Selector.SignalR/
 COPY Selector.Tests/*.csproj ./Selector.Tests/
 RUN dotnet restore ./Selector.Web/Selector.Web.csproj
 
