@@ -7,16 +7,12 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Selector.Cache;
 using Selector.Model;
+using Selector.SignalR;
 using StackExchange.Redis;
 
 namespace Selector.Web.Hubs
 {
-    public interface IPastHubClient
-    {
-        public Task OnRankResult(RankResult result);
-    }
-
-    public class PastHub: Hub<IPastHubClient>
+    public class PastHub : Hub<IPastHubClient>, IPastHub
     {
         private readonly IDatabaseAsync Cache;
         private readonly AudioFeaturePuller AudioFeaturePuller;
@@ -28,8 +24,8 @@ namespace Selector.Web.Hubs
         private readonly IOptions<PastOptions> pastOptions;
 
         public PastHub(
-            IDatabaseAsync cache, 
-            AudioFeaturePuller featurePuller, 
+            IDatabaseAsync cache,
+            AudioFeaturePuller featurePuller,
             ApplicationDbContext db,
             IListenRepository listenRepository,
             IOptions<PastOptions> options,
@@ -61,7 +57,7 @@ namespace Selector.Web.Hubs
             " (Expanded Edition)",
         };
 
-        public async Task OnSubmitted(PastParams param)
+        public async Task OnSubmitted(IPastParams param)
         {
             param.Track = string.IsNullOrWhiteSpace(param.Track) ? null : param.Track;
             param.Album = string.IsNullOrWhiteSpace(param.Album) ? null : param.Album;
@@ -111,7 +107,7 @@ namespace Selector.Web.Hubs
                 .Take(pastOptions.Value.RankingCount)
                 .ToArray();
 
-            await Clients.Caller.OnRankResult(new()
+            await Clients.Caller.OnRankResult(new RankResult()
             {
                 TrackEntries = trackGrouped.Select(x => new ChartEntry()
                 {

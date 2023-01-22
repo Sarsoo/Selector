@@ -1,9 +1,10 @@
 ﻿using System;
-namespace Selector.Web.NowPlaying
+using Selector.SignalR;
+
+namespace Selector.Web.NowPlaying;
+
+public class Card : ICard
 {
-	public class Card
-	{
-		public string Content { get; set; }
-	}
+    public string Content { get; set; }
 }
 

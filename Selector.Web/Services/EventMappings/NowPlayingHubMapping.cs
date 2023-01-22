@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 
 using Selector.Web.Hubs;
 using Selector.Events;
+using Selector.SignalR;
 
 namespace Selector.Web.Service
 {

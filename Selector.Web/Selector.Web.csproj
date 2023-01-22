@@ -11,6 +11,9 @@
     <ProjectReference Include="..\Selector.Model\Selector.Model.csproj" />
     <ProjectReference Include="..\Selector.Cache\Selector.Cache.csproj" />
     <ProjectReference Include="..\Selector.Event\Selector.Event.csproj" />
+    <ProjectReference Include="..\Selector.SignalR\Selector.SignalR.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>

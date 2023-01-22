@@ -11,21 +11,14 @@ using Microsoft.Extensions.Options;
 using Selector.Cache;
 using Selector.Model;
 using Selector.Model.Extensions;
+using Selector.SignalR;
 using Selector.Web.NowPlaying;
 using SpotifyAPI.Web;
 using StackExchange.Redis;
 
 namespace Selector.Web.Hubs
 {
-    public interface INowPlayingHubClient
-    {
-        public Task OnNewPlaying(CurrentlyPlayingDTO context);
-        public Task OnNewAudioFeature(TrackAudioFeatures features);
-        public Task OnNewPlayCount(PlayCount playCount);
-        public Task OnNewCard(Card card);
-    }
-
-    public class NowPlayingHub: Hub<INowPlayingHubClient>
+    public class NowPlayingHub : Hub<INowPlayingHubClient>, INowPlayingHub
     {
         private readonly IDatabaseAsync Cache;
         private readonly AudioFeaturePuller AudioFeaturePuller;
@@ -37,8 +30,8 @@ namespace Selector.Web.Hubs
         private readonly IOptions<NowPlayingOptions> nowOptions;
 
         public NowPlayingHub(
-            IDatabaseAsync cache, 
-            AudioFeaturePuller featurePuller, 
+            IDatabaseAsync cache,
+            AudioFeaturePuller featurePuller,
             ApplicationDbContext db,
             IScrobbleRepository scrobbleRepository,
             IOptions<NowPlayingOptions> options,
@@ -77,15 +70,15 @@ namespace Selector.Web.Hubs
             var user = Db.Users
                         .AsNoTracking()
                         .Where(u => u.Id == Context.UserIdentifier)
-                        .SingleOrDefault() 
+                        .SingleOrDefault()
                             ?? throw new SqlNullValueException("No user returned");
             var watcher = Db.Watcher
                         .AsNoTracking()
                         .Where(w => w.UserId == Context.UserIdentifier
                                 && w.Type == WatcherType.Player)
-                        .SingleOrDefault() 
+                        .SingleOrDefault()
                             ?? throw new SqlNullValueException($"No player watcher found for [{user.UserName}]");
-            
+
             var feature = await AudioFeaturePuller.Get(user.SpotifyRefreshToken, trackId);
 
             if (feature is not null)
@@ -96,7 +89,7 @@ namespace Selector.Web.Hubs
 
         public async Task SendPlayCount(string track, string artist, string album, string albumArtist)
         {
-            if(PlayCountPuller is not null)
+            if (PlayCountPuller is not null)
             {
                 var user = Db.Users
                         .AsNoTracking()
@@ -124,17 +117,13 @@ namespace Selector.Web.Hubs
 
         public async Task SendFacts(string track, string artist, string album, string albumArtist)
         {
-            var user = Db.Users
-                        .AsNoTracking()
-                        .Where(u => u.Id == Context.UserIdentifier)
-                        .SingleOrDefault()
-                            ?? throw new SqlNullValueException("No user returned");
-
-            await PlayDensityFacts(user, track, artist, album, albumArtist);
+            await PlayDensityFacts(track, artist, album, albumArtist);
         }
 
-        public async Task PlayDensityFacts(ApplicationUser user, string track, string artist, string album, string albumArtist)
+        public async Task PlayDensityFacts(string track, string artist, string album, string albumArtist)
         {
+            var user = await Db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == Context.UserIdentifier);
+
             if (user.ScrobbleSavingEnabled())
             {
                 var artistScrobbles = ScrobbleRepository.GetAll(userId: user.Id, artistName: artist, from: GetMaximumWindow()).ToArray();
@@ -144,7 +133,7 @@ namespace Selector.Web.Hubs
 
                 if (artistDensity > nowOptions.Value.ArtistDensityThreshold)
                 {
-                    tasks.Add(Clients.Caller.OnNewCard(new()
+                    tasks.Add(Clients.Caller.OnNewCard(new Card()
                     {
                         Content = $"You're on a {artist} binge! {artistDensity} plays/day recently"
                     }));
@@ -154,7 +143,7 @@ namespace Selector.Web.Hubs
 
                 if (albumDensity > nowOptions.Value.AlbumDensityThreshold)
                 {
-                    tasks.Add(Clients.Caller.OnNewCard(new()
+                    tasks.Add(Clients.Caller.OnNewCard(new Card()
                     {
                         Content = $"You're on a {album} binge! {albumDensity} plays/day recently"
                     }));
@@ -164,13 +153,13 @@ namespace Selector.Web.Hubs
 
                 if (albumDensity > nowOptions.Value.TrackDensityThreshold)
                 {
-                    tasks.Add(Clients.Caller.OnNewCard(new()
+                    tasks.Add(Clients.Caller.OnNewCard(new Card()
                     {
                         Content = $"You're on a {track} binge! {trackDensity} plays/day recently"
                     }));
                 }
 
-                if(tasks.Any())
+                if (tasks.Any())
                 {
                     await Task.WhenAll(tasks);
                 }

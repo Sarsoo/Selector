@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Selector.Web.Service;
 using Selector.Web.Hubs;
+using Selector.SignalR;
 
 namespace Selector.Web.Extensions
 {

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using Selector.SignalR;
 
 namespace Selector.Web;
 
-public class RankResult
+public class RankResult : IRankResult
 {
-    public IEnumerable<ChartEntry> TrackEntries { get; set; }
-    public IEnumerable<ChartEntry> AlbumEntries { get; set; }
-    public IEnumerable<ChartEntry> ArtistEntries { get; set; }
+    public IEnumerable<IChartEntry> TrackEntries { get; set; }
+    public IEnumerable<IChartEntry> AlbumEntries { get; set; }
+    public IEnumerable<IChartEntry> ArtistEntries { get; set; }
 
     public IEnumerable<CountSample> ResampledSeries { get; set; }
 

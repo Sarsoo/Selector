@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Selector.Data", "Selector.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Selector.MAUI", "Selector.MAUI\Selector.MAUI.csproj", "{090ADE89-4119-43D7-B108-3357B7D676FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Selector.SignalR", "Selector.SignalR\Selector.SignalR.csproj", "{F41D98F2-7684-4786-969C-BFC8DF7FB489}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{090ADE89-4119-43D7-B108-3357B7D676FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{090ADE89-4119-43D7-B108-3357B7D676FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{090ADE89-4119-43D7-B108-3357B7D676FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F41D98F2-7684-4786-969C-BFC8DF7FB489}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F41D98F2-7684-4786-969C-BFC8DF7FB489}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F41D98F2-7684-4786-969C-BFC8DF7FB489}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F41D98F2-7684-4786-969C-BFC8DF7FB489}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
