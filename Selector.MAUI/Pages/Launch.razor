@@ -1,0 +1,29 @@
+﻿@page "/"
+@using Selector.MAUI.Services;
+@inject ILogger<Login> logger;
+@inject NavigationManager NavManager;
+@inject SessionManager sessionManager;
+
+<h1>Loading...</h1>
+
+@code {
+    protected async override Task OnInitializedAsync()
+    {
+        logger.LogInformation("Starting up");
+
+        //await sessionManager.LoadUserFromDisk();
+
+        if (sessionManager.IsLoggedIn)
+        {
+            logger.LogInformation("User logged in, navigating to main app");
+            NavManager.NavigateTo("/app");
+        }
+        else
+        {
+            logger.LogInformation("User not logged in, navigating to login");
+            NavManager.NavigateTo("/login");
+        }
+
+    }
+}
+

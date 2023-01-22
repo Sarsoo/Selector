@@ -1,8 +1,26 @@
-﻿@page "/"
+﻿@page "/app"
+@using Selector.SignalR
+@inject NowHubClient nowClient
+@inject NowHubCache nowCache
+@inject ILogger<Index> logger
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code {
 
+    protected async override Task OnInitializedAsync()
+    {
+
+        if (nowClient.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Disconnected)
+        {
+            logger.LogInformation("Starting now hub connection");
+
+            await nowClient.StartAsync();
+            nowCache.BindClient();
+            await nowClient.OnConnected();
+        }
+
+    }
+}

@@ -1,0 +1,43 @@
+﻿@page "/login"
+@inject SessionManager session
+@inject NavigationManager navigation
+
+<h1>Login</h1>
+
+<p>@toast</p>
+
+<EditForm Model="@loginModel" OnSubmit="@HandleSubmit">
+    <InputText id="username" @bind-Value="loginModel.Username" />
+    <InputText type="password" placeholder="Password" @bind-Value="loginModel.Password" />
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+@code {
+    private LoginModel loginModel = new();
+    private string toast = string.Empty;
+
+    [Inject]
+    private ILogger<Login> logger { get; set; }
+
+    private async Task HandleSubmit()
+    {
+        switch (await session.Authenticate(loginModel.Username, loginModel.Password))
+        {
+            case SelectorNetClient.TokenResponseStatus.Malformed:
+                toast = "Bad Request, Username or Password missing";
+                break;
+            case SelectorNetClient.TokenResponseStatus.UserSearchFailed:
+                toast = "User not found";
+                break;
+            case SelectorNetClient.TokenResponseStatus.BadCreds:
+                toast = "Login failed, try again";
+                break;
+            case SelectorNetClient.TokenResponseStatus.OK:
+                logger.LogInformation("Login succeeded, redirecting");
+                navigation.NavigateTo("/app");
+                break;
+        }
+    }
+    }
+

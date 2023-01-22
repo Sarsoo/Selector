@@ -1,5 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Selector.MAUI.Data;
+using Selector.MAUI.Services;
+using Selector.SignalR;
 
 namespace Selector.MAUI;
 
@@ -16,13 +19,22 @@ public static class MauiProgram
 			});
 
 		builder.Services.AddMauiBlazorWebView();
+		builder.Services.AddLogging(o =>
+		{
+			//o.AddConsole();
+		});
 
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
 		builder.Logging.AddDebug();
 #endif
+		builder.Services.AddHttpClient();
 
-		builder.Services.AddSingleton<WeatherForecastService>();
+		builder.Services.AddTransient<ISelectorNetClient, SelectorNetClient>();
+		builder.Services.AddSingleton<SessionManager>();
+
+		builder.Services.AddSingleton<NowHubClient>();
+		builder.Services.AddSingleton<NowHubCache>();
 
 		return builder.Build();
 	}

@@ -1,0 +1,16 @@
+﻿@page "/now"
+@using Selector.SignalR;
+
+<h1>Now</h1>
+
+@if (nowCache?.LastPlaying?.Track is not null)
+{
+    <p role="status">@nowCache.LastPlaying.Track.Name</p>
+}
+
+
+@code {
+    [Inject]
+    private NowHubCache nowCache { get; set; }
+}
+

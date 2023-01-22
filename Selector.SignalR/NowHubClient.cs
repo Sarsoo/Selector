@@ -13,7 +13,7 @@ public class NowHubClient: BaseSignalRClient, INowPlayingHub, IDisposable
     private List<IDisposable> NewCardCallbacks = new();
     private bool disposedValue;
 
-    public NowHubClient(): base("nowhub")
+    public NowHubClient(string token = null): base("nowhub", token)
 	{
 	}
 
@@ -33,6 +33,26 @@ public class NowHubClient: BaseSignalRClient, INowPlayingHub, IDisposable
     }
 
     public void OnNewCard(Action<ICard> action)
+    {
+        NewCardCallbacks.Add(hubConnection.On(nameof(OnNewCard), action));
+    }
+
+    public void OnNewPlaying(Func<CurrentlyPlayingDTO, Task> action)
+    {
+        NewPlayingCallbacks.Add(hubConnection.On(nameof(OnNewPlaying), action));
+    }
+
+    public void OnNewAudioFeature(Func<TrackAudioFeatures, Task> action)
+    {
+        NewAudioFeatureCallbacks.Add(hubConnection.On(nameof(OnNewAudioFeature), action));
+    }
+
+    public void OnNewPlayCount(Func<PlayCount, Task> action)
+    {
+        NewPlayCountCallbacks.Add(hubConnection.On(nameof(OnNewPlayCount), action));
+    }
+
+    public void OnNewCard(Func<ICard, Task> action)
     {
         NewCardCallbacks.Add(hubConnection.On(nameof(OnNewCard), action));
     }
