@@ -7,10 +7,10 @@
 <p>@toast</p>
 
 <EditForm Model="@loginModel" OnSubmit="@HandleSubmit">
-    <InputText id="username" @bind-Value="loginModel.Username" />
-    <InputText type="password" placeholder="Password" @bind-Value="loginModel.Password" />
+    <InputText id="username" type="text" placeholder="Username" @bind-Value="loginModel.Username" tabindex="1" />
+    <InputText type="password" placeholder="Password" @bind-Value="loginModel.Password" tabindex="2" />
 
-    <button type="submit">Submit</button>
+    <button type="submit" tabindex="3">Submit</button>
 </EditForm>
 
 @code {
@@ -39,5 +39,5 @@
                 break;
         }
     }
-    }
+}
 

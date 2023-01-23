@@ -14,7 +14,12 @@ public class NowHubCache
 	private readonly object updateLock = new();
 
 	public PlayCount LastPlayCount { get; private set; } 
-	public CurrentlyPlayingDTO LastPlaying { get; private set; } 
+	public CurrentlyPlayingDTO LastPlaying { get; private set; }
+
+	public event EventHandler NewAudioFeature;
+	public event EventHandler NewCard;
+	public event EventHandler NewPlayCount;
+	public event EventHandler NewNowPlaying;
 
     public NowHubCache(NowHubClient connection, ILogger<NowHubCache> logger)
 	{
@@ -30,6 +35,7 @@ public class NowHubCache
 			{
 				logger.LogInformation("New audio features received: {0}", af);
 				LastFeature = af;
+				NewAudioFeature?.Invoke(this, null);
 			}
 		});
 
@@ -39,6 +45,7 @@ public class NowHubCache
 			{
                 logger.LogInformation("New card received: {0}", c);
                 LastCards.Add(c);
+				NewCard?.Invoke(this, null);
             }
         });
 
@@ -48,7 +55,8 @@ public class NowHubCache
 			{
 				logger.LogInformation("New play count received: {0}", pc);
 				LastPlayCount = pc;
-			}
+				NewPlayCount?.Invoke(this, null);
+            }
 		});
 
 		_connection.OnNewPlaying(async np =>
@@ -60,7 +68,8 @@ public class NowHubCache
 					logger.LogInformation("New now playing recieved: {0}", np);
 					LastPlaying = np;
 					LastCards.Clear();
-				}
+					NewNowPlaying?.Invoke(this, null);
+                }
 
 				if (LastPlaying?.Track is not null)
 				{

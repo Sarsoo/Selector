@@ -1,16 +1,63 @@
 ﻿@page "/now"
 @using Selector.SignalR;
+@implements IDisposable
 
 <h1>Now</h1>
 
-@if (nowCache?.LastPlaying?.Track is not null)
+@*@if (nowCache?.LastPlaying?.Track is not null)
 {
     <p role="status">@nowCache.LastPlaying.Track.Name</p>
-}
+}*@
+
+<NowPlayingCard Track="@nowCache.LastPlaying?.Track" Episode="@nowCache.LastPlaying?.Episode" />
 
 
 @code {
     [Inject]
     private NowHubCache nowCache { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        nowCache.NewNowPlaying += OnNewPlaying;
+        nowCache.NewCard += OnNewCard;
+        nowCache.NewPlayCount += OnNewPlayCount;
+        nowCache.NewAudioFeature += OnNewAudioFeature;
+    }
+
+    private void OnNewPlaying(object sender, EventArgs args)
+    {
+        Update();
+    }
+
+    private void OnNewCard(object sender, EventArgs args)
+    {
+        Update();
+    }
+
+    private void OnNewPlayCount(object sender, EventArgs args)
+    {
+        Update();
+    }
+
+    private void OnNewAudioFeature(object sender, EventArgs args)
+    {
+        Update();
+    }
+
+    public void Update()
+    {
+        Application.Current.Dispatcher.Dispatch(() =>
+        {
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        nowCache.NewNowPlaying -= OnNewPlaying;
+        nowCache.NewCard -= OnNewCard;
+        nowCache.NewPlayCount -= OnNewPlayCount;
+        nowCache.NewAudioFeature -= OnNewAudioFeature;
+    }
 }
 

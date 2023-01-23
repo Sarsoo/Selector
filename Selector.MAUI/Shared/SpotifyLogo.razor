@@ -1,0 +1,15 @@
+﻿@if (!string.IsNullOrWhiteSpace(Link))
+{
+    <a href="@Link" target="_blank" class="spotify-logo" style="float: left">
+        <img src="/spotify_icon.png">
+    </a>
+}
+else
+{
+    <img src="/spotify_icon.png" class="spotify-logo" style="float: left">
+}
+
+@code {
+    [Parameter]
+    public string Link { get; set; }
+}

@@ -1,0 +1,53 @@
+﻿@using SpotifyAPI.Web;
+
+@if (Track is not null) {
+    <div class="card now-playing-card">
+        <img src="@imageUrl" class="cover-art">
+        <h4>@Track.Name</h4>
+        <h6>
+            @Track.Album.Name
+        </h6>
+        <h6>
+            @foreach(var artist in Track.Artists)
+            {
+                <span>@artist.Name</span>
+            }
+        </h6>
+        <div style="width: 100%">
+            <SpotifyLogo Link="@Track.ExternalUrls.FirstOrDefault(x => x.Key == "Spotify").Value" />
+            <img src="/live.gif" style="height: 20px; float: right">
+        </div>
+    </div>
+}
+else if (Episode is not null) {
+    <div class="card now-playing-card">
+        <img src="@imageUrl" class="cover-art">
+        <h4>@Episode.Name</h4>
+        <h6>
+            @Episode.Show.Name
+        </h6>
+        <h6>
+            @Episode.Show.Publisher
+        </h6>
+        <div style="width: 100%">
+            <SpotifyLogo Link="@Episode.ExternalUrls.FirstOrDefault(x => x.Key == "Spotify").Value" />
+            <img src="/live.gif" style="height: 20px; float: right">
+        </div>
+    </div>
+}
+else
+{
+    <div class="card now-playing-card">
+        <h4>No Playback</h4>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public FullTrack Track { get; set; }
+    [Parameter]
+    public FullEpisode Episode { get; set; }
+
+    private string imageUrl => Track?.Album?.Images?.FirstOrDefault()?.Url ?? Episode?.Show?.Images?.FirstOrDefault()?.Url ?? string.Empty;
+}
+
