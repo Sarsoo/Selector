@@ -1,0 +1,9 @@
+input[type=text], input[type=email], input[type=tel], input[type=password] {
+    background-color: #444444 !important;
+    border-color: #545454;
+    color: white;
+}
+
+input[type=text]:focus, input[type=email]:focus, input[type=tel]:focus, input[type=password]:focus {
+    color: white;
+}

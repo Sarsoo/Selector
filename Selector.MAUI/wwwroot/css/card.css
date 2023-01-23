@@ -1,0 +1,72 @@
+.card {
+    background-color: #3c3c3c;
+    color: white;
+    margin: 5px;
+    padding: 15px;
+    box-shadow: 5px 5px 0px #0f0f0f;
+    transition: box-shadow 0.5s;
+    border-style: solid;
+    border-color: black;
+    border-width: 5px;
+}
+
+.card:hover {
+    box-shadow: none;
+    offset: 4px 4px;
+}
+
+@media only screen and (min-width: 768px) {
+    .now-playing-card {
+        position: fixed;
+        z-index: 10;
+        right: 20px;
+        bottom: 20px;
+        width: 250px;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    .info-card {
+        min-width: 200px;
+        max-width: 500px;
+    }
+        
+    .chart-card {
+        width: 500px;
+    }
+}
+
+.now-playing-card {
+    text-shadow: 2px 2px 2px #0f0f0f;
+}
+
+.now-playing-card .cover-art {
+    box-shadow: 4px 4px 2px #0f0f0f;
+    margin-bottom: 15px;
+}
+
+.info-card {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.chart-card {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.spotify-logo {
+    width: 21px;
+}
+
+.spotify-logo img {
+    width: 21px;
+}
+
+.lastfm-logo {
+  width: 24px;
+}
+
+.lastfm-logo img {
+  width: 24px;
+}

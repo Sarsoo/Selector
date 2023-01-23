@@ -37,8 +37,15 @@
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios|AnyCPU'">
       <CreatePackage>false</CreatePackage>
     </PropertyGroup>
-    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst' and '$(Configuration)' == 'Debug'">
+    <!-- <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst' and '$(Configuration)' == 'Debug'">
         <CodeSignEntitlements>Platforms/MacCatalyst/Entitlements.Debug.plist</CodeSignEntitlements>
+    </PropertyGroup> -->
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-maccatalyst|AnyCPU'">
+      <CreatePackage>false</CreatePackage>
+      <CodesignKey>Mac Developer</CodesignKey>
+      <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
+      <EnableCodeSigning>True</EnableCodeSigning>
+      <CodesignEntitlements>Platforms/MacCatalyst/Entitlements.Debug.plist</CodesignEntitlements>
     </PropertyGroup>
     <ItemGroup>
         <!-- App Icon -->
@@ -74,7 +81,6 @@
       <None Remove="Models\" />
       <None Remove="Microsoft.AspNetCore.SignalR.Client" />
       <None Remove="Microsoft.AspNetCore.Components.Forms" />
-      <None Remove="Platforms\iOS\Entitlements.plist" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Services\" />
@@ -91,5 +97,23 @@
       <!-- <None Include="nlog.config">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None> -->
+    </ItemGroup>
+    <ItemGroup>
+      <BundleResource Include="wwwroot\andy.png">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </BundleResource>
+      <BundleResource Include="wwwroot\last_fm.png">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </BundleResource>
+      <BundleResource Include="wwwroot\live.gif">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </BundleResource>
+      <BundleResource Include="wwwroot\spotify_icon.png">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </BundleResource>
     </ItemGroup>
 </Project>
