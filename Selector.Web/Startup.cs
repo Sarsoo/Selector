@@ -58,7 +58,21 @@ namespace Selector.Web
                 options.ClientSecret = config.ClientSecret;
             }); 
 
-            services.AddRazorPages().AddRazorRuntimeCompilation();
+            services.AddRazorPages(o =>
+            {
+                o.Conventions.AllowAnonymousToPage("/");
+                o.Conventions.AuthorizePage("/Now", AuthConstants.CookieAuthentication);
+                o.Conventions.AuthorizePage("/Past", AuthConstants.CookieAuthentication);
+                o.Conventions.AllowAnonymousToPage("/Privacy");
+                o.Conventions.AllowAnonymousToPage("/Error");
+                o.Conventions.AllowAnonymousToAreaPage("Identity", "/Login");
+                o.Conventions.AllowAnonymousToAreaPage("Identity", "/Logout");
+                o.Conventions.AllowAnonymousToAreaPage("Identity", "/Register");
+                o.Conventions.AllowAnonymousToAreaPage("Identity", "/AccessDenied");
+                o.Conventions.AllowAnonymousToAreaPage("Identity", "/Lockout");
+                o.Conventions.AuthorizeAreaPage("Identity", "/Manage", AuthConstants.CookieAuthentication);
+            })
+                    .AddRazorRuntimeCompilation();
             services.AddControllers();
             services.AddSignalR(o => o.EnableDetailedErrors = true);
             services.AddHttpClient();
@@ -157,6 +171,11 @@ namespace Selector.Web
                     .RequireAuthenticatedUser()
                     .AddAuthenticationSchemes(IdentityConstants.ApplicationScheme, JwtBearerDefaults.AuthenticationScheme)
                     .Build();
+
+                options.AddPolicy(AuthConstants.CookieAuthentication, new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .AddAuthenticationSchemes(IdentityConstants.ApplicationScheme)
+                    .Build());
             });
 
             services.AddTransient<JwtTokenService>();
