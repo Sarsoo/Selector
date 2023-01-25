@@ -14,7 +14,7 @@
             }
         </h6>
         <div style="width: 100%">
-            <SpotifyLogo Link="@Track.ExternalUrls.FirstOrDefault(x => x.Key == "Spotify").Value" />
+            <SpotifyLogo Link="@Track.ExternalUrls?.FirstOrDefault(x => x.Key == "Spotify").Value" />
             <img src="/live.gif" style="height: 20px; float: right">
         </div>
     </div>
@@ -30,7 +30,7 @@ else if (Episode is not null) {
             @Episode.Show.Publisher
         </h6>
         <div style="width: 100%">
-            <SpotifyLogo Link="@Episode.ExternalUrls.FirstOrDefault(x => x.Key == "Spotify").Value" />
+            <SpotifyLogo Link="@Episode.ExternalUrls?.FirstOrDefault(x => x.Key == "Spotify").Value" />
             <img src="/live.gif" style="height: 20px; float: right">
         </div>
     </div>
