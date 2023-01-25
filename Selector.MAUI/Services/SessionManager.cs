@@ -22,7 +22,8 @@ public class SessionManager
 
 	public async Task LoadUserFromDisk()
 	{
-		var lastToken = await SecureStorage.Default.GetAsync(jwt_keychain_key);
+        //var lastToken = await SecureStorage.Default.GetAsync(jwt_keychain_key);
+        var lastToken = Preferences.Default.Get(jwt_keychain_key, string.Empty);
 
         lastStoredKey = lastToken;
 
@@ -60,6 +61,8 @@ public class SessionManager
                 lastRefresh = DateTime.Now;
 
                 //await SecureStorage.Default.SetAsync(jwt_keychain_key, lastStoredKey);
+                // I know, but I can't get secure storage to work
+                Preferences.Default.Set(jwt_keychain_key, lastStoredKey);
 
                 break;
             case SelectorNetClient.TokenResponseStatus.Malformed:
@@ -79,6 +82,12 @@ public class SessionManager
         }
 
         return tokenResponse.Status;
+    }
+
+    public void SignOut()
+    {
+        lastStoredKey = null;
+        Preferences.Default.Clear();
     }
 }
 
