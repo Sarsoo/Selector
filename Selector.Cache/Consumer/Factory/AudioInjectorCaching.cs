@@ -24,15 +24,25 @@ namespace Selector.Cache
 
         public async Task<IPlayerConsumer> Get(ISpotifyConfigFactory spotifyFactory, IPlayerWatcher watcher = null)
         {
-            var config = await spotifyFactory.GetConfig();
-            var client = new SpotifyClient(config);
+            if (!Magic.Dummy)
+            {
+                var config = await spotifyFactory.GetConfig();
+                var client = new SpotifyClient(config);
 
-            return new CachingAudioFeatureInjector(
-                watcher,
-                Db,
-                client.Tracks,
-                LoggerFactory.CreateLogger<CachingAudioFeatureInjector>()
-            );
+                return new CachingAudioFeatureInjector(
+                    watcher,
+                    Db,
+                    client.Tracks,
+                    LoggerFactory.CreateLogger<CachingAudioFeatureInjector>()
+                );
+            }
+            else
+            {
+                return new DummyAudioFeatureInjector(
+                    watcher,
+                    LoggerFactory.CreateLogger<DummyAudioFeatureInjector>()
+                );
+            }
         }
     }
 }

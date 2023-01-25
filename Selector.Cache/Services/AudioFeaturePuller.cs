@@ -27,7 +27,7 @@ namespace Selector.Cache
             var track = await Cache?.StringGetAsync(Key.AudioFeature(trackId));
             if (Cache is null || track == RedisValue.Null)
             {
-                if(!string.IsNullOrWhiteSpace(refreshToken))
+                if(!string.IsNullOrWhiteSpace(refreshToken) && !Magic.Dummy)
                 {
                     var factory = await SpotifyFactory.GetFactory(refreshToken);
                     var spotifyClient = new SpotifyClient(await factory.GetConfig());

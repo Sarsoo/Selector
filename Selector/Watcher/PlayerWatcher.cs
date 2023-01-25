@@ -11,7 +11,7 @@ namespace Selector
 {
     public class PlayerWatcher: BaseWatcher, IPlayerWatcher
     {
-        new private readonly ILogger<PlayerWatcher> Logger;
+        new protected readonly ILogger<PlayerWatcher> Logger;
         private readonly IPlayerClient spotifyClient;
         private readonly IEqual eq;
 
@@ -26,8 +26,8 @@ namespace Selector
         public event EventHandler<ListeningChangeEventArgs> DeviceChange;
         public event EventHandler<ListeningChangeEventArgs> PlayingChange;
 
-        public CurrentlyPlayingContext Live { get; private set; }
-        private CurrentlyPlayingContext Previous { get; set; }
+        public CurrentlyPlayingContext Live { get; protected set; }
+        protected CurrentlyPlayingContext Previous { get; set; }
         public PlayerTimeline Past { get; set; } = new();
 
         public PlayerWatcher(IPlayerClient spotifyClient, 
@@ -95,7 +95,7 @@ namespace Selector
             }
         }
 
-        private void CheckItem()
+        protected void CheckItem()
         {
 
             switch (Previous, Live)
@@ -163,7 +163,7 @@ namespace Selector
             }
         }
 
-        private void CheckContext()
+        protected void CheckContext()
         {
             if ((Previous, Live)
                 is (null or { Context: null }, { Context: not null }))
@@ -178,7 +178,7 @@ namespace Selector
             }
         }
 
-        private void CheckPlaying()
+        protected void CheckPlaying()
         {
             switch (Previous, Live)
             {
@@ -201,7 +201,7 @@ namespace Selector
             }
         }
 
-        private void CheckDevice()
+        protected void CheckDevice()
         {
             // DEVICE
             if (!eq.IsEqual(Previous?.Device, Live?.Device))
@@ -218,13 +218,13 @@ namespace Selector
             }
         }
 
-        private ListeningChangeEventArgs GetEvent() => ListeningChangeEventArgs.From(Previous, Live, Past, id: Id, username: SpotifyUsername);
+        protected ListeningChangeEventArgs GetEvent() => ListeningChangeEventArgs.From(Previous, Live, Past, id: Id, username: SpotifyUsername);
 
         /// <summary>
         /// Store currently playing in last plays. Determine whether new list or appending required
         /// </summary>
         /// <param name="current">New currently playing to store</param>
-        private void StoreCurrentPlaying(CurrentlyPlayingContext current) 
+        protected void StoreCurrentPlaying(CurrentlyPlayingContext current) 
         {
             Past?.Add(current);
         }

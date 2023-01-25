@@ -138,7 +138,7 @@ namespace Selector.CLI
                     if (CacheWriterFactory is not null) consumers.Add(await CacheWriterFactory.Get());
                     if (PublisherFactory is not null) consumers.Add(await PublisherFactory.Get());
 
-                    if (MappingPersisterFactory is not null) consumers.Add(await MappingPersisterFactory.Get());
+                    if (MappingPersisterFactory is not null && !Magic.Dummy) consumers.Add(await MappingPersisterFactory.Get());
 
                     if (UserEventFirerFactory is not null) consumers.Add(await UserEventFirerFactory.Get());
 

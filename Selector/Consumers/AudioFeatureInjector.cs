@@ -49,7 +49,7 @@ namespace Selector
             }, CancelToken);
         }
 
-        public async Task AsyncCallback(ListeningChangeEventArgs e)
+        public virtual async Task AsyncCallback(ListeningChangeEventArgs e)
         {
             using var scope = Logger.GetListeningEventArgsScope(e);
 

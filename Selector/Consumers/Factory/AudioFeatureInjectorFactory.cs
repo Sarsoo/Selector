@@ -24,14 +24,24 @@ namespace Selector
 
         public async Task<IPlayerConsumer> Get(ISpotifyConfigFactory spotifyFactory, IPlayerWatcher watcher = null)
         {
-            var config = await spotifyFactory.GetConfig();
-            var client = new SpotifyClient(config);
+            if (!Magic.Dummy)
+            {
+                var config = await spotifyFactory.GetConfig();
+                var client = new SpotifyClient(config);
 
-            return new AudioFeatureInjector(
-                watcher,
-                client.Tracks,
-                LoggerFactory.CreateLogger<AudioFeatureInjector>()
-            );
+                return new AudioFeatureInjector(
+                    watcher,
+                    client.Tracks,
+                    LoggerFactory.CreateLogger<AudioFeatureInjector>()
+                );
+            }
+            else
+            {
+                return new DummyAudioFeatureInjector(
+                    watcher,
+                    LoggerFactory.CreateLogger<DummyAudioFeatureInjector>()
+                );
+            }
         }
     }
 }
