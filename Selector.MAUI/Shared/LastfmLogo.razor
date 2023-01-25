@@ -1,0 +1,15 @@
+﻿@if (!string.IsNullOrWhiteSpace(Link))
+{
+    <a href="@Link" target="_blank" class="lastfm-logo">
+        <img src="/last_fm.png">
+    </a>
+}
+else
+{
+    <img src="/last_fm.png" class="lastfm-logo">
+}
+
+@code {
+    [Parameter]
+    public string Link { get; set; }
+}

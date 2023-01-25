@@ -1,0 +1,74 @@
+﻿@using SpotifyAPI.Web;
+
+@if (Count is not null) {
+
+    <div class="card info-card">
+        @if (Count.Track is not null) {
+            <h5>
+                <a href="@trackLink" class="subtle-link" style="color: #7a99c2">
+                    Track: @Count.Track
+                    @if (trackPercent >= 0.01)
+                    {
+                        <small>(@(trackPercentDisplay)%)</small>
+                    }
+                </a>
+            </h5>
+        }
+        @if (Count.Album is not null)
+        {
+            <h5>
+                <a href="@albumLink" class="subtle-link" style="color: #a34c77">
+                    Album: @Count.Album
+                    @if (albumPercent >= 0.01)
+                    {
+                        <small>(@(albumPercentDisplay)%)</small>
+                    }
+                </a>
+            </h5>
+        }
+        @if (Count.Artist is not null)
+        {
+            <h5>
+                <a href="@artistLink" class="subtle-link" style="color: #598556">
+                    Artist: @Count.Artist
+                    @if (artistPercent >= 0.1)
+                    {
+                        <small>(@(artistPercentDisplay)%)</small>
+                    }
+                </a>
+            </h5>
+        }
+        @if (Count.User is not null)
+        {
+            <h5>
+                <a href="@userLink" class="subtle-link">
+                    User: @Count.User
+                </a>
+            </h5>
+        }
+        <LastfmLogo Link="@userLink" />
+    </div>
+}
+
+@code {
+    [Parameter]
+    public FullTrack Track { get; set; }
+    [Parameter]
+    public PlayCount Count { get; set; }
+    [Parameter]
+    public string Username { get; set; }
+
+    private string trackLink => $"https://www.last.fm/user/{Username}/library/music/{Track.Artists.First().Name}/_/${Track.Name}";
+    private string albumLink => $"https://www.last.fm/user/{Username}/library/music/{Track.Album.Artists.First().Name}/${Track.Album.Name}";
+    private string artistLink => $"https://www.last.fm/user/{Username}/library/music/{Track.Artists.First().Name}";
+    private string userLink => $"https://www.last.fm/user/{Username}";
+
+    private float trackPercent => Count.Track.HasValue && Count.User.HasValue ? Count.Track.Value * 100 / Count.User.Value : 0f;
+    private float albumPercent => Count.Album.HasValue && Count.User.HasValue ? Count.Album.Value * 100 / Count.User.Value : 0f;
+    private float artistPercent => Count.Artist.HasValue && Count.User.HasValue ? Count.Artist.Value * 100 / Count.User.Value  : 0f ;
+
+    private string trackPercentDisplay => string.Format("{0:#,##0.##}", trackPercent);
+    private string albumPercentDisplay => string.Format("{0:#,##0.##}", albumPercent);
+    private string artistPercentDisplay => string.Format("{0:#,##0.##}", artistPercent);
+}
+
