@@ -58,8 +58,8 @@
     [Parameter]
     public string Username { get; set; }
 
-    private string trackLink => $"https://www.last.fm/user/{Username}/library/music/{Track.Artists.First().Name}/_/${Track.Name}";
-    private string albumLink => $"https://www.last.fm/user/{Username}/library/music/{Track.Album.Artists.First().Name}/${Track.Album.Name}";
+    private string trackLink => $"https://www.last.fm/user/{Username}/library/music/{Track.Artists.First().Name}/_/{Track.Name}";
+    private string albumLink => $"https://www.last.fm/user/{Username}/library/music/{Track.Album.Artists.First().Name}/{Track.Album.Name}";
     private string artistLink => $"https://www.last.fm/user/{Username}/library/music/{Track.Artists.First().Name}";
     private string userLink => $"https://www.last.fm/user/{Username}";
 

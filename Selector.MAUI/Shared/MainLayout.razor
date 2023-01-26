@@ -4,12 +4,6 @@
 @inject SessionManager session
 
 <div class="page">
-    @if (session.IsLoggedIn)
-    {
-        <div class="sidebar">
-            <NavMenu />
-        </div>
-    }
     <main>
         <div class="top-row px-4">
             <a href="https://sarsoo.xyz/posts/selector/" class="dash-underline-lg link-dark" target="_blank">About</a>
@@ -19,6 +13,12 @@
             @Body
         </article>
     </main>
+    @if (session.IsLoggedIn)
+    {
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+    }
 </div>
 
 @*<footer class="footer text-muted">
