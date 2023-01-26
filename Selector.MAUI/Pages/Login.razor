@@ -2,16 +2,18 @@
 @inject SessionManager session
 @inject NavigationManager navigation
 
-<h1>Login</h1>
+<div class="form-container">
+    <h1>Login</h1>
 
-<p>@toast</p>
+    <p>@toast</p>
 
-<EditForm Model="@loginModel" OnSubmit="@HandleSubmit">
-    <InputText id="username" type="text" placeholder="Username" @bind-Value="loginModel.Username" tabindex="1" />
-    <InputText type="password" placeholder="Password" @bind-Value="loginModel.Password" tabindex="2" />
+    <EditForm Model="@loginModel" OnSubmit="@HandleSubmit">
+        <InputText id="username" type="text" placeholder="Username" @bind-Value="loginModel.Username" tabindex=1 class="input-boxes" />
+        <InputText type="password" placeholder="Password" @bind-Value="loginModel.Password" tabindex=2 class="input-boxes" />
 
-    <button type="submit" tabindex="3">Submit</button>
-</EditForm>
+        <button type="submit" tabindex="3">Submit</button>
+    </EditForm>
+</div>
 
 @code {
     private LoginModel loginModel = new();

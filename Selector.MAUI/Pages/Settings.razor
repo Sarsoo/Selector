@@ -2,10 +2,23 @@
 
 <h1>Settings</h1>
 
+<button @onclick="@SignOut">Sign Out</button>
+
 @code {
+
+    [Inject]
+    private SessionManager sessionManager { get; set; }
+    [Inject]
+    private NavigationManager navigationManager { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
 
+    }
+
+    private void SignOut()
+    {
+        sessionManager.SignOut();
+        navigationManager.NavigateTo("/");
     }
 }
