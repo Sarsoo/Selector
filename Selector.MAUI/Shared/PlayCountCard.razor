@@ -9,7 +9,7 @@
                     Track: @Count.Track
                     @if (trackPercent >= 0.01)
                     {
-                        <small>(@(trackPercentDisplay)%)</small>
+                        <small>  (@(trackPercentDisplay)%)</small>
                     }
                 </a>
             </h5>
@@ -21,7 +21,7 @@
                     Album: @Count.Album
                     @if (albumPercent >= 0.01)
                     {
-                        <small>(@(albumPercentDisplay)%)</small>
+                        <small>  (@(albumPercentDisplay)%)</small>
                     }
                 </a>
             </h5>
@@ -33,7 +33,7 @@
                     Artist: @Count.Artist
                     @if (artistPercent >= 0.1)
                     {
-                        <small>(@(artistPercentDisplay)%)</small>
+                        <small>  (@(artistPercentDisplay)%)</small>
                     }
                 </a>
             </h5>
@@ -63,9 +63,9 @@
     private string artistLink => $"https://www.last.fm/user/{Username}/library/music/{Track.Artists.First().Name}";
     private string userLink => $"https://www.last.fm/user/{Username}";
 
-    private float trackPercent => Count.Track.HasValue && Count.User.HasValue ? Count.Track.Value * 100 / Count.User.Value : 0f;
-    private float albumPercent => Count.Album.HasValue && Count.User.HasValue ? Count.Album.Value * 100 / Count.User.Value : 0f;
-    private float artistPercent => Count.Artist.HasValue && Count.User.HasValue ? Count.Artist.Value * 100 / Count.User.Value  : 0f ;
+    private float trackPercent => Count.Track.HasValue && Count.User.HasValue ? (float) Count.Track.Value * 100 / Count.User.Value : 0f;
+    private float albumPercent => Count.Album.HasValue && Count.User.HasValue ? (float) Count.Album.Value * 100 / Count.User.Value : 0f;
+    private float artistPercent => Count.Artist.HasValue && Count.User.HasValue ? (float) Count.Artist.Value * 100 / Count.User.Value  : 0f ;
 
     private string trackPercentDisplay => string.Format("{0:#,##0.##}", trackPercent);
     private string albumPercentDisplay => string.Format("{0:#,##0.##}", albumPercent);
