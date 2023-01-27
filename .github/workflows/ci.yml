@@ -20,7 +20,7 @@ jobs:
       - name: Install Dependencies
         run: dotnet restore Selector.Core.sln
       - name: Build
-        run: dotnet build --configuration Release --no-restore Selector.Core.sln
+        run: dotnet build --configuration Release --framework net7.0 --no-restore Selector.Core.sln
       - name: Test
         run: dotnet test --no-restore --verbosity normal Selector.Core.sln
 
