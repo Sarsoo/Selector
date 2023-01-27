@@ -24,6 +24,26 @@ jobs:
       - name: Test
         run: dotnet test --no-restore --verbosity normal Selector.Core.sln
 
+  build-MAUI:
+
+    runs-on: windows-latest
+    needs: [build] # for ignoring bad builds
+    strategy:
+      fail-fast: false
+      matrix:
+        dotnet-version: [ '7.0.x' ]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v3.0.3
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Install Dependencies
+        run: dotnet restore Selector.sln
+      - name: Build
+        run: dotnet build --configuration Debug --no-restore Selector.sln
+
   build-Docker:
 
     runs-on: ubuntu-latest

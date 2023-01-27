@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net7.0</TargetFrameworks>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-ios;net7.0-maccatalyst</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('OSX'))">$(TargetFrameworks);net7.0-ios;net7.0-maccatalyst</TargetFrameworks>
 	  <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
