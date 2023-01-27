@@ -22,7 +22,8 @@ public abstract class BaseSignalRClient: IAsyncDisposable
         //    _baseUrl = "https://selector.sarsoo.xyz";
         //}
 
-        _baseUrl = "http://localhost:5000";
+        //_baseUrl = "http://localhost:5000";
+        _baseUrl = "https://selector.sarsoo.xyz";
 
         hubConnection = new HubConnectionBuilder()
             .WithUrl(_baseUrl + "/" + path, options =>

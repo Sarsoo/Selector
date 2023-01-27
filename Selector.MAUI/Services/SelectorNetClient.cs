@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Selector.SignalR;
 
@@ -33,7 +34,8 @@ public class SelectorNetClient : ISelectorNetClient
         //    _baseUrl = "https://selector.sarsoo.xyz";
         //}
 
-        _baseUrl = "http://localhost:5000";
+        //_baseUrl = "http://localhost:5000";
+        _baseUrl = "https://selector.sarsoo.xyz";
     }
 
     public async Task<TokenResponse> GetToken(string username, string password)
@@ -54,7 +56,10 @@ public class SelectorNetClient : ISelectorNetClient
     {
         ArgumentNullException.ThrowIfNullOrEmpty(currentKey);
 
-        var result = await _client.PostAsync(_baseUrl + "/api/auth/token", new StringContent(string.Empty));
+        var request = new HttpRequestMessage(HttpMethod.Post, _baseUrl + "/api/auth/token");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", currentKey);
+
+        var result = await _client.SendAsync(request);
 
         return FormTokenResponse(result);
     }
