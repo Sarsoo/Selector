@@ -1,22 +1,111 @@
 ﻿@page "/now"
 @using Selector.SignalR;
+@using System.Linq;
 @implements IDisposable
 
 <h1>Now</h1>
 
-@*@if (nowCache?.LastPlaying?.Track is not null)
-{
-    <p role="status">@nowCache.LastPlaying.Track.Name</p>
-}*@
+<div class="app">
 
-<NowPlayingCard Track="@nowCache.LastPlaying?.Track" Episode="@nowCache.LastPlaying?.Episode" />
-<PlayCountCard Track="@nowCache.LastPlaying?.Track" Count="@nowCache.LastPlayCount" Username="@nowCache.LastPlayCount?.Username" />
+    <NowPlayingCard Track="@nowCache.LastPlaying?.Track" Episode="@nowCache.LastPlaying?.Episode" />
+    <PlayCountCard Track="@nowCache.LastPlaying?.Track" Count="@nowCache.LastPlayCount" Username="@nowCache.LastPlayCount?.Username" />
+
+    @if (nowCache.LastPlayCount?.ArtistCountData?.Count() > 0)
+    {
+        <div class="chart-card card">
+            <RadzenChart>
+                <RadzenLineSeries Smooth="@smooth" Data="@artistData" CategoryProperty="Date" Title="Artist" ValueProperty="Plays" Stroke="#598556" StrokeWidth="@strokeWidth">
+                    <RadzenSeriesDataLabels Visible="@showDataLabels" />
+                </RadzenLineSeries>
+                <RadzenLineSeries Smooth="@smooth" Data="@albumData" CategoryProperty="Date" Title="Album" ValueProperty="Plays" Stroke="#a34c77" StrokeWidth="@strokeWidth">
+                    <RadzenSeriesDataLabels Visible="@showDataLabels" />
+                </RadzenLineSeries>
+                <RadzenLineSeries Smooth="@smooth" Data="@trackData" CategoryProperty="Date" Title="Track" ValueProperty="Plays" Stroke="#7a99c2" StrokeWidth="@strokeWidth">
+                    <RadzenSeriesDataLabels Visible="@showDataLabels" />
+                </RadzenLineSeries>
+                <RadzenValueAxis>
+                    <RadzenGridLines Visible="true" />
+                </RadzenValueAxis>
+                <RadzenCategoryAxis>
+                    <RadzenGridLines Visible="true" />
+                </RadzenCategoryAxis>
+            </RadzenChart>
+        </div>
+    }
+
+    @if (nowCache.LastPlayCount?.TrackCountData?.Count() > 3)
+    {
+        <div class="chart-card card">
+            <RadzenChart>
+                <RadzenLineSeries Smooth="@smooth" Data="@trackData" CategoryProperty="Date" Title="Track" ValueProperty="Plays" Stroke="#7a99c2" StrokeWidth="@strokeWidth">
+                    <RadzenSeriesDataLabels Visible="@showDataLabels" />
+                </RadzenLineSeries>
+                <RadzenValueAxis>
+                    <RadzenGridLines Visible="true" />
+                </RadzenValueAxis>
+                <RadzenCategoryAxis>
+                    <RadzenGridLines Visible="true" />
+                </RadzenCategoryAxis>
+            </RadzenChart>
+        </div>
+    }
+
+    @if (nowCache.LastPlayCount?.AlbumCountData?.Count() > 3)
+    {
+        <div class="chart-card card">
+            <RadzenChart>
+                <RadzenLineSeries Smooth="@smooth" Data="@albumData" CategoryProperty="Date" Title="Album" ValueProperty="Plays" Stroke="#a34c77" StrokeWidth="@strokeWidth">
+                    <RadzenSeriesDataLabels Visible="@showDataLabels" />
+                </RadzenLineSeries>
+                <RadzenValueAxis>
+                    <RadzenGridLines Visible="true" />
+                </RadzenValueAxis>
+                <RadzenCategoryAxis>
+                    <RadzenGridLines Visible="true" />
+                </RadzenCategoryAxis>
+            </RadzenChart>
+        </div>
+    }
+
+    @if (nowCache.LastPlayCount?.ArtistCountData?.Count() > 3)
+    {
+        <div class="chart-card card">
+            <RadzenChart>
+                <RadzenLineSeries Smooth="@smooth" Data="@artistData" CategoryProperty="Date" Title="Artist" ValueProperty="Plays" Stroke="#598556" StrokeWidth="@strokeWidth">
+                    <RadzenSeriesDataLabels Visible="@showDataLabels" />
+                </RadzenLineSeries>
+                <RadzenValueAxis>
+                    <RadzenGridLines Visible="true" />
+                </RadzenValueAxis>
+                <RadzenCategoryAxis>
+                    <RadzenGridLines Visible="true" />
+                </RadzenCategoryAxis>
+            </RadzenChart>
+        </div>
+    }
+
+</div>
 
 <div class="v-space"></div>
 
 @code {
+
+    class DataItem
+    {
+        public DateTime Date { get; set; }
+        public int Plays { get; set; }
+    }
+
     [Inject]
     private NowHubCache nowCache { get; set; }
+
+    private bool smooth = true;
+    private bool showDataLabels = false;
+    private double strokeWidth = 5;
+
+    private DataItem[] artistData { get; set; }
+    private DataItem[] albumData { get; set; }
+    private DataItem[] trackData { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -24,6 +113,8 @@
         nowCache.NewCard += OnNewCard;
         nowCache.NewPlayCount += OnNewPlayCount;
         nowCache.NewAudioFeature += OnNewAudioFeature;
+
+        UpdateData();
     }
 
     private void OnNewPlaying(object sender, EventArgs args)
@@ -38,7 +129,15 @@
 
     private void OnNewPlayCount(object sender, EventArgs args)
     {
+        UpdateData();
         Update();
+    }
+
+    private void UpdateData()
+    {
+        artistData = nowCache.LastPlayCount?.ArtistCountData?.Select(x => new DataItem { Date = x.TimeStamp, Plays = x.Value }).ToArray();
+        albumData = nowCache.LastPlayCount?.AlbumCountData?.Select(x => new DataItem { Date = x.TimeStamp, Plays = x.Value }).ToArray();
+        trackData = nowCache.LastPlayCount?.TrackCountData?.Select(x => new DataItem { Date = x.TimeStamp, Plays = x.Value }).ToArray();
     }
 
     private void OnNewAudioFeature(object sender, EventArgs args)

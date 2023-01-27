@@ -1,6 +1,20 @@
 ﻿body {
 }
 
+.app {
+    display: block;
+}
+
+
 h1 {
     padding-bottom: 20px;
+}
+
+@media (min-width: 641px) {
+    .app {
+        display: flex;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        width: 100%
+    }
 }
