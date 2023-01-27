@@ -39,10 +39,8 @@ jobs:
         uses: actions/setup-dotnet@v3.0.3
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
-      - name: Install Dependencies
-        run: dotnet restore Selector.sln
       - name: Build
-        run: dotnet build --configuration Debug --no-restore Selector.sln
+        run: dotnet build --configuration Debug Selector.MAUI\Selector.MAUI.csproj
 
   build-Docker:
 
