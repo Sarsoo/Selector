@@ -28,15 +28,17 @@ public static class MauiProgram
 		builder.Services.AddBlazorWebViewDeveloperTools();
 		builder.Logging.AddDebug();
 #endif
-		builder.Services.AddHttpClient();
+		builder.Services.AddHttpClient()
+						.AddTransient<ISelectorNetClient, SelectorNetClient>();
 
-		builder.Services.AddTransient<ISelectorNetClient, SelectorNetClient>();
 		builder.Services.AddSingleton<SessionManager>();
 
-		builder.Services.AddSingleton<NowHubClient>();
-		builder.Services.AddSingleton<NowHubCache>();
+		builder.Services.AddSingleton<NowHubClient>()
+						.AddSingleton<NowHubCache>();
 
-		return builder.Build();
+        builder.Services.AddSingleton<PastHubClient>();
+
+        return builder.Build();
 	}
 }
 

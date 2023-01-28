@@ -17,11 +17,13 @@ public class SelectorNetClient : ISelectorNetClient
     private readonly HttpClient _client;
     private readonly string _baseUrl;
     private readonly NowHubClient _nowClient;
+    private readonly PastHubClient _pastClient;
 
-    public SelectorNetClient(HttpClient client, NowHubClient nowClient)
+    public SelectorNetClient(HttpClient client, NowHubClient nowClient, PastHubClient pastClient)
     {
         _client = client;
         _nowClient = nowClient;
+        _pastClient = pastClient;
 
         //var baseOverride = Environment.GetEnvironmentVariable("SELECTOR_BASE_URL");
 
@@ -83,6 +85,7 @@ public class SelectorNetClient : ISelectorNetClient
                 ret.Status = TokenResponseStatus.OK;
                 ret.Token = result.Content.ReadFromJsonAsync<TokenNetworkResponse>().Result.Token;
                 _nowClient.Token = ret.Token;
+                _pastClient.Token = ret.Token;
                 break;
             default:
                 break;

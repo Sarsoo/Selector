@@ -2,6 +2,7 @@
 @using Selector.SignalR
 @inject NowHubClient nowClient
 @inject NowHubCache nowCache
+@inject PastHubClient pastClient
 @inject ILogger<Index> logger
 
 <h1>run that</h1>
@@ -16,6 +17,7 @@
             logger.LogInformation("Starting now hub connection");
 
             await nowClient.StartAsync();
+            await pastClient.StartAsync();
             nowCache.BindClient();
             await nowClient.OnConnected();
         }
