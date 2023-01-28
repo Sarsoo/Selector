@@ -5,9 +5,7 @@ namespace Selector.MAUI.Services;
 
 public class SessionManager
 {
-	private const string jwt_keychain_key = "last_jwt_key";
-
-    private string lastStoredKey;
+	private string lastStoredKey;
     private DateTime lastRefresh;
 	private readonly ISelectorNetClient _selectorNetClient;
     private readonly ILogger<SessionManager> _logger;
@@ -23,7 +21,7 @@ public class SessionManager
 	public async Task LoadUserFromDisk()
 	{
         //var lastToken = await SecureStorage.Default.GetAsync(jwt_keychain_key);
-        var lastToken = Preferences.Default.Get(jwt_keychain_key, string.Empty);
+        var lastToken = Preferences.Default.Get(Constants.JwtPrefKey, string.Empty);
 
         lastStoredKey = lastToken;
 
@@ -62,7 +60,7 @@ public class SessionManager
 
                 //await SecureStorage.Default.SetAsync(jwt_keychain_key, lastStoredKey);
                 // I know, but I can't get secure storage to work
-                Preferences.Default.Set(jwt_keychain_key, lastStoredKey);
+                Preferences.Default.Set(Constants.JwtPrefKey, lastStoredKey);
 
                 break;
             case SelectorNetClient.TokenResponseStatus.Malformed:

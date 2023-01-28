@@ -1,8 +1,23 @@
 ﻿@page "/settings"
 
-<h1>Settings</h1>
+<div class="form-container">
+    <h1>Settings</h1>
 
-<button @onclick="@SignOut">Sign Out</button>
+    <div class="row">
+        <RadzenCard>
+            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Start Page</RadzenText>
+            <RadzenDropDown AllowClear="true" TValue="string" Class="w-100"
+                            Data=@startManager.StartPages
+                            @bind-Value="currentStartPage"
+                            Change=@OnStartPageChange />
+        </RadzenCard>
+    </div>
+    <div class="row">
+        <RadzenButton Click=@(_ => SignOut()) Text="Sign Out" ButtonStyle="ButtonStyle.Danger" />
+    </div>
+
+    <SignatureImage/>
+</div>
 
 @code {
 
@@ -10,10 +25,19 @@
     private SessionManager sessionManager { get; set; }
     [Inject]
     private NavigationManager navigationManager { get; set; }
+    [Inject]
+    private StartPageManager startManager { get; set; }
+
+    private string currentStartPage { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
+        currentStartPage = startManager.GetStartPage();
+    }
 
+    private void OnStartPageChange(object value)
+    {
+        startManager.SetStartPage((string) value);
     }
 
     private void SignOut()

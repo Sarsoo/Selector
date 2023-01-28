@@ -3,6 +3,8 @@
 @inject ILogger<Login> logger;
 @inject NavigationManager NavManager;
 @inject SessionManager sessionManager;
+@inject HubManager hubManager;
+@inject StartPageManager startManager;
 
 <h1>Loading...</h1>
 
@@ -15,8 +17,11 @@
 
         if (sessionManager.IsLoggedIn)
         {
+            await hubManager.EnsureConnected();
+
             logger.LogInformation("User logged in, navigating to main app");
-            NavManager.NavigateTo("/app");
+
+            startManager.NavigateToStartPage();
         }
         else
         {

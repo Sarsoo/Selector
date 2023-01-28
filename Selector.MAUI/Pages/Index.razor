@@ -1,8 +1,6 @@
 ﻿@page "/app"
 @using Selector.SignalR
-@inject NowHubClient nowClient
-@inject NowHubCache nowCache
-@inject PastHubClient pastClient
+@inject HubManager hubManager
 @inject ILogger<Index> logger
 
 <h1>run that</h1>
@@ -11,16 +9,6 @@
 
     protected async override Task OnInitializedAsync()
     {
-
-        if (nowClient.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Disconnected)
-        {
-            logger.LogInformation("Starting now hub connection");
-
-            await nowClient.StartAsync();
-            await pastClient.StartAsync();
-            nowCache.BindClient();
-            await nowClient.OnConnected();
-        }
-
+        await hubManager.EnsureConnected();
     }
 }

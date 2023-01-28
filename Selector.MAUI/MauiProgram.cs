@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Selector.MAUI.Data;
 using Selector.MAUI.Services;
 using Selector.SignalR;
+using Selector.MAUI.Extensions;
 
 namespace Selector.MAUI;
 
@@ -31,12 +32,10 @@ public static class MauiProgram
 		builder.Services.AddHttpClient()
 						.AddTransient<ISelectorNetClient, SelectorNetClient>();
 
-		builder.Services.AddSingleton<SessionManager>();
+		builder.Services.AddSingleton<SessionManager>()
+						.AddTransient<StartPageManager>();
 
-		builder.Services.AddSingleton<NowHubClient>()
-						.AddSingleton<NowHubCache>();
-
-        builder.Services.AddSingleton<PastHubClient>();
+		builder.Services.AddHubs();
 
         return builder.Build();
 	}

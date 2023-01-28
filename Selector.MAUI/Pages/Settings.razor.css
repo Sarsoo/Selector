@@ -1,0 +1,20 @@
+﻿body {
+}
+
+.form-container {
+    max-width: 300px;
+    margin: auto;
+}
+
+.row {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+::deep h3 {
+    text-align: left;
+}
+
+h1 {
+    padding-bottom: 20px;
+}

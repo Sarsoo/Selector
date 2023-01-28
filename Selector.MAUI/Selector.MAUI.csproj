@@ -98,10 +98,12 @@
       <None Remove="Microsoft.AspNetCore.SignalR.Client" />
       <None Remove="Microsoft.AspNetCore.Components.Forms" />
       <None Remove="Radzen.Blazor" />
+      <None Remove="Extensions\" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Services\" />
       <Folder Include="Models\" />
+      <Folder Include="Extensions\" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Selector\Selector.csproj" />
