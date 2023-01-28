@@ -8,10 +8,9 @@
             @Track.Album.Name
         </h6>
         <h6>
-            @foreach(var artist in Track.Artists)
-            {
-                <span>@artist.Name</span>
-            }
+            <span>
+                @string.Join(", ", Track.Artists.Select(x => x.Name))
+            </span>
         </h6>
         <div style="width: 100%">
             <SpotifyLogo Link="@Track.ExternalUrls?.FirstOrDefault(x => x.Key == "Spotify").Value" />

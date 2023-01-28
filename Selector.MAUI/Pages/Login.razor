@@ -3,7 +3,7 @@
 @inject NavigationManager navigation
 
 <div class="form-container">
-    <h1>Login</h1>
+    <h1 class="text-center">Login</h1>
 
     <p>@toast</p>
 
@@ -11,7 +11,9 @@
         <InputText id="username" type="text" placeholder="Username" @bind-Value="loginModel.Username" tabindex=1 class="input-boxes" />
         <InputText type="password" placeholder="Password" @bind-Value="loginModel.Password" tabindex=2 class="input-boxes" />
 
-        <button type="submit" tabindex="3">Submit</button>
+        <div class="row" style="margin-top: 15px">
+            <RadzenButton Text="Submit" ButtonType="ButtonType.Submit" IsBusy=@isLoading ButtonStyle="ButtonStyle.Info" />
+        </div>
     </EditForm>
 </div>
 
@@ -19,12 +21,20 @@
     private LoginModel loginModel = new();
     private string toast = string.Empty;
 
+    private bool isLoading = false;
+
     [Inject]
     private ILogger<Login> logger { get; set; }
 
     private async Task HandleSubmit()
     {
-        switch (await session.Authenticate(loginModel.Username, loginModel.Password))
+        isLoading = true;
+
+        var authResult = await session.Authenticate(loginModel.Username, loginModel.Password);
+
+        isLoading = false;
+
+        switch (authResult)
         {
             case SelectorNetClient.TokenResponseStatus.Malformed:
                 toast = "Bad Request, Username or Password missing";

@@ -33,6 +33,7 @@
         
     .chart-card {
         width: 500px;
+        padding: 20px;
     }
 }
 
@@ -53,6 +54,7 @@
 .chart-card {
     margin-top: 10px;
     margin-bottom: 10px;
+    padding: 20px;
 }
 
 .spotify-logo {

@@ -49,7 +49,7 @@ public class SessionManager
         return await HandleTokenResponse(tokenResponse);
     }
 
-    private async Task<SelectorNetClient.TokenResponseStatus> HandleTokenResponse(SelectorNetClient.TokenResponse tokenResponse)
+    private Task<SelectorNetClient.TokenResponseStatus> HandleTokenResponse(SelectorNetClient.TokenResponse tokenResponse)
 	{
         switch (tokenResponse.Status)
         {
@@ -79,7 +79,7 @@ public class SessionManager
                 throw new NotImplementedException();
         }
 
-        return tokenResponse.Status;
+        return Task.FromResult(tokenResponse.Status);
     }
 
     public void SignOut()

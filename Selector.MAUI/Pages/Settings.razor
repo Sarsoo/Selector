@@ -1,7 +1,7 @@
 ﻿@page "/settings"
 
 <div class="form-container">
-    <h1>Settings</h1>
+    <h1 class="text-center">Settings</h1>
 
     <div class="row">
         <RadzenCard>
@@ -13,11 +13,19 @@
         </RadzenCard>
     </div>
     <div class="row">
+        <RadzenButton Click=@(_ => OpenAbout()) Text="About" ButtonStyle="ButtonStyle.Info" />
+    </div>
+    <div class="row" style="margin-bottom: 30px">
+        <RadzenButton Click=@(_ => OpenPrivacy()) Text="Privacy Policy" ButtonStyle="ButtonStyle.Info" />
+    </div>
+    <div class="row">
         <RadzenButton Click=@(_ => SignOut()) Text="Sign Out" ButtonStyle="ButtonStyle.Danger" />
     </div>
 
-    <SignatureImage/>
+    <SignatureImage />
 </div>
+
+<div class="v-space"></div>
 
 @code {
 
@@ -30,7 +38,7 @@
 
     private string currentStartPage { get; set; }
 
-    protected async override Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         currentStartPage = startManager.GetStartPage();
     }
@@ -44,5 +52,15 @@
     {
         sessionManager.SignOut();
         navigationManager.NavigateTo("/");
+    }
+
+    private async void OpenAbout()
+    {
+        await Browser.Default.OpenAsync("https://sarsoo.xyz/selector");
+    }
+
+    private async void OpenPrivacy()
+    {
+        await Browser.Default.OpenAsync("https://selector.sarsoo.xyz/privacy");
     }
 }
