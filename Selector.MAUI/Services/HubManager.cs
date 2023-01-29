@@ -22,22 +22,37 @@ public class HubManager
 
     public async Task EnsureConnected()
     {
+        var nowTask = Task.CompletedTask;
+        var pastTask = Task.CompletedTask;
+
         if (nowClient.State == HubConnectionState.Disconnected)
         {
             logger.LogInformation("Starting now hub connection");
 
-            await nowClient.StartAsync();
-            nowCache.BindClient();
-            await nowClient.OnConnected();
+            nowTask = nowClient.StartAsync().ContinueWith(async x =>
+            {
+                if (x.IsCompletedSuccessfully)
+                {
+                    nowCache.BindClient();
+                    await nowClient.OnConnected();
+                }
+            });   
         }
 
         if (pastClient.State == HubConnectionState.Disconnected)
         {
             logger.LogInformation("Starting past hub connection");
 
-            await pastClient.StartAsync();
-            await pastClient.OnConnected();
+            pastTask = pastClient.StartAsync().ContinueWith(async x =>
+            {
+                if (x.IsCompletedSuccessfully)
+                {
+                    await pastClient.OnConnected();
+                }
+            });
         }
+
+        await Task.WhenAll(nowTask, pastTask);
     }
 }
 
