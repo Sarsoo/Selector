@@ -28,7 +28,9 @@ pipeline {
     }
     post {
         always {
-            cleanWs
+            steps {
+                cleanWs
+            }
         }
     }
 }
