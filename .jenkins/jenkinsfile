@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build C#') {
+            steps {
+                dotnetRestore "Selector.Core.sln"
+                dotnetBuild "Selector.Core.sln"
+            }
+        }
+
+        stage('Build Javascript') {
+            steps {
+                sh "npm ci"
+                sh "npm run build --if-present"
+            }
+        }
+        stage('Test') {
+            steps {
+                dotnetTest "Selector.Core.sln"
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }
+        }
+    }
+    post {
+        always {
+            cleanWs
+        }
+    }
+}
