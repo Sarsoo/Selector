@@ -11,8 +11,10 @@ pipeline {
 
         stage('Build Javascript') {
             steps {
-                sh "npm ci"
-                sh "npm run build --if-present"
+                dir ('Selector.Web') {
+                    sh "npm ci"
+                    sh "npm run build --if-present"
+                }
             }
         }
         stage('Test') {
