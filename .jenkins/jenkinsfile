@@ -51,13 +51,15 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                docker.withRegistry('https://git.sarsoo.xyz', 'git-registry-creds') {
+                script {
+                    docker.withRegistry('https://git.sarsoo.xyz', 'git-registry-creds') {
 
-                    docker.build("sarsoo/selector-cli:latest",
-                                   "-f Dockerfile.CLI .").push()
+                        docker.build("sarsoo/selector-cli:latest",
+                                    "-f Dockerfile.CLI .").push()
 
-                    docker.build("sarsoo/selector-web:latest",
-                                   "-f Dockerfile.Web .").push()
+                        docker.build("sarsoo/selector-web:latest",
+                                    "-f Dockerfile.Web .").push()
+                    }
                 }
             }
         }
