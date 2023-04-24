@@ -13,8 +13,8 @@ pipeline {
                 }
             }
             steps {
-                dotnetRestore project: "Selector.Core.sln"
-                dotnetBuild project: "Selector.Core.sln"
+                sh "dotnet restore Selector.Core.sln"
+                sh "dotnet build Selector.Core.sln"
             }
         }
 
@@ -46,12 +46,19 @@ pipeline {
                 }
             }
             steps {
-                dotnetTest project: "Selector.Core.sln"
+                sh "dotnet test Selector.Core.sln"
             }
         }
         stage('Deploy') {
             steps {
-                echo 'Deploying....'
+                docker.withRegistry('https://git.sarsoo.xyz', 'git-registry-creds') {
+
+                    docker.build("sarsoo/selector-cli:latest",
+                                   "-f Dockerfile.CLI .").push()
+
+                    docker.build("sarsoo/selector-web:latest",
+                                   "-f Dockerfile.Web .").push()
+                }
             }
         }
     }
