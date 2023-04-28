@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        DOTNET_CLI_HOME = "/tmp/DOTNET_CLI_HOME"
+    }
+
     stages {
         stage('Build C#') {
             agent {
@@ -13,8 +17,8 @@ pipeline {
                 }
             }
             steps {
-                sh "dotnet restore Selector.Core.sln"
-                sh "dotnet build Selector.Core.sln"
+                dotnetRestore "Selector.Core.sln"
+                dotnetBuild "Selector.Core.sln"
             }
         }
 
@@ -22,9 +26,6 @@ pipeline {
             agent {
                 docker {
                     image 'node:16'
-                    // Run the container on the node specified at the
-                    // top-level of the Pipeline, in the same workspace,
-                    // rather than on a new node entirely:
                     reuseNode true
                 }
             }
@@ -39,14 +40,11 @@ pipeline {
             agent {
                 docker {
                     image 'mcr.microsoft.com/dotnet/sdk:7.0'
-                    // Run the container on the node specified at the
-                    // top-level of the Pipeline, in the same workspace,
-                    // rather than on a new node entirely:
                     reuseNode true
                 }
             }
             steps {
-                sh "dotnet test Selector.Core.sln"
+                dotnetTest "Selector.Core.sln"
             }
         }
         stage('Deploy') {
