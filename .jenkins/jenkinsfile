@@ -17,8 +17,8 @@ pipeline {
                 }
             }
             steps {
-                dotnetRestore "Selector.Core.sln"
-                dotnetBuild "Selector.Core.sln"
+                dotnetRestore project: "Selector.Core.sln"
+                dotnetBuild project: "Selector.Core.sln"
             }
         }
 
@@ -44,7 +44,7 @@ pipeline {
                 }
             }
             steps {
-                dotnetTest "Selector.Core.sln"
+                dotnetTest project: "Selector.Core.sln"
             }
         }
         stage('Deploy') {
