@@ -13,7 +13,7 @@ pipeline {
                 }
             }
             steps {
-                dotnetRestore project: "Selector.Core.sln" packages: './packages'
+                dotnetRestore project: "Selector.Core.sln", packages: './packages'
                 sh 'dotnet build --packages ./packages Selector.Core.sln'
             }
         }
