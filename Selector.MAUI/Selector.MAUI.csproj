@@ -79,11 +79,11 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
-        <PackageReference Include="System.Net.Http.Json" Version="7.0.0" />
+        <PackageReference Include="System.Net.Http.Json" Version="7.0.1" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
         <!-- <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.2" /> -->
-        <PackageReference Include="Microsoft.AspNetCore.Components.Forms" Version="7.0.2" />
-        <PackageReference Include="Radzen.Blazor" Version="4.6.3" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Forms" Version="7.0.5" />
+        <PackageReference Include="Radzen.Blazor" Version="4.10.4" />
     </ItemGroup>
 
     <ItemGroup>
