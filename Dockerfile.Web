@@ -23,7 +23,6 @@ COPY . ./
 
 FROM base as publish
 COPY --from=frontend /Selector.Web/wwwroot Selector.Web/wwwroot/
-COPY --from=frontend /Selector.Web/wwwroot Selector.Web/wwwroot/
 RUN dotnet publish Selector.Web/Selector.Web.csproj -c Release -o /app
 
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
