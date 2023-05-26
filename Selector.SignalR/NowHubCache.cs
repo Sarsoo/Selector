@@ -10,7 +10,7 @@ public class NowHubCache
     private readonly ILogger<NowHubCache> logger;
 
     public TrackAudioFeatures LastFeature { get; private set; }
-	public List<ICard> LastCards { get; private set; } = new();
+	public List<Card> LastCards { get; private set; } = new();
 	private readonly object updateLock = new();
 
 	private readonly object bindingLock = new();

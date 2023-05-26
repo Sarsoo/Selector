@@ -9,7 +9,7 @@ public interface INowPlayingHubClient
     public Task OnNewPlaying(CurrentlyPlayingDTO context);
     public Task OnNewAudioFeature(TrackAudioFeatures features);
     public Task OnNewPlayCount(PlayCount playCount);
-    public Task OnNewCard(ICard card);
+    public Task OnNewCard(Card card);
 }
 
 public interface INowPlayingHub

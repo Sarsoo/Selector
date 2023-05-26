@@ -5,7 +5,7 @@ namespace Selector.SignalR;
 public interface IPastHub
 {
     Task OnConnected();
-    Task OnSubmitted(IPastParams param);
+    Task OnSubmitted(PastParams param);
 }
 
 public interface IPastHubClient

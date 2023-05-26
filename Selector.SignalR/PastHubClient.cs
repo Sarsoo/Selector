@@ -21,7 +21,7 @@ public class PastHubClient: BaseSignalRClient, IPastHub, IDisposable
         return hubConnection.InvokeAsync(nameof(OnConnected));
     }
 
-    public Task OnSubmitted(IPastParams param)
+    public Task OnSubmitted(PastParams param)
     {
         return hubConnection.InvokeAsync(nameof(OnSubmitted), param);
     }

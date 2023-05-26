@@ -1,9 +1,9 @@
 ﻿using System;
 using Selector.SignalR;
 
-namespace Selector.Web;
+namespace Selector.SignalR;
 
-public class PastParams : IPastParams
+public class PastParams
 {
     public string Track { get; set; }
     public string Album { get; set; }

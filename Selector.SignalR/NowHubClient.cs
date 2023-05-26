@@ -32,7 +32,7 @@ public class NowHubClient: BaseSignalRClient, INowPlayingHub, IDisposable
         NewPlayCountCallbacks.Add(hubConnection.On(nameof(OnNewPlayCount), action));
     }
 
-    public void OnNewCard(Action<ICard> action)
+    public void OnNewCard(Action<Card> action)
     {
         NewCardCallbacks.Add(hubConnection.On(nameof(OnNewCard), action));
     }
@@ -52,7 +52,7 @@ public class NowHubClient: BaseSignalRClient, INowPlayingHub, IDisposable
         NewPlayCountCallbacks.Add(hubConnection.On(nameof(OnNewPlayCount), action));
     }
 
-    public void OnNewCard(Func<ICard, Task> action)
+    public void OnNewCard(Func<Card, Task> action)
     {
         NewCardCallbacks.Add(hubConnection.On(nameof(OnNewCard), action));
     }

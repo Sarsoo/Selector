@@ -12,7 +12,6 @@ using Selector.Cache;
 using Selector.Model;
 using Selector.Model.Extensions;
 using Selector.SignalR;
-using Selector.Web.NowPlaying;
 using SpotifyAPI.Web;
 using StackExchange.Redis;
 

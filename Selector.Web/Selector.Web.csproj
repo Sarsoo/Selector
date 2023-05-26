@@ -41,13 +41,11 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\" />
-    <Folder Include="NowPlaying\" />
     <Folder Include="Past\" />
     <Folder Include="Auth\" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="NowPlaying\" />
     <None Remove="Past\" />
     <None Remove="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <None Remove="Auth\" />

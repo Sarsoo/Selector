@@ -57,7 +57,7 @@ namespace Selector.Web.Hubs
             " (Expanded Edition)",
         };
 
-        public async Task OnSubmitted(IPastParams param)
+        public async Task OnSubmitted(PastParams param)
         {
             param.Track = string.IsNullOrWhiteSpace(param.Track) ? null : param.Track;
             param.Album = string.IsNullOrWhiteSpace(param.Album) ? null : param.Album;
