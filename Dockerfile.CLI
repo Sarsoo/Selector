@@ -19,5 +19,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /app
 COPY --from=publish /app ./
 ENV DOTNET_EnableDiagnostics=0
+
+ARG DOCKER_USER=selector
+RUN addgroup -S $DOCKER_USER && adduser -S $DOCKER_USER -G $DOCKER_USER
+USER $DOCKER_USER
+
 ENTRYPOINT ["dotnet", "Selector.CLI.dll"]
 
