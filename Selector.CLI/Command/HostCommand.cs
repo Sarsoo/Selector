@@ -153,7 +153,6 @@ namespace Selector.CLI
 
         static IHostBuilder CreateHostBuilder(string[] args, Action<HostBuilderContext, IServiceCollection> buildServices, Action<HostBuilderContext, ILoggingBuilder> buildLogs)
             => Host.CreateDefaultBuilder(args)
-                .UseWindowsService()
                 .UseSystemd()
                 .ConfigureServices((context, services) => buildServices(context, services))
                 .ConfigureLogging((context, builder) => buildLogs(context, builder));

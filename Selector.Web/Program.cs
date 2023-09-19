@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.Hosting.Systemd;
 using Microsoft.Extensions.Logging;
 
@@ -26,7 +25,6 @@ namespace Selector.Web
                 {
                     webBuilder.UseStartup<Startup>();
                 })
-                .UseWindowsService()
                 .UseSystemd()
                 .ConfigureLogging((context, builder) => {
                     builder.ClearProviders();
