@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
-        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('OSX'))">$(TargetFrameworks);net7.0-ios;net7.0-maccatalyst</TargetFrameworks>
-        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('OSX'))">$(TargetFrameworks);net8.0-ios;net8.0-maccatalyst</TargetFrameworks>
+        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
         <!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
-        <!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
+        <!-- <TargetFrameworks>$(TargetFrameworks);net8.0-tizen</TargetFrameworks> -->
         <OutputType>Exe</OutputType>
         <RootNamespace>Selector.MAUI</RootNamespace>
         <UseMaui>true</UseMaui>
@@ -31,31 +31,31 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0-maccatalyst'">
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-maccatalyst'">
       <RuntimeIdentifier>maccatalyst-arm64</RuntimeIdentifier>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-ios|AnyCPU'">
       <CreatePackage>false</CreatePackage>
       <CodesignProvision>Automatic</CodesignProvision>
       <CodesignKey>iPhone Developer</CodesignKey>
       <!-- <CodesignEntitlements>Platforms\iOS\Entitlements.Debug.plist</CodesignEntitlements> -->
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-ios|AnyCPU'">
       <CreatePackage>false</CreatePackage>
       <MtouchLink>None</MtouchLink>
     </PropertyGroup>
     <!-- <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst' and '$(Configuration)' == 'Debug'">
         <CodeSignEntitlements>Platforms/MacCatalyst/Entitlements.Debug.plist</CodeSignEntitlements>
     </PropertyGroup> -->
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-maccatalyst|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-maccatalyst|AnyCPU'">
       <CreatePackage>false</CreatePackage>
       <CodesignKey>Mac Developer</CodesignKey>
       <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
       <EnableCodeSigning>True</EnableCodeSigning>
       <CodesignEntitlements>Platforms/MacCatalyst/Entitlements.Debug.plist</CodesignEntitlements>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-maccatalyst|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-maccatalyst|AnyCPU'">
       <CreatePackage>false</CreatePackage>
       <CodesignKey>Mac Developer</CodesignKey>
       <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
@@ -77,13 +77,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
-        <PackageReference Include="System.Net.Http.Json" Version="7.0.1" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+        <PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
         <!-- <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.2" /> -->
-        <PackageReference Include="Microsoft.AspNetCore.Components.Forms" Version="7.0.5" />
-        <PackageReference Include="Radzen.Blazor" Version="4.16.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Forms" Version="8.0.0" />
+        <PackageReference Include="Radzen.Blazor" Version="4.21.2" />
     </ItemGroup>
 
     <ItemGroup>
