@@ -83,7 +83,7 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
         <!-- <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.2" /> -->
         <PackageReference Include="Microsoft.AspNetCore.Components.Forms" Version="8.0.0" />
-        <PackageReference Include="Radzen.Blazor" Version="4.21.2" />
+        <PackageReference Include="Radzen.Blazor" Version="4.21.3" />
     </ItemGroup>
 
     <ItemGroup>
