@@ -45,6 +45,9 @@
             case SelectorNetClient.TokenResponseStatus.BadCreds:
                 toast = "Login failed, try again";
                 break;
+            case SelectorNetClient.TokenResponseStatus.ExpiredCreds:
+                toast = "Credentials expired, try again";
+                break;
             case SelectorNetClient.TokenResponseStatus.OK:
                 logger.LogInformation("Login succeeded, redirecting");
                 navigation.NavigateTo("/app");

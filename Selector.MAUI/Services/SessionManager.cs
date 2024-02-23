@@ -71,6 +71,14 @@ public class SessionManager
                 _logger.LogInformation("Token request failed, no user by that name");
 
                 break;
+            case SelectorNetClient.TokenResponseStatus.ExpiredCreds:
+                _logger.LogInformation("Token expired, log back in");
+                lastStoredKey = null;
+                lastRefresh = DateTime.Now;
+
+                Preferences.Default.Remove(Constants.JwtPrefKey);
+
+                break;
             case SelectorNetClient.TokenResponseStatus.BadCreds:
                 _logger.LogInformation("Token request failed, bad password");
 

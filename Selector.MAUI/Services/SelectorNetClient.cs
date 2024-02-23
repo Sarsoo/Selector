@@ -36,7 +36,7 @@ public class SelectorNetClient : ISelectorNetClient
         //    _baseUrl = "https://selector.sarsoo.xyz";
         //}
 
-        //_baseUrl = "http://localhost:5000";
+        // _baseUrl = "http://localhost:5000";
         _baseUrl = "https://selector.sarsoo.xyz";
     }
 
@@ -81,6 +81,9 @@ public class SelectorNetClient : ISelectorNetClient
             case HttpStatusCode.Unauthorized:
                 ret.Status = TokenResponseStatus.BadCreds;
                 break;
+            case HttpStatusCode.Forbidden:
+                ret.Status = TokenResponseStatus.ExpiredCreds;
+                break;
             case HttpStatusCode.OK:
                 ret.Status = TokenResponseStatus.OK;
                 ret.Token = result.Content.ReadFromJsonAsync<TokenNetworkResponse>().Result.Token;
@@ -107,7 +110,7 @@ public class SelectorNetClient : ISelectorNetClient
 
     public enum TokenResponseStatus
     {
-        Malformed, UserSearchFailed, BadCreds, OK
+        Malformed, UserSearchFailed, BadCreds, ExpiredCreds, OK
     }
 
     private class TokenModel
