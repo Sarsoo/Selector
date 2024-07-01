@@ -101,7 +101,7 @@ jobs:
           tags: tag:ci
 
       - name: Deploy
-        run: ssh -o StrictHostKeyChecking=no aj@odb -f "cd selector/ && docker compose up -d --pull always"
+        run: ssh -o StrictHostKeyChecking=no aj@odb -t "cd selector/ && docker compose up -d --pull always"
 
   build-Js:
 
