@@ -99,6 +99,7 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
+          version: 1.68.1
 
       - name: Deploy
         run: ssh -o StrictHostKeyChecking=no aj@odb -t "cd selector/ && docker compose up -d --pull always"
