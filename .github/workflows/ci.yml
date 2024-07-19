@@ -13,7 +13,7 @@ jobs:
         dotnet-version: [ '8.0.x' ]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v3.0.3
         with:
@@ -36,7 +36,7 @@ jobs:
         dotnet-version: [ '8.0.x' ]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v3.0.3
         with:
@@ -52,8 +52,6 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/'))
 
     steps:
-      - uses: actions/checkout@v3
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -64,7 +62,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build CLI Container
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           tags: | 
@@ -73,7 +71,7 @@ jobs:
           file: Dockerfile.CLI
 
       - name: Build Web Container
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           tags: | 
@@ -91,7 +89,7 @@ jobs:
       name: prod
       url: https://selector.sarsoo.xyz
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Tailscale
         uses: tailscale/github-action@v2
@@ -114,7 +112,7 @@ jobs:
         node: [21]
     
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       
       - name: Install Node ${{ matrix.node }}
         uses: actions/setup-node@v2
