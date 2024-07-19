@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with: 
-          github-server-url: https://gitea.sheep-ghoul.ts.net
+          gitea-server-url: https://gitea.sheep-ghoul.ts.net
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v3.0.3
         with:
@@ -32,12 +32,12 @@ jobs:
     runs-on: ubuntu-latest
     name: Build Containers
     needs: [build, build-Js] # for ignoring bad builds
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/'))
+    if: gitea.event_name == 'push' && (gitea.ref == 'refs/heads/master' || startsWith(gitea.ref, 'refs/tags/'))
 
     steps:
       - uses: actions/checkout@v3
         with: 
-          github-server-url: https://gitea.sheep-ghoul.ts.net
+          gitea-server-url: https://gitea.sheep-ghoul.ts.net
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -54,7 +54,7 @@ jobs:
           push: true
           tags: | 
             sarsoo/selector-cli:latest
-            sarsoo/selector-cli:${{ github.ref_name }}
+            sarsoo/selector-cli:${{ gitea.ref_name }}
           file: Dockerfile.CLI
 
       - name: Build Web Container
@@ -63,7 +63,7 @@ jobs:
           push: true
           tags: | 
             sarsoo/selector-web:latest
-            sarsoo/selector-web:${{ github.ref_name }}
+            sarsoo/selector-web:${{ gitea.ref_name }}
           file: Dockerfile.Web
 
   build-Js:
@@ -78,7 +78,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with: 
-          github-server-url: https://gitea.sheep-ghoul.ts.net
+          gitea-server-url: https://gitea.sheep-ghoul.ts.net
       
       - name: Install Node ${{ matrix.node }}
         uses: actions/setup-node@v2
