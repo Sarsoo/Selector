@@ -50,18 +50,20 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build CLI Container
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           tags: sarsoo/selector-cli:latest
           file: Dockerfile.CLI
+          context: .
 
       - name: Build Web Container
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           tags: sarsoo/selector-web:latest
           file: Dockerfile.Web
+          context: .
 
   build-Js:
 
