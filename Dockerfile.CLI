@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS base
 
 COPY *.sln .
 COPY Selector/*.csproj ./Selector/
@@ -15,7 +15,7 @@ COPY . ./
 FROM base as publish
 RUN dotnet publish Selector.CLI/Selector.CLI.csproj -c Release -o /app
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 COPY --from=publish /app ./
 ENV DOTNET_EnableDiagnostics=0
