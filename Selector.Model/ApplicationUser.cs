@@ -17,6 +17,12 @@ namespace Selector.Model
         public string SpotifyRefreshToken { get; set; }
 
         [PersonalData]
+        public bool AppleMusicLinked { get; set; }
+        public string AppleMusicKey { get; set; }
+        [PersonalData]
+        public DateTime AppleMusicLastRefresh { get; set; }
+
+        [PersonalData]
         public string LastFmUsername { get; set; }
         [PersonalData]
         public bool SaveScrobbles { get; set; }
@@ -39,6 +45,10 @@ namespace Selector.Model
         public string SpotifyAccessToken { get; set; }
         public string SpotifyRefreshToken { get; set; }
 
+        public bool AppleMusicLinked { get; set; }
+        public string AppleMusicKey { get; set; }
+        public DateTime AppleMusicLastRefresh { get; set; }
+
         public string LastFmUsername { get; set; }
 
         public static explicit operator ApplicationUserDTO(ApplicationUser user) => new() {
@@ -53,6 +63,10 @@ namespace Selector.Model
             SpotifyTokenExpiry = user.SpotifyTokenExpiry,
             SpotifyAccessToken = user.SpotifyAccessToken,
             SpotifyRefreshToken = user.SpotifyRefreshToken,
+
+            AppleMusicLinked = user.AppleMusicLinked,
+            AppleMusicKey = user.AppleMusicKey,
+            AppleMusicLastRefresh = user.AppleMusicLastRefresh,
 
             LastFmUsername = user.LastFmUsername
         };

@@ -27,6 +27,7 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
         public static string LastFm => "LastFm";
 
         public static string Spotify => "Spotify";
+        public static string AppleMusic => "Apple Music";
 
         public static string IndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, Index);
 
@@ -45,6 +46,7 @@ namespace Selector.Web.Areas.Identity.Pages.Account.Manage
         public static string TwoFactorAuthenticationNavClass(ViewContext viewContext) => PageNavClass(viewContext, TwoFactorAuthentication);
         public static string LastFmNavClass(ViewContext viewContext) => PageNavClass(viewContext, LastFm);
         public static string SpotifyNavClass(ViewContext viewContext) => PageNavClass(viewContext, Spotify);
+        public static string AppleMusicNavClass(ViewContext viewContext) => PageNavClass(viewContext, AppleMusic);
 
         private static string PageNavClass(ViewContext viewContext, string page)
         {

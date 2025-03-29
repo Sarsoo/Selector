@@ -1,0 +1,132 @@
+@page
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.Extensions.Options
+@using Selector.Web
+@using Selector.Web.Apple
+@inject IOptions<AppleMusicOptions> appleMusicOptions
+@model AppleMusicModel
+@{
+    ViewData["Title"] = "Apple Music";
+    ViewData["ActivePage"] = ManageNavPages.AppleMusic;
+}
+
+<h4>@ViewData["Title"] <a href="https://www.apple.com/apple-music/" target="_blank"><img src="/apple.png" class="apple-logo central" /></a></h4>
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+
+@{
+    var generator = new TokenGenerator(appleMusicOptions.Value.Key, appleMusicOptions.Value.TeamId, appleMusicOptions.Value.KeyId);
+}
+<div id="apple-key" jwt="@generator.Generate()"></div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div id="apple-music-form" method="post">
+            @if (Model.AppleIsLinked)
+            {
+                <button id="unlink-button" class="btn btn-primary form-element">Unlink</button>
+                <button id="update-button" class="btn btn-primary form-element">Update</button>
+            }
+            else
+            {
+                <button id="link-button" class="btn btn-primary form-element">Link</button>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('musickitloaded', async function () {
+        // Call configure() to configure an instance of MusicKit on the Web.
+        try {
+            let div = document.getElementById("apple-key");
+
+            console.log(div);
+            console.log(div.getAttribute("jwt"));
+            await MusicKit.configure({
+                developerToken: div.getAttribute("jwt"),
+                app: {
+                    name: 'Selector',
+                    build: '2025.3.29',
+                },
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    });
+
+    async function authorize_apple() {
+        // MusicKit instance is available
+        const music = MusicKit.getInstance();
+        let key = await music.authorize();
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/AppleMusic/token");
+        xhr.setRequestHeader("content-type", "application/json");
+        const body = JSON
+            .stringify(
+                {
+                    Key: key
+                });
+        xhr.onload = () =>
+        {
+            if (xhr.readyState == 4 && xhr.status == 201)
+            {
+                console.log(JSON.parse(xhr.responseText));
+            } else
+            {
+                console.log(`Error: ${xhr.status}`);
+            }
+        };
+        xhr.send(body);
+    }
+
+    async function deauthorize_apple() {
+        // MusicKit instance is available
+        const music = MusicKit.getInstance();
+        await music.unauthorize();
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/AppleMusic/unlink");
+        xhr.onload = () =>
+        {
+            if (xhr.readyState == 4 && xhr.status == 201)
+            {
+                console.log(JSON.parse(xhr.responseText));
+            } else
+            {
+                console.log(`Error: ${xhr.status}`);
+            }
+        };
+        xhr.send();
+    }
+
+    async function link_apple() {
+        await authorize_apple();
+    }
+
+    async function unlink_apple() {
+        await deauthorize_apple();
+    }
+
+    async function update_apple() {
+        await authorize_apple();
+    }
+
+    let unlink = document.getElementById("unlink-button");
+    if (unlink) {
+        unlink.addEventListener("click", async () => await unlink_apple());
+    }
+    let update = document.getElementById("update-button");
+    if (update) {
+        update.addEventListener("click", async () => await update_apple());
+    }
+    let link = document.getElementById("link-button");
+    if (link) {
+        link.addEventListener("click", async () => await link_apple());
+    }
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js" crossorigin="anonymous" data-web-components async></script>
+}

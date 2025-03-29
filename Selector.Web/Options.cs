@@ -68,4 +68,15 @@ namespace Selector.Web
         public string Audience { get; set; }
         public TimeSpan Expiry { get; set; } = TimeSpan.FromDays(7);
     }
+
+    public class AppleMusicOptions
+    {
+        public const string _Key = "AppleMusic";
+
+
+        public string Key { get; set; }
+        public string TeamId { get; set; }
+        public string KeyId { get; set; }
+        public TimeSpan? Expiry { get; set; } = null;
+    }
 }

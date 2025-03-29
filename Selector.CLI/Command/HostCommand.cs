@@ -9,6 +9,7 @@ using Selector.Extensions;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using Selector.AppleMusic.Extensions;
 
 namespace Selector.CLI
 {
@@ -108,7 +109,8 @@ namespace Selector.CLI
 
             services.AddWatcher()
                     .AddEvents()
-                    .AddSpotify();
+                    .AddSpotify()
+                    .AddAppleMusic();
 
             services.ConfigureLastFm(config)
                     .ConfigureEqual(config)
@@ -121,6 +123,7 @@ namespace Selector.CLI
 
                 Console.WriteLine("> Adding cache event maps...");
                 services.AddTransient<IEventMapping, FromPubSub.SpotifyLink>()
+                        .AddTransient<IEventMapping, FromPubSub.AppleMusicLink>()
                         .AddTransient<IEventMapping, FromPubSub.Lastfm>();
 
                 Console.WriteLine("> Adding caching Spotify consumers...");

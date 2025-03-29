@@ -35,6 +35,7 @@ namespace Selector.CLI
 
             services.Configure<JobsOptions>(config.GetSection(FormatKeys(new[] { RootOptions.Key, JobsOptions.Key })));
             services.Configure<ScrobbleWatcherJobOptions>(config.GetSection(FormatKeys(new[] { RootOptions.Key, JobsOptions.Key, ScrobbleWatcherJobOptions.Key })));
+            services.Configure<AppleMusicOptions>(config.GetSection(AppleMusicOptions._Key));
 
             return options;
         }
@@ -130,5 +131,16 @@ namespace Selector.CLI
         public DateTime? From { get; set; } = DateTime.UtcNow.AddDays(-14);
         public int PageSize { get; set; } = 200;
         public int Simultaneous { get; set; } = 3;
+    }
+
+    public class AppleMusicOptions
+    {
+        public const string _Key = "AppleMusic";
+
+
+        public string Key { get; set; }
+        public string TeamId { get; set; }
+        public string KeyId { get; set; }
+        public TimeSpan? Expiry { get; set; } = null;
     }
 }

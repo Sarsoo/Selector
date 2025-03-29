@@ -49,6 +49,10 @@ namespace Selector.Web
             {
                 Configuration.GetSection(JwtOptions._Key).Bind(options);
             });
+            services.Configure<AppleMusicOptions>(options =>
+            {
+                Configuration.GetSection(AppleMusicOptions._Key).Bind(options);
+            });
 
             var config = OptionsHelper.ConfigureOptions(Configuration);
 
@@ -193,6 +197,7 @@ namespace Selector.Web
                 Console.WriteLine("> Adding cache event maps...");
 
                 services.AddTransient<IEventMapping, ToPubSub.SpotifyLink>();
+                services.AddTransient<IEventMapping, ToPubSub.AppleMusicLink>();
                 services.AddTransient<IEventMapping, ToPubSub.Lastfm>();
                 services.AddTransient<IEventMapping, FromPubSub.NowPlaying>();
 

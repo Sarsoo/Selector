@@ -23,6 +23,7 @@ namespace Selector.Cache
         public const string Duration = "DURATION";
 
         public const string SpotifyName = "SPOTIFY";
+        public const string AppleMusicName = "APPLEMUSIC";
         public const string LastfmName = "LASTFM";
 
         public const string WatcherName = "WATCHER";
@@ -47,7 +48,9 @@ namespace Selector.Cache
         public static string UserPlayCount(string username) => MajorNamespace(MinorNamespace(UserName, PlayCountName), username);
 
         public static string UserSpotify(string username) => MajorNamespace(MinorNamespace(UserName, SpotifyName), username);
+        public static string UserAppleMusic(string username) => MajorNamespace(MinorNamespace(UserName, AppleMusicName), username);
         public static readonly string AllUserSpotify = UserSpotify(All);
+        public static readonly string AllUserAppleMusic = UserAppleMusic(All);
         public static string UserLastfm(string username) => MajorNamespace(MinorNamespace(UserName, LastfmName), username);
         public static readonly string AllUserLastfm = UserLastfm(All);
 

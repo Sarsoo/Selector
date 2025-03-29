@@ -10,6 +10,7 @@ namespace Selector.Events
 
         public event EventHandler<ApplicationUser> UserChange;
         public event EventHandler<SpotifyLinkChange> SpotifyLinkChange;
+        public event EventHandler<AppleMusicLinkChange> AppleLinkChange;
         public event EventHandler<LastfmChange> LastfmCredChange;
 
         public event EventHandler<CurrentlyPlayingDTO> CurrentlyPlaying;
@@ -29,6 +30,12 @@ namespace Selector.Events
         {
             Logger.LogTrace("Firing user Spotify event [{usernamne}]", args?.UserId);
             SpotifyLinkChange?.Invoke(sender, args);
+        }
+
+        public void OnAppleMusicLinkChange(object sender, AppleMusicLinkChange args)
+        {
+            Logger.LogTrace("Firing user Apple Music event [{usernamne}]", args?.UserId);
+            AppleLinkChange?.Invoke(sender, args);
         }
 
         public void OnLastfmCredChange(object sender, LastfmChange args)
