@@ -1,8 +1,14 @@
-﻿namespace Selector.AppleMusic;
+﻿using System.Net;
+using System.Net.Http.Json;
+using Selector.AppleMusic.Exceptions;
+using Selector.AppleMusic.Model;
+
+namespace Selector.AppleMusic;
 
 public class AppleMusicApi(HttpClient client, string developerToken, string userToken)
 {
     private static readonly string _apiBaseUrl = "https://api.music.apple.com/v1";
+    private readonly AppleJsonContext _appleJsonContext = AppleJsonContext.Default;
 
     private async Task<HttpResponseMessage> MakeRequest(HttpMethod httpMethod, string requestUri)
     {
@@ -14,8 +20,32 @@ public class AppleMusicApi(HttpClient client, string developerToken, string user
         return response;
     }
 
-    public async Task GetRecentlyPlayedTracks()
+    private void CheckResponse(HttpResponseMessage response)
     {
-        var response = await MakeRequest(HttpMethod.Get, "/me/recent/played/tracks");
+        if (!response.IsSuccessStatusCode)
+        {
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new UnauthorisedException();
+            }
+            else if (response.StatusCode == HttpStatusCode.Forbidden)
+            {
+                throw new ForbiddenException();
+            }
+            else if (response.StatusCode == HttpStatusCode.TooManyRequests)
+            {
+                throw new RateLimitException();
+            }
+        }
+    }
+
+    public async Task<RecentlyPlayedTracksResponse> GetRecentlyPlayedTracks()
+    {
+        var response = await MakeRequest(HttpMethod.Get, "/me/recent/played/tracks?types=songs");
+
+        CheckResponse(response);
+
+        var parsed = await response.Content.ReadFromJsonAsync(_appleJsonContext.RecentlyPlayedTracksResponse);
+        return parsed;
     }
 }

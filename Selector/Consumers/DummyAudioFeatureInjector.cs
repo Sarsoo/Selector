@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using SpotifyAPI.Web;
 
 namespace Selector
@@ -30,18 +27,18 @@ namespace Selector
                 Valence = 0.5f,
             }
         };
+
         private int _contextIdx = 0;
 
         private DateTime _lastNext = DateTime.UtcNow;
         private TimeSpan _contextLifespan = TimeSpan.FromSeconds(30);
 
         public DummyAudioFeatureInjector(
-            IPlayerWatcher watcher,
+            ISpotifyPlayerWatcher watcher,
             ILogger<DummyAudioFeatureInjector> logger = null,
             CancellationToken token = default
-        ): base (watcher, null, logger, token)
+        ) : base(watcher, null, logger, token)
         {
-
         }
 
         private bool ShouldCycle() => DateTime.UtcNow - _lastNext > _contextLifespan;

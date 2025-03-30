@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using IF.Lastfm.Core.Api;
 using Microsoft.Extensions.DependencyInjection;
-
-using IF.Lastfm.Core.Api;
 
 namespace Selector.Extensions
 {
@@ -52,7 +48,7 @@ namespace Selector.Extensions
 
         public static IServiceCollection AddWatcher(this IServiceCollection services)
         {
-            services.AddSingleton<IWatcherFactory, WatcherFactory>();
+            services.AddSingleton<ISpotifyWatcherFactory, SpotifyWatcherFactory>();
             services.AddSingleton<IWatcherCollectionFactory, WatcherCollectionFactory>();
 
             return services;

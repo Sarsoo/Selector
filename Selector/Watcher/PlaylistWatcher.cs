@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SpotifyAPI.Web;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using System.Linq;
 using Selector.Equality;
+using SpotifyAPI.Web;
 
 namespace Selector
 {
@@ -17,7 +16,7 @@ namespace Selector
         public bool PullTracks { get; set; } = true;
     }
 
-    public class PlaylistWatcher: BaseWatcher, IPlaylistWatcher
+    public class PlaylistWatcher : BaseSpotifyWatcher, IPlaylistWatcher
     {
         new private readonly ILogger<PlaylistWatcher> Logger;
         private readonly ISpotifyClient spotifyClient;
@@ -44,11 +43,11 @@ namespace Selector
         private IEqualityComparer<PlaylistTrack<IPlayableItem>> EqualityComparer = new PlayableItemEqualityComparer();
 
         public PlaylistWatcher(PlaylistWatcherConfig config,
-                ISpotifyClient spotifyClient,
-                ILogger<PlaylistWatcher> logger = null,
-                int pollPeriod = 3000
-        ) : base(logger) {
-
+            ISpotifyClient spotifyClient,
+            ILogger<PlaylistWatcher> logger = null,
+            int pollPeriod = 3000
+        ) : base(logger)
+        {
             this.spotifyClient = spotifyClient;
             this.config = config;
             Logger = logger ?? NullLogger<PlaylistWatcher>.Instance;
@@ -64,16 +63,18 @@ namespace Selector
             return Task.CompletedTask;
         }
 
-        public override async Task WatchOne(CancellationToken token = default) 
+        public override async Task WatchOne(CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
 
-            using var logScope = Logger.BeginScope(new Dictionary<string, object> { { "playlist_id", config.PlaylistId }, { "pull_tracks", config.PullTracks } });
-            
-            try{
+            using var logScope = Logger.BeginScope(new Dictionary<string, object>
+                { { "playlist_id", config.PlaylistId }, { "pull_tracks", config.PullTracks } });
+
+            try
+            {
                 string id;
 
-                if(config.PlaylistId.Contains(':'))
+                if (config.PlaylistId.Contains(':'))
                 {
                     id = config.PlaylistId.Split(':').Last();
                 }
@@ -97,18 +98,18 @@ namespace Selector
                 await CheckSnapshot();
                 CheckStringValues();
             }
-            catch(APIUnauthorizedException e)
+            catch (APIUnauthorizedException e)
             {
                 Logger.LogDebug("Unauthorised error: [{message}] (should be refreshed and retried?)", e.Message);
                 //throw e;
             }
-            catch(APITooManyRequestsException e)
+            catch (APITooManyRequestsException e)
             {
                 Logger.LogDebug("Too many requests error: [{message}]", e.Message);
                 await Task.Delay(e.RetryAfter, token);
                 // throw e;
             }
-            catch(APIException e)
+            catch (APIException e)
             {
                 Logger.LogDebug("API error: [{message}]", e.Message);
                 // throw e;
@@ -117,7 +118,7 @@ namespace Selector
 
         private async Task CheckSnapshot()
         {
-            switch(Previous, Live)
+            switch (Previous, Live)
             {
                 case (null, not null): // gone null
                     await PageLiveTracks();
@@ -128,13 +129,14 @@ namespace Selector
 
                     if (Live.SnapshotId != Previous.SnapshotId)
                     {
-                        Logger.LogDebug("Snapshot Id changed: {previous} -> {current}", Previous.SnapshotId, Live.SnapshotId);
+                        Logger.LogDebug("Snapshot Id changed: {previous} -> {current}", Previous.SnapshotId,
+                            Live.SnapshotId);
                         await PageLiveTracks();
                         OnSnapshotChange(GetEvent());
                     }
 
                     break;
-            }   
+            }
         }
 
         private async Task PageLiveTracks()
@@ -171,7 +173,9 @@ namespace Selector
             }
         }
 
-        private PlaylistChangeEventArgs GetEvent() => PlaylistChangeEventArgs.From(Previous, Live, Past, tracks: CurrentTracks, addedTracks: LastAddedTracks, removedTracks: LastRemovedTracks, id: Id, username: SpotifyUsername);
+        private PlaylistChangeEventArgs GetEvent() => PlaylistChangeEventArgs.From(Previous, Live, Past,
+            tracks: CurrentTracks, addedTracks: LastAddedTracks, removedTracks: LastRemovedTracks, id: Id,
+            username: SpotifyUsername);
 
         private void CheckStringValues()
         {
@@ -183,11 +187,12 @@ namespace Selector
                     break;
                 case (not null, not null): // continuing non-null
 
-                    if((Previous, Live) is ({ Name: not null }, { Name: not null }))
+                    if ((Previous, Live) is ({ Name: not null }, { Name: not null }))
                     {
                         if (!Live.Name.Equals(Previous.Name))
                         {
-                            Logger.LogDebug("Name changed: {previous} -> {current}", Previous.SnapshotId, Live.SnapshotId);
+                            Logger.LogDebug("Name changed: {previous} -> {current}", Previous.SnapshotId,
+                                Live.SnapshotId);
                             OnNameChanged(GetEvent());
                         }
                     }
@@ -196,7 +201,8 @@ namespace Selector
                     {
                         if (!Live.Description.Equals(Previous.Description))
                         {
-                            Logger.LogDebug("Description changed: {previous} -> {current}", Previous.SnapshotId, Live.SnapshotId);
+                            Logger.LogDebug("Description changed: {previous} -> {current}", Previous.SnapshotId,
+                                Live.SnapshotId);
                             OnDescriptionChanged(GetEvent());
                         }
                     }
@@ -209,12 +215,13 @@ namespace Selector
         /// Store currently playing in last plays. Determine whether new list or appending required
         /// </summary>
         /// <param name="current">New currently playing to store</param>
-        private void StoreCurrentPlaying(FullPlaylist current) 
+        private void StoreCurrentPlaying(FullPlaylist current)
         {
             Past?.Add(current);
         }
 
         #region Event Firers
+
         protected virtual void OnNetworkPoll(PlaylistChangeEventArgs args)
         {
             Logger.LogTrace("Firing network poll event");
@@ -226,7 +233,7 @@ namespace Selector
         {
             Logger.LogTrace("Firing snapshot change event");
 
-            SnapshotChange?.Invoke(this, args); 
+            SnapshotChange?.Invoke(this, args);
         }
 
         protected virtual void OnTracksAdded(PlaylistChangeEventArgs args)

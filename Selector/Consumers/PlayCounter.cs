@@ -1,21 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using IF.Lastfm.Core.Api;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-
 using SpotifyAPI.Web;
-using IF.Lastfm.Core.Api;
-using IF.Lastfm.Core.Objects;
-using IF.Lastfm.Core.Api.Helpers;
 
 namespace Selector
 {
-    public class PlayCounter : IPlayerConsumer
+    public class PlayCounter : ISpotifyPlayerConsumer
     {
-        protected readonly IPlayerWatcher Watcher;
+        protected readonly ISpotifyPlayerWatcher Watcher;
         protected readonly ITrackApi TrackClient;
         protected readonly IAlbumApi AlbumClient;
         protected readonly IArtistApi ArtistClient;
@@ -30,7 +26,7 @@ namespace Selector
         public AnalysedTrackTimeline Timeline { get; set; } = new();
 
         public PlayCounter(
-            IPlayerWatcher watcher,
+            ISpotifyPlayerWatcher watcher,
             ITrackApi trackClient,
             IAlbumApi albumClient,
             IArtistApi artistClient,
@@ -53,8 +49,9 @@ namespace Selector
         public void Callback(object sender, ListeningChangeEventArgs e)
         {
             if (e.Current is null) return;
-            
-            Task.Run(async () => {
+
+            Task.Run(async () =>
+            {
                 try
                 {
                     await AsyncCallback(e);
@@ -68,7 +65,8 @@ namespace Selector
 
         public async Task AsyncCallback(ListeningChangeEventArgs e)
         {
-            using var scope = Logger.BeginScope(new Dictionary<string, object>() { { "spotify_username", e.SpotifyUsername }, { "id", e.Id }, { "username", Credentials.Username } });
+            using var scope = Logger.BeginScope(new Dictionary<string, object>()
+                { { "spotify_username", e.SpotifyUsername }, { "id", e.Id }, { "username", Credentials.Username } });
 
             if (Credentials is null || string.IsNullOrWhiteSpace(Credentials.Username))
             {
@@ -78,12 +76,15 @@ namespace Selector
 
             if (e.Current.Item is FullTrack track)
             {
-                using var trackScope = Logger.BeginScope(new Dictionary<string, object>() { { "track", track.DisplayString() } });
+                using var trackScope = Logger.BeginScope(new Dictionary<string, object>()
+                    { { "track", track.DisplayString() } });
 
                 Logger.LogTrace("Making Last.fm call");
 
-                var trackInfo = TrackClient.GetInfoAsync(track.Name, track.Artists[0].Name, username: Credentials?.Username);
-                var albumInfo = AlbumClient.GetInfoAsync(track.Album.Artists[0].Name, track.Album.Name, username: Credentials?.Username);
+                var trackInfo =
+                    TrackClient.GetInfoAsync(track.Name, track.Artists[0].Name, username: Credentials?.Username);
+                var albumInfo = AlbumClient.GetInfoAsync(track.Album.Artists[0].Name, track.Album.Name,
+                    username: Credentials?.Username);
                 var artistInfo = ArtistClient.GetInfoAsync(track.Artists[0].Name);
                 var userInfo = UserClient.GetInfoAsync(Credentials.Username);
 
@@ -104,7 +105,8 @@ namespace Selector
                 }
                 else
                 {
-                    Logger.LogError(trackInfo.Exception, "Track info task faulted, [{context}]", e.Current.DisplayString());
+                    Logger.LogError(trackInfo.Exception, "Track info task faulted, [{context}]",
+                        e.Current.DisplayString());
                 }
 
                 if (albumInfo.IsCompletedSuccessfully)
@@ -120,7 +122,8 @@ namespace Selector
                 }
                 else
                 {
-                    Logger.LogError(albumInfo.Exception, "Album info task faulted, [{context}]", e.Current.DisplayString());
+                    Logger.LogError(albumInfo.Exception, "Album info task faulted, [{context}]",
+                        e.Current.DisplayString());
                 }
 
                 //TODO: Add artist count
@@ -138,10 +141,13 @@ namespace Selector
                 }
                 else
                 {
-                    Logger.LogError(userInfo.Exception, "User info task faulted, [{context}]", e.Current.DisplayString());
+                    Logger.LogError(userInfo.Exception, "User info task faulted, [{context}]",
+                        e.Current.DisplayString());
                 }
 
-                Logger.LogDebug("Adding Last.fm data [{username}], track: {track_count}, album: {album_count}, artist: {artist_count}, user: {user_count}", Credentials.Username, trackCount, albumCount, artistCount, userCount);
+                Logger.LogDebug(
+                    "Adding Last.fm data [{username}], track: {track_count}, album: {album_count}, artist: {artist_count}, user: {user_count}",
+                    Credentials.Username, trackCount, albumCount, artistCount, userCount);
 
                 PlayCount playCount = new()
                 {
@@ -175,7 +181,7 @@ namespace Selector
         {
             var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
 
-            if (watcher is IPlayerWatcher watcherCast)
+            if (watcher is ISpotifyPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange += Callback;
             }
@@ -189,7 +195,7 @@ namespace Selector
         {
             var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
 
-            if (watcher is IPlayerWatcher watcherCast)
+            if (watcher is ISpotifyPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange -= Callback;
             }

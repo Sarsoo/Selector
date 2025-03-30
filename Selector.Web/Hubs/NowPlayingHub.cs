@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -12,7 +11,6 @@ using Selector.Cache;
 using Selector.Model;
 using Selector.Model.Extensions;
 using Selector.SignalR;
-using SpotifyAPI.Web;
 using StackExchange.Redis;
 
 namespace Selector.Web.Hubs
@@ -54,7 +52,7 @@ namespace Selector.Web.Hubs
 
         public async Task SendNewPlaying()
         {
-            var nowPlaying = await Cache.StringGetAsync(Key.CurrentlyPlaying(Context.UserIdentifier));
+            var nowPlaying = await Cache.StringGetAsync(Key.CurrentlyPlayingSpotify(Context.UserIdentifier));
             if (nowPlaying != RedisValue.Null)
             {
                 var deserialised = JsonSerializer.Deserialize(nowPlaying, JsonContext.Default.CurrentlyPlayingDTO);
@@ -67,16 +65,16 @@ namespace Selector.Web.Hubs
             if (string.IsNullOrWhiteSpace(trackId)) return;
 
             var user = Db.Users
-                        .AsNoTracking()
-                        .Where(u => u.Id == Context.UserIdentifier)
-                        .SingleOrDefault()
-                            ?? throw new SqlNullValueException("No user returned");
+                           .AsNoTracking()
+                           .Where(u => u.Id == Context.UserIdentifier)
+                           .SingleOrDefault()
+                       ?? throw new SqlNullValueException("No user returned");
             var watcher = Db.Watcher
-                        .AsNoTracking()
-                        .Where(w => w.UserId == Context.UserIdentifier
-                                && w.Type == WatcherType.Player)
-                        .SingleOrDefault()
-                            ?? throw new SqlNullValueException($"No player watcher found for [{user.UserName}]");
+                              .AsNoTracking()
+                              .Where(w => w.UserId == Context.UserIdentifier
+                                          && w.Type == WatcherType.SpotifyPlayer)
+                              .SingleOrDefault()
+                          ?? throw new SqlNullValueException($"No player watcher found for [{user.UserName}]");
 
             var feature = await AudioFeaturePuller.Get(user.SpotifyRefreshToken, trackId);
 
@@ -91,10 +89,10 @@ namespace Selector.Web.Hubs
             if (PlayCountPuller is not null)
             {
                 var user = Db.Users
-                        .AsNoTracking()
-                        .Where(u => u.Id == Context.UserIdentifier)
-                        .SingleOrDefault()
-                            ?? throw new SqlNullValueException("No user returned");
+                               .AsNoTracking()
+                               .Where(u => u.Id == Context.UserIdentifier)
+                               .SingleOrDefault()
+                           ?? throw new SqlNullValueException("No user returned");
 
                 if (user.LastFmConnected())
                 {
@@ -125,7 +123,8 @@ namespace Selector.Web.Hubs
 
             if (user.ScrobbleSavingEnabled())
             {
-                var artistScrobbles = ScrobbleRepository.GetAll(userId: user.Id, artistName: artist, from: GetMaximumWindow()).ToArray();
+                var artistScrobbles = ScrobbleRepository
+                    .GetAll(userId: user.Id, artistName: artist, from: GetMaximumWindow()).ToArray();
                 var artistDensity = artistScrobbles.Density(nowOptions.Value.ArtistDensityWindow);
 
                 var tasks = new List<Task>(3);
@@ -138,7 +137,9 @@ namespace Selector.Web.Hubs
                     }));
                 }
 
-                var albumDensity = artistScrobbles.Where(s => s.AlbumName.Equals(album, StringComparison.InvariantCultureIgnoreCase)).Density(nowOptions.Value.AlbumDensityWindow);
+                var albumDensity = artistScrobbles
+                    .Where(s => s.AlbumName.Equals(album, StringComparison.InvariantCultureIgnoreCase))
+                    .Density(nowOptions.Value.AlbumDensityWindow);
 
                 if (albumDensity > nowOptions.Value.AlbumDensityThreshold)
                 {
@@ -148,7 +149,9 @@ namespace Selector.Web.Hubs
                     }));
                 }
 
-                var trackDensity = artistScrobbles.Where(s => s.TrackName.Equals(track, StringComparison.InvariantCultureIgnoreCase)).Density(nowOptions.Value.TrackDensityWindow);
+                var trackDensity = artistScrobbles
+                    .Where(s => s.TrackName.Equals(track, StringComparison.InvariantCultureIgnoreCase))
+                    .Density(nowOptions.Value.TrackDensityWindow);
 
                 if (albumDensity > nowOptions.Value.TrackDensityThreshold)
                 {
@@ -165,7 +168,13 @@ namespace Selector.Web.Hubs
             }
         }
 
-        private DateTime GetMaximumWindow() => GetMaximumWindow(new TimeSpan[] { nowOptions.Value.ArtistDensityWindow, nowOptions.Value.AlbumDensityWindow, nowOptions.Value.TrackDensityWindow });
-        private DateTime GetMaximumWindow(IEnumerable<TimeSpan> windows) => windows.Select(w => DateTime.UtcNow - w).Min();
+        private DateTime GetMaximumWindow() => GetMaximumWindow(new TimeSpan[]
+        {
+            nowOptions.Value.ArtistDensityWindow, nowOptions.Value.AlbumDensityWindow,
+            nowOptions.Value.TrackDensityWindow
+        });
+
+        private DateTime GetMaximumWindow(IEnumerable<TimeSpan> windows) =>
+            windows.Select(w => DateTime.UtcNow - w).Min();
     }
 }

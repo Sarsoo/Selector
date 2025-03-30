@@ -3,12 +3,13 @@ using SpotifyAPI.Web;
 
 namespace Selector
 {
-    public interface IPlayerWatcher: IWatcher
+    public interface ISpotifyPlayerWatcher : IWatcher
     {
         /// <summary>
         /// Track or episode changes
         /// </summary>
         public event EventHandler<ListeningChangeEventArgs> NetworkPoll;
+
         public event EventHandler<ListeningChangeEventArgs> ItemChange;
         public event EventHandler<ListeningChangeEventArgs> AlbumChange;
         public event EventHandler<ListeningChangeEventArgs> ArtistChange;
@@ -23,6 +24,7 @@ namespace Selector
         /// Last retrieved currently playing
         /// </summary>
         public CurrentlyPlayingContext Live { get; }
+
         public PlayerTimeline Past { get; }
     }
 }

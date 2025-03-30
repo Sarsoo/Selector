@@ -1,14 +1,14 @@
 ﻿using System;
-using Microsoft.Extensions.Logging;
-using SpotifyAPI.Web;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using SpotifyAPI.Web;
 
 namespace Selector
 {
-	public class DummyPlayerWatcher: PlayerWatcher
-	{
+    public class DummySpotifyPlayerWatcher : SpotifyPlayerWatcher
+    {
         private CurrentlyPlayingContext[] _contexts = new[]
         {
             new CurrentlyPlayingContext
@@ -26,7 +26,6 @@ namespace Selector
                 ShuffleState = false,
                 Context = new Context
                 {
-
                 },
                 IsPlaying = true,
                 Item = new FullTrack
@@ -71,7 +70,6 @@ namespace Selector
                 ShuffleState = false,
                 Context = new Context
                 {
-
                 },
                 IsPlaying = true,
                 Item = new FullTrack
@@ -108,11 +106,11 @@ namespace Selector
         private DateTime _lastNext = DateTime.UtcNow;
         private TimeSpan _contextLifespan = TimeSpan.FromSeconds(30);
 
-        public DummyPlayerWatcher(IEqual equalityChecker,
-                ILogger<DummyPlayerWatcher> logger = null,
-                int pollPeriod = 3000) : base(null, equalityChecker, logger, pollPeriod)
-		{
-		}
+        public DummySpotifyPlayerWatcher(IEqual equalityChecker,
+            ILogger<DummySpotifyPlayerWatcher> logger = null,
+            int pollPeriod = 3000) : base(null, equalityChecker, logger, pollPeriod)
+        {
+        }
 
         private bool ShouldCycle() => DateTime.UtcNow - _lastNext > _contextLifespan;
 
@@ -122,7 +120,7 @@ namespace Selector
 
             _contextIdx++;
 
-            if(_contextIdx >= _contexts.Length)
+            if (_contextIdx >= _contexts.Length)
             {
                 _contextIdx = 0;
             }
@@ -141,7 +139,8 @@ namespace Selector
 
             var polledCurrent = GetContext();
 
-            using var polledLogScope = Logger.BeginScope(new Dictionary<string, object>() { { "context", polledCurrent?.DisplayString() } });
+            using var polledLogScope = Logger.BeginScope(new Dictionary<string, object>()
+                { { "context", polledCurrent?.DisplayString() } });
 
             if (polledCurrent != null) StoreCurrentPlaying(polledCurrent);
 
@@ -160,4 +159,3 @@ namespace Selector
         }
     }
 }
-

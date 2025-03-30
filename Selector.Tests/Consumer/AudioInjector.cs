@@ -1,14 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
-using Moq;
-using FluentAssertions;
-using SpotifyAPI.Web;
-
-using Selector;
 using System.Threading;
+using Moq;
+using SpotifyAPI.Web;
+using Xunit;
 
 namespace Selector.Tests
 {
@@ -17,7 +11,7 @@ namespace Selector.Tests
         [Fact]
         public void Subscribe()
         {
-            var watcherMock = new Mock<IPlayerWatcher>();
+            var watcherMock = new Mock<ISpotifyPlayerWatcher>();
             var spotifyMock = new Mock<ITracksClient>();
 
             var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object);
@@ -30,7 +24,7 @@ namespace Selector.Tests
         [Fact]
         public void Unsubscribe()
         {
-            var watcherMock = new Mock<IPlayerWatcher>();
+            var watcherMock = new Mock<ISpotifyPlayerWatcher>();
             var spotifyMock = new Mock<ITracksClient>();
 
             var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object);
@@ -43,8 +37,8 @@ namespace Selector.Tests
         [Fact]
         public void SubscribeFuncArg()
         {
-            var watcherMock = new Mock<IPlayerWatcher>();
-            var watcherFuncArgMock = new Mock<IPlayerWatcher>();
+            var watcherMock = new Mock<ISpotifyPlayerWatcher>();
+            var watcherFuncArgMock = new Mock<ISpotifyPlayerWatcher>();
             var spotifyMock = new Mock<ITracksClient>();
 
             var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object);
@@ -58,8 +52,8 @@ namespace Selector.Tests
         [Fact]
         public void UnsubscribeFuncArg()
         {
-            var watcherMock = new Mock<IPlayerWatcher>();
-            var watcherFuncArgMock = new Mock<IPlayerWatcher>();
+            var watcherMock = new Mock<ISpotifyPlayerWatcher>();
+            var watcherFuncArgMock = new Mock<ISpotifyPlayerWatcher>();
             var spotifyMock = new Mock<ITracksClient>();
 
             var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object);
@@ -73,7 +67,7 @@ namespace Selector.Tests
         [Fact]
         public async void CallbackNoId()
         {
-            var watcherMock = new Mock<IPlayerWatcher>();
+            var watcherMock = new Mock<ISpotifyPlayerWatcher>();
             var spotifyMock = new Mock<ITracksClient>();
             var timelineMock = new Mock<AnalysedTrackTimeline>();
             var eventArgsMock = new Mock<ListeningChangeEventArgs>();
@@ -84,7 +78,8 @@ namespace Selector.Tests
             eventArgsMock.Object.Current = playingMock.Object;
             playingMock.Object.Item = trackMock.Object;
 
-            spotifyMock.Setup(m => m.GetAudioFeatures(It.IsAny<string>(), It.IsAny<CancellationToken>()).Result).Returns(() => featureMock.Object);
+            spotifyMock.Setup(m => m.GetAudioFeatures(It.IsAny<string>(), It.IsAny<CancellationToken>()).Result)
+                .Returns(() => featureMock.Object);
 
             var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object)
             {
@@ -100,7 +95,7 @@ namespace Selector.Tests
         [Fact]
         public async void CallbackWithId()
         {
-            var watcherMock = new Mock<IPlayerWatcher>();
+            var watcherMock = new Mock<ISpotifyPlayerWatcher>();
             var spotifyMock = new Mock<ITracksClient>();
             var timelineMock = new Mock<AnalysedTrackTimeline>();
             var eventArgsMock = new Mock<ListeningChangeEventArgs>();
@@ -112,7 +107,8 @@ namespace Selector.Tests
             playingMock.Object.Item = trackMock.Object;
             trackMock.Object.Id = "Fake-Id";
 
-            spotifyMock.Setup(m => m.GetAudioFeatures(It.IsAny<string>(), It.IsAny<CancellationToken>()).Result).Returns(() => featureMock.Object);
+            spotifyMock.Setup(m => m.GetAudioFeatures(It.IsAny<string>(), It.IsAny<CancellationToken>()).Result)
+                .Returns(() => featureMock.Object);
 
             var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object)
             {

@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Net.Http;
-
-using Xunit;
+using FluentAssertions;
 using Moq;
 using Moq.Protected;
-using FluentAssertions;
-using System.Net;
-
-using SpotifyAPI.Web;
+using Xunit;
 
 namespace Selector.Tests
 {
@@ -25,10 +19,11 @@ namespace Selector.Tests
 
             var httpHandlerMock = new Mock<HttpMessageHandler>();
             httpHandlerMock.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(msg);
 
-            var watcherMock = new Mock<IPlayerWatcher>();
+            var watcherMock = new Mock<ISpotifyPlayerWatcher>();
             watcherMock.SetupAdd(w => w.ItemChange += It.IsAny<EventHandler<ListeningChangeEventArgs>>());
             watcherMock.SetupRemove(w => w.ItemChange -= It.IsAny<EventHandler<ListeningChangeEventArgs>>());
 
@@ -49,7 +44,8 @@ namespace Selector.Tests
 
             await Task.Delay(100);
 
-            httpHandlerMock.Protected().Verify<Task<HttpResponseMessage>>("SendAsync", Times.Once(), ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>());
+            httpHandlerMock.Protected().Verify<Task<HttpResponseMessage>>("SendAsync", Times.Once(),
+                ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>());
         }
 
         [Theory]
@@ -62,10 +58,11 @@ namespace Selector.Tests
 
             var httpHandlerMock = new Mock<HttpMessageHandler>();
             httpHandlerMock.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(msg);
 
-            var watcherMock = new Mock<IPlayerWatcher>();
+            var watcherMock = new Mock<ISpotifyPlayerWatcher>();
 
             var link = "https://link";
             var content = new StringContent("");
@@ -81,22 +78,13 @@ namespace Selector.Tests
 
             var webHook = new WebHook(watcherMock.Object, http, config);
 
-            webHook.PredicatePass += (o, e) =>
-            {
-                predicateEvent = predicate;
-            };
+            webHook.PredicatePass += (o, e) => { predicateEvent = predicate; };
 
-            webHook.SuccessfulRequest += (o, e) =>
-            {
-                successfulEvent = successful;
-            };
+            webHook.SuccessfulRequest += (o, e) => { successfulEvent = successful; };
 
-            webHook.FailedRequest += (o, e) =>
-            {
-                failedEvent = !successful;
-            };
+            webHook.FailedRequest += (o, e) => { failedEvent = !successful; };
 
-            await webHook.AsyncCallback(ListeningChangeEventArgs.From(new (), new (), new()));
+            await webHook.AsyncCallback(ListeningChangeEventArgs.From(new(), new(), new()));
 
             predicateEvent.Should().Be(predicate);
             successfulEvent.Should().Be(successful);

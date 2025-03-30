@@ -3,17 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Selector
 {
-    public abstract class BaseWatcher: IWatcher
+    public abstract class BaseWatcher : IWatcher
     {
         protected readonly ILogger<BaseWatcher> Logger;
         public string Id { get; set; }
-        public string SpotifyUsername { get; set; }
         private Stopwatch ExecutionTimer { get; set; }
 
         public BaseWatcher(ILogger<BaseWatcher> logger = null)
@@ -25,13 +23,16 @@ namespace Selector
         public abstract Task WatchOne(CancellationToken token);
         public abstract Task Reset();
 
+        protected virtual Dictionary<string, object> LogScopeContext => new()
+            { { "id", Id } };
+
         public async Task Watch(CancellationToken cancelToken)
         {
-            using var logScope = Logger.BeginScope(new Dictionary<string, object>() { { "spotify_username", SpotifyUsername }, { "id", Id } });
+            using var logScope = Logger.BeginScope(LogScopeContext);
 
             Logger.LogDebug("Starting watcher");
-            while (true) {
-
+            while (true)
+            {
                 ExecutionTimer.Start();
 
                 cancelToken.ThrowIfCancellationRequested();
@@ -49,12 +50,14 @@ namespace Selector
                 var waitTime = decimal.ToInt32(Math.Max(0, PollPeriod - ExecutionTimer.ElapsedMilliseconds));
                 ExecutionTimer.Reset();
 
-                Logger.LogTrace("Finished watch one, delaying \"{poll_period}\"ms ({wait_time}ms)...", PollPeriod, waitTime);
+                Logger.LogTrace("Finished watch one, delaying \"{poll_period}\"ms ({wait_time}ms)...", PollPeriod,
+                    waitTime);
                 await Task.Delay(waitTime, cancelToken);
             }
         }
 
         private int _pollPeriod;
+
         public int PollPeriod
         {
             get => _pollPeriod;

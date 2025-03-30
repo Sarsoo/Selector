@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Selector
+﻿namespace Selector
 {
     public interface IConsumer
     {
@@ -9,14 +6,16 @@ namespace Selector
         public void Unsubscribe(IWatcher watch = null);
     }
 
-    public interface IConsumer<T>: IConsumer
+    public interface IConsumer<T> : IConsumer
     {
         public void Callback(object sender, T e);
     }
 
-    public interface IPlayerConsumer: IConsumer<ListeningChangeEventArgs>
-    { }
+    public interface ISpotifyPlayerConsumer : IConsumer<ListeningChangeEventArgs>
+    {
+    }
 
     public interface IPlaylistConsumer : IConsumer<PlaylistChangeEventArgs>
-    { }
+    {
+    }
 }

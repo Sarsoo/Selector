@@ -1,25 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-
 using IF.Lastfm.Core.Api;
-using StackExchange.Redis;
+using Microsoft.Extensions.Logging;
 using SpotifyAPI.Web;
+using StackExchange.Redis;
 
 namespace Selector.Cache
 {
-    public class PlayCounterCaching: PlayCounter
+    public class PlayCounterCaching : PlayCounter
     {
         private readonly IDatabaseAsync Db;
         public TimeSpan CacheExpiry { get; set; } = TimeSpan.FromDays(1);
 
         public PlayCounterCaching(
-            IPlayerWatcher watcher,
+            ISpotifyPlayerWatcher watcher,
             ITrackApi trackClient,
             IAlbumApi albumClient,
             IArtistApi artistClient,
@@ -37,7 +32,8 @@ namespace Selector.Cache
 
         public void CacheCallback(object sender, PlayCount e)
         {
-            Task.Run(async () => {
+            Task.Run(async () =>
+            {
                 try
                 {
                     await AsyncCacheCallback(e);
@@ -56,9 +52,12 @@ namespace Selector.Cache
 
             var tasks = new Task[]
             {
-                Db.StringSetAsync(Key.TrackPlayCount(e.Username, track.Name, track.Artists[0].Name), e.Track, expiry: CacheExpiry),
-                Db.StringSetAsync(Key.AlbumPlayCount(e.Username, track.Album.Name, track.Album.Artists[0].Name), e.Album, expiry: CacheExpiry),
-                Db.StringSetAsync(Key.ArtistPlayCount(e.Username, track.Artists[0].Name), e.Artist, expiry: CacheExpiry),
+                Db.StringSetAsync(Key.TrackPlayCount(e.Username, track.Name, track.Artists[0].Name), e.Track,
+                    expiry: CacheExpiry),
+                Db.StringSetAsync(Key.AlbumPlayCount(e.Username, track.Album.Name, track.Album.Artists[0].Name),
+                    e.Album, expiry: CacheExpiry),
+                Db.StringSetAsync(Key.ArtistPlayCount(e.Username, track.Artists[0].Name), e.Artist,
+                    expiry: CacheExpiry),
                 Db.StringSetAsync(Key.UserPlayCount(e.Username), e.User, expiry: CacheExpiry),
             };
 

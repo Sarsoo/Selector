@@ -3,33 +3,34 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Selector.Events
 {
-    public class UserEventFirer : IPlayerConsumer
+    public class SpotifyUserEventFirer : ISpotifyPlayerConsumer
     {
-        protected readonly IPlayerWatcher Watcher;
-        protected readonly ILogger<UserEventFirer> Logger;
+        protected readonly ISpotifyPlayerWatcher Watcher;
+        protected readonly ILogger<SpotifyUserEventFirer> Logger;
 
         protected readonly UserEventBus UserEvent;
 
         public CancellationToken CancelToken { get; set; }
 
-        public UserEventFirer(
-            IPlayerWatcher watcher,
+        public SpotifyUserEventFirer(
+            ISpotifyPlayerWatcher watcher,
             UserEventBus userEvent,
-            ILogger<UserEventFirer> logger = null,
+            ILogger<SpotifyUserEventFirer> logger = null,
             CancellationToken token = default
         )
         {
             Watcher = watcher;
             UserEvent = userEvent;
-            Logger = logger ?? NullLogger<UserEventFirer>.Instance;
+            Logger = logger ?? NullLogger<SpotifyUserEventFirer>.Instance;
             CancelToken = token;
         }
 
         public void Callback(object sender, ListeningChangeEventArgs e)
         {
             if (e.Current is null) return;
-            
-            Task.Run(async () => {
+
+            Task.Run(async () =>
+            {
                 try
                 {
                     await AsyncCallback(e);
@@ -43,9 +44,10 @@ namespace Selector.Events
 
         public Task AsyncCallback(ListeningChangeEventArgs e)
         {
-            Logger.LogDebug("Firing now playing event on user bus [{username}/{userId}]", e.SpotifyUsername, e.Id);
+            Logger.LogDebug("Firing Spotify now playing event on user bus [{username}/{userId}]", e.SpotifyUsername,
+                e.Id);
 
-            UserEvent.OnCurrentlyPlayingChange(this, (CurrentlyPlayingDTO) e);
+            UserEvent.OnCurrentlyPlayingChangeSpotify(this, (CurrentlyPlayingDTO)e);
 
             return Task.CompletedTask;
         }
@@ -54,7 +56,7 @@ namespace Selector.Events
         {
             var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
 
-            if (watcher is IPlayerWatcher watcherCast)
+            if (watcher is ISpotifyPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange += Callback;
             }
@@ -68,7 +70,7 @@ namespace Selector.Events
         {
             var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
 
-            if (watcher is IPlayerWatcher watcherCast)
+            if (watcher is ISpotifyPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange -= Callback;
             }

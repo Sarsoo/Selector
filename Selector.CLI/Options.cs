@@ -5,16 +5,18 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Selector.CLI
 {
-    static class OptionsHelper {
+    static class OptionsHelper
+    {
         public static void ConfigureOptions(RootOptions options, IConfiguration config)
         {
             config.GetSection(RootOptions.Key).Bind(options);
-            config.GetSection(FormatKeys( new[] { RootOptions.Key, WatcherOptions.Key})).Bind(options.WatcherOptions);
-            config.GetSection(FormatKeys( new[] { RootOptions.Key, DatabaseOptions.Key})).Bind(options.DatabaseOptions);
-            config.GetSection(FormatKeys( new[] { RootOptions.Key, RedisOptions.Key})).Bind(options.RedisOptions);
-            config.GetSection(FormatKeys( new[] { RootOptions.Key, JobsOptions.Key})).Bind(options.JobOptions);
-            config.GetSection(FormatKeys( new[] { RootOptions.Key, JobsOptions.Key, ScrobbleWatcherJobOptions.Key })).Bind(options.JobOptions.Scrobble);
-        }  
+            config.GetSection(FormatKeys(new[] { RootOptions.Key, WatcherOptions.Key })).Bind(options.WatcherOptions);
+            config.GetSection(FormatKeys(new[] { RootOptions.Key, DatabaseOptions.Key })).Bind(options.DatabaseOptions);
+            config.GetSection(FormatKeys(new[] { RootOptions.Key, RedisOptions.Key })).Bind(options.RedisOptions);
+            config.GetSection(FormatKeys(new[] { RootOptions.Key, JobsOptions.Key })).Bind(options.JobOptions);
+            config.GetSection(FormatKeys(new[] { RootOptions.Key, JobsOptions.Key, ScrobbleWatcherJobOptions.Key }))
+                .Bind(options.JobOptions.Scrobble);
+        }
 
         public static RootOptions ConfigureOptions(this IConfiguration config)
         {
@@ -29,12 +31,16 @@ namespace Selector.CLI
         {
             var options = config.GetSection(RootOptions.Key).Get<RootOptions>();
 
-            services.Configure<DatabaseOptions>(config.GetSection(FormatKeys(new[] { RootOptions.Key, DatabaseOptions.Key })));
-            services.Configure<RedisOptions>(config.GetSection(FormatKeys(new[] { RootOptions.Key, RedisOptions.Key })));
-            services.Configure<WatcherOptions>(config.GetSection(FormatKeys(new[] { RootOptions.Key, WatcherOptions.Key })));
+            services.Configure<DatabaseOptions>(config.GetSection(FormatKeys(new[]
+                { RootOptions.Key, DatabaseOptions.Key })));
+            services.Configure<RedisOptions>(config.GetSection(FormatKeys(new[]
+                { RootOptions.Key, RedisOptions.Key })));
+            services.Configure<WatcherOptions>(config.GetSection(FormatKeys(new[]
+                { RootOptions.Key, WatcherOptions.Key })));
 
             services.Configure<JobsOptions>(config.GetSection(FormatKeys(new[] { RootOptions.Key, JobsOptions.Key })));
-            services.Configure<ScrobbleWatcherJobOptions>(config.GetSection(FormatKeys(new[] { RootOptions.Key, JobsOptions.Key, ScrobbleWatcherJobOptions.Key })));
+            services.Configure<ScrobbleWatcherJobOptions>(config.GetSection(FormatKeys(new[]
+                { RootOptions.Key, JobsOptions.Key, ScrobbleWatcherJobOptions.Key })));
             services.Configure<AppleMusicOptions>(config.GetSection(AppleMusicOptions._Key));
 
             return options;
@@ -51,14 +57,17 @@ namespace Selector.CLI
         /// Spotify client ID
         /// </summary>
         public string ClientId { get; set; }
+
         /// <summary>
         /// Spotify app secret
         /// </summary>
         public string ClientSecret { get; set; }
+
         /// <summary>
         /// Service account refresh token for tool spotify usage
         /// </summary>
         public string RefreshToken { get; set; }
+
         public string LastfmClient { get; set; }
         public string LastfmSecret { get; set; }
         public WatcherOptions WatcherOptions { get; set; } = new();
@@ -70,7 +79,8 @@ namespace Selector.CLI
 
     public enum EqualityChecker
     {
-        Uri, String
+        Uri,
+        String
     }
 
     public class WatcherOptions
@@ -89,9 +99,10 @@ namespace Selector.CLI
         public string Name { get; set; }
         public string AccessKey { get; set; }
         public string RefreshKey { get; set; }
+        public string AppleUserToken { get; set; }
         public string LastFmUsername { get; set; }
         public int PollPeriod { get; set; } = 5000;
-        public WatcherType Type { get; set; } = WatcherType.Player;
+        public WatcherType Type { get; set; } = WatcherType.SpotifyPlayer;
         public List<Consumers> Consumers { get; set; } = default;
 #nullable enable
         public string? PlaylistUri { get; set; }
@@ -101,7 +112,12 @@ namespace Selector.CLI
 
     public enum Consumers
     {
-        AudioFeatures, AudioFeaturesCache, CacheWriter, Publisher, PlayCounter, MappingPersister
+        AudioFeatures,
+        AudioFeaturesCache,
+        CacheWriter,
+        Publisher,
+        PlayCounter,
+        MappingPersister
     }
 
     public class RedisOptions

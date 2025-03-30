@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 
 namespace Selector.Cache
 {
@@ -33,25 +30,47 @@ namespace Selector.Cache
         /// </summary>
         /// <param name="user">User's database Id (Guid)</param>
         /// <returns></returns>
-        public static string CurrentlyPlaying(string user) => MajorNamespace(MinorNamespace(UserName, CurrentlyPlayingName), user);
-        public static readonly string AllCurrentlyPlaying = CurrentlyPlaying(All);
+        public static string CurrentlyPlayingSpotify(string user) =>
+            MajorNamespace(MinorNamespace(UserName, SpotifyName, CurrentlyPlayingName), user);
+
+        public static string CurrentlyPlayingAppleMusic(string user) =>
+            MajorNamespace(MinorNamespace(UserName, AppleMusicName, CurrentlyPlayingName), user);
+
+        public static readonly string AllCurrentlyPlayingSpotify = CurrentlyPlayingSpotify(All);
+        public static readonly string AllCurrentlyPlayingApple = CurrentlyPlayingAppleMusic(All);
 
         public static string Track(string trackId) => MajorNamespace(TrackName, trackId);
         public static readonly string AllTracks = Track(All);
 
-        public static string AudioFeature(string trackId) => MajorNamespace(MinorNamespace(TrackName, AudioFeatureName), trackId);
+        public static string AudioFeature(string trackId) =>
+            MajorNamespace(MinorNamespace(TrackName, AudioFeatureName), trackId);
+
         public static readonly string AllAudioFeatures = AudioFeature(All);
 
-        public static string TrackPlayCount(string username, string name, string artist) => MajorNamespace(MinorNamespace(TrackName, PlayCountName), artist, name, username);
-        public static string AlbumPlayCount(string username, string name, string artist) => MajorNamespace(MinorNamespace(AlbumName, PlayCountName), artist, name, username);
-        public static string ArtistPlayCount(string username, string name) => MajorNamespace(MinorNamespace(ArtistName, PlayCountName), name, username);
-        public static string UserPlayCount(string username) => MajorNamespace(MinorNamespace(UserName, PlayCountName), username);
+        public static string TrackPlayCount(string username, string name, string artist) =>
+            MajorNamespace(MinorNamespace(TrackName, PlayCountName), artist, name, username);
 
-        public static string UserSpotify(string username) => MajorNamespace(MinorNamespace(UserName, SpotifyName), username);
-        public static string UserAppleMusic(string username) => MajorNamespace(MinorNamespace(UserName, AppleMusicName), username);
+        public static string AlbumPlayCount(string username, string name, string artist) =>
+            MajorNamespace(MinorNamespace(AlbumName, PlayCountName), artist, name, username);
+
+        public static string ArtistPlayCount(string username, string name) =>
+            MajorNamespace(MinorNamespace(ArtistName, PlayCountName), name, username);
+
+        public static string UserPlayCount(string username) =>
+            MajorNamespace(MinorNamespace(UserName, PlayCountName), username);
+
+        public static string UserSpotify(string username) =>
+            MajorNamespace(MinorNamespace(UserName, SpotifyName), username);
+
+        public static string UserAppleMusic(string username) =>
+            MajorNamespace(MinorNamespace(UserName, AppleMusicName), username);
+
         public static readonly string AllUserSpotify = UserSpotify(All);
         public static readonly string AllUserAppleMusic = UserAppleMusic(All);
-        public static string UserLastfm(string username) => MajorNamespace(MinorNamespace(UserName, LastfmName), username);
+
+        public static string UserLastfm(string username) =>
+            MajorNamespace(MinorNamespace(UserName, LastfmName), username);
+
         public static readonly string AllUserLastfm = UserLastfm(All);
 
         public static string Watcher(int id) => MajorNamespace(WatcherName, id.ToString());
@@ -66,10 +85,13 @@ namespace Selector.Cache
         public static string[] UnNamespace(string key, params char[] args) => key.Split(args);
 
         public static string Param(string key) => UnMajorNamespace(key).Skip(1).First();
-        public static (string, string) ParamPair(string key) {
+
+        public static (string, string) ParamPair(string key)
+        {
             var split = UnMajorNamespace(key);
             return (split[1], split[2]);
         }
+
         public static (string, string, string) ParamTriplet(string key)
         {
             var split = UnMajorNamespace(key);

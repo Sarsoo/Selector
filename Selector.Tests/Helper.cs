@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using Selector.AppleMusic.Model;
+using Selector.AppleMusic.Watcher;
 using SpotifyAPI.Web;
 
 namespace Selector.Tests
@@ -12,8 +10,8 @@ namespace Selector.Tests
     {
         public static FullTrack FullTrack(string name, string album = "album name", List<string> artists = null)
         {
-            if (artists is null) artists = new List<string>() {"artist"};
-            
+            if (artists is null) artists = new List<string>() { "artist" };
+
             return new FullTrack()
             {
                 Name = name,
@@ -40,7 +38,7 @@ namespace Selector.Tests
 
         public static SimpleAlbum SimpleAlbum(string name, List<string> artists = null)
         {
-            if (artists is null) artists = new List<string>() {"artist"};
+            if (artists is null) artists = new List<string>() { "artist" };
             return new SimpleAlbum()
             {
                 Name = name,
@@ -83,7 +81,8 @@ namespace Selector.Tests
             };
         }
 
-        public static CurrentlyPlayingContext CurrentPlayback(FullTrack track, Device device = null, bool isPlaying = true, string context = "context")
+        public static CurrentlyPlayingContext CurrentPlayback(FullTrack track, Device device = null,
+            bool isPlaying = true, string context = "context")
         {
             return new CurrentlyPlayingContext()
             {
@@ -94,7 +93,8 @@ namespace Selector.Tests
             };
         }
 
-        public static CurrentlyPlaying CurrentlyPlaying(FullEpisode episode, bool isPlaying = true, string context = null)
+        public static CurrentlyPlaying CurrentlyPlaying(FullEpisode episode, bool isPlaying = true,
+            string context = null)
         {
             return new CurrentlyPlaying()
             {
@@ -104,7 +104,8 @@ namespace Selector.Tests
             };
         }
 
-        public static CurrentlyPlayingContext CurrentPlayback(FullEpisode episode, Device device = null, bool isPlaying = true, string context = null)
+        public static CurrentlyPlayingContext CurrentPlayback(FullEpisode episode, Device device = null,
+            bool isPlaying = true, string context = null)
         {
             return new CurrentlyPlayingContext()
             {
@@ -145,6 +146,17 @@ namespace Selector.Tests
                 {
                     Items = new List<PlaylistTrack<IPlayableItem>>(),
                     Total = 0
+                }
+            };
+        }
+
+        public static AppleMusicCurrentlyPlayingContext AppleContext(string id)
+        {
+            return new()
+            {
+                Track = new Track()
+                {
+                    Id = id
                 }
             };
         }

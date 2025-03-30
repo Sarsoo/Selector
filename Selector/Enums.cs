@@ -2,6 +2,8 @@ namespace Selector
 {
     public enum WatcherType
     {
-        Player, Playlist
+        SpotifyPlayer,
+        SpotifyPlaylist,
+        AppleMusicPlayer
     }
 }

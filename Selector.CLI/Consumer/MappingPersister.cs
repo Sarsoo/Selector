@@ -15,16 +15,16 @@ namespace Selector.CLI.Consumer
     /// <summary>
     /// Save name -> Spotify URI mappings as new objects come through the watcher without making extra queries of the Spotify API
     /// </summary>
-    public class MappingPersister: IPlayerConsumer
+    public class MappingPersister : ISpotifyPlayerConsumer
     {
-        protected readonly IPlayerWatcher Watcher;
+        protected readonly ISpotifyPlayerWatcher Watcher;
         protected readonly IServiceScopeFactory ScopeFactory;
         protected readonly ILogger<MappingPersister> Logger;
 
         public CancellationToken CancelToken { get; set; }
 
         public MappingPersister(
-            IPlayerWatcher watcher,
+            ISpotifyPlayerWatcher watcher,
             IServiceScopeFactory scopeFactory,
             ILogger<MappingPersister> logger = null,
             CancellationToken token = default
@@ -40,7 +40,8 @@ namespace Selector.CLI.Consumer
         {
             if (e.Current is null) return;
 
-            Task.Run(async () => {
+            Task.Run(async () =>
+            {
                 try
                 {
                     await AsyncCallback(e);
@@ -59,13 +60,14 @@ namespace Selector.CLI.Consumer
         public async Task AsyncCallback(ListeningChangeEventArgs e)
         {
             using var serviceScope = ScopeFactory.CreateScope();
-            using var scope = Logger.BeginScope(new Dictionary<string, object>() { { "spotify_username", e.SpotifyUsername }, { "id", e.Id } });
+            using var scope = Logger.BeginScope(new Dictionary<string, object>()
+                { { "spotify_username", e.SpotifyUsername }, { "id", e.Id } });
 
             if (e.Current.Item is FullTrack track)
-            { 
+            {
                 var mappingRepo = serviceScope.ServiceProvider.GetRequiredService<IScrobbleMappingRepository>();
 
-                if(!mappingRepo.GetTracks().Select(t => t.SpotifyUri).Contains(track.Uri))
+                if (!mappingRepo.GetTracks().Select(t => t.SpotifyUri).Contains(track.Uri))
                 {
                     mappingRepo.Add(new TrackLastfmSpotifyMapping()
                     {
@@ -120,7 +122,7 @@ namespace Selector.CLI.Consumer
         {
             var watcher = watch ?? Watcher ?? throw new ArgumentNullException(nameof(watch));
 
-            if (watcher is IPlayerWatcher watcherCast)
+            if (watcher is ISpotifyPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange += Callback;
             }
@@ -134,7 +136,7 @@ namespace Selector.CLI.Consumer
         {
             var watcher = watch ?? Watcher ?? throw new ArgumentNullException(nameof(watch));
 
-            if (watcher is IPlayerWatcher watcherCast)
+            if (watcher is ISpotifyPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange -= Callback;
             }
@@ -145,4 +147,3 @@ namespace Selector.CLI.Consumer
         }
     }
 }
-

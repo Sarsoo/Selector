@@ -1,19 +1,14 @@
-
-using System;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Selector.Model
 {
-
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         private readonly ILogger<ApplicationDbContext> Logger;
@@ -27,7 +22,7 @@ namespace Selector.Model
         public DbSet<SpotifyListen> SpotifyListen { get; set; }
 
         public ApplicationDbContext(
-            DbContextOptions<ApplicationDbContext> options, 
+            DbContextOptions<ApplicationDbContext> options,
             ILogger<ApplicationDbContext> logger
         ) : base(options)
         {
@@ -36,14 +31,14 @@ namespace Selector.Model
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.HasCollation("case_insensitive", locale: "en-u-ks-primary", provider: "icu", deterministic: false);
+            modelBuilder.HasCollation("case_insensitive", locale: "en-u-ks-primary", provider: "icu",
+                deterministic: false);
 
             modelBuilder.Entity<ApplicationUser>()
                 .Property(u => u.SpotifyIsLinked)
@@ -112,15 +107,16 @@ namespace Selector.Model
 
         public void CreatePlayerWatcher(string userId)
         {
-            if(Watcher.Any(w => w.UserId == userId && w.Type == WatcherType.Player))
+            if (Watcher.Any(w => w.UserId == userId && w.Type == WatcherType.SpotifyPlayer))
             {
                 Logger.LogWarning("Trying to create more than one player watcher for user [{id}]", userId);
                 return;
             }
 
-            Watcher.Add(new Watcher {
+            Watcher.Add(new Watcher
+            {
                 UserId = userId,
-                Type = WatcherType.Player
+                Type = WatcherType.SpotifyPlayer
             });
 
             SaveChanges();
@@ -129,17 +125,18 @@ namespace Selector.Model
 
     public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
     {
-        private static string GetPath(string env) => $"{@Directory.GetCurrentDirectory()}/../Selector.Web/appsettings.{env}.json";
+        private static string GetPath(string env) =>
+            $"{@Directory.GetCurrentDirectory()}/../Selector.Web/appsettings.{env}.json";
 
         public ApplicationDbContext CreateDbContext(string[] args)
         {
             string configFile;
 
-            if(File.Exists(GetPath("Development")))
+            if (File.Exists(GetPath("Development")))
             {
                 configFile = GetPath("Development");
             }
-            else if(File.Exists(GetPath("Production")))
+            else if (File.Exists(GetPath("Production")))
             {
                 configFile = GetPath("Production");
             }
@@ -155,7 +152,7 @@ namespace Selector.Model
 
             var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
             builder.UseNpgsql(configuration.GetConnectionString("Default"));
-            
+
             return new ApplicationDbContext(builder.Options, NullLogger<ApplicationDbContext>.Instance);
         }
     }

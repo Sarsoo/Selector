@@ -1,32 +1,31 @@
 using System;
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-
 using StackExchange.Redis;
 
 namespace Selector.Cache
 {
-    public class Publisher : IPlayerConsumer
+    public class SpotifyPublisher : ISpotifyPlayerConsumer
     {
-        private readonly IPlayerWatcher Watcher;
+        private readonly ISpotifyPlayerWatcher Watcher;
         private readonly ISubscriber Subscriber;
-        private readonly ILogger<Publisher> Logger;
+        private readonly ILogger<SpotifyPublisher> Logger;
 
         public CancellationToken CancelToken { get; set; }
 
-        public Publisher(
-            IPlayerWatcher watcher,
+        public SpotifyPublisher(
+            ISpotifyPlayerWatcher watcher,
             ISubscriber subscriber,
-            ILogger<Publisher> logger = null,
+            ILogger<SpotifyPublisher> logger = null,
             CancellationToken token = default
-        ){
+        )
+        {
             Watcher = watcher;
             Subscriber = subscriber;
-            Logger = logger ?? NullLogger<Publisher>.Instance;
+            Logger = logger ?? NullLogger<SpotifyPublisher>.Instance;
             CancelToken = token;
         }
 
@@ -34,7 +33,8 @@ namespace Selector.Cache
         {
             if (e.Current is null) return;
 
-            Task.Run(async () => {
+            Task.Run(async () =>
+            {
                 try
                 {
                     await AsyncCallback(e);
@@ -50,12 +50,12 @@ namespace Selector.Cache
         {
             using var scope = Logger.GetListeningEventArgsScope(e);
 
-            var payload = JsonSerializer.Serialize((CurrentlyPlayingDTO) e, JsonContext.Default.CurrentlyPlayingDTO);
+            var payload = JsonSerializer.Serialize((CurrentlyPlayingDTO)e, JsonContext.Default.CurrentlyPlayingDTO);
 
             Logger.LogTrace("Publishing current");
-            
+
             // TODO: currently using spotify username for cache key, use db username
-            var receivers = await Subscriber.PublishAsync(Key.CurrentlyPlaying(e.Id), payload);
+            var receivers = await Subscriber.PublishAsync(Key.CurrentlyPlayingSpotify(e.Id), payload);
 
             Logger.LogDebug("Published current, {receivers} receivers", receivers);
         }
@@ -64,10 +64,10 @@ namespace Selector.Cache
         {
             var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
 
-            if (watcher is IPlayerWatcher watcherCast)
+            if (watcher is ISpotifyPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange += Callback;
-            } 
+            }
             else
             {
                 throw new ArgumentException("Provided watcher is not a PlayerWatcher");
@@ -78,7 +78,7 @@ namespace Selector.Cache
         {
             var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
 
-            if (watcher is IPlayerWatcher watcherCast)
+            if (watcher is ISpotifyPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange -= Callback;
             }

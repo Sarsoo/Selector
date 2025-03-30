@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using SpotifyAPI.Web;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using SpotifyAPI.Web;
 
 namespace Selector
 {
-    public class PlayerWatcher: BaseWatcher, IPlayerWatcher
+    public class SpotifyPlayerWatcher : BaseSpotifyWatcher, ISpotifyPlayerWatcher
     {
-        new protected readonly ILogger<PlayerWatcher> Logger;
+        new protected readonly ILogger<SpotifyPlayerWatcher> Logger;
         private readonly IPlayerClient spotifyClient;
         private readonly IEqual eq;
 
@@ -30,15 +29,15 @@ namespace Selector
         protected CurrentlyPlayingContext Previous { get; set; }
         public PlayerTimeline Past { get; set; } = new();
 
-        public PlayerWatcher(IPlayerClient spotifyClient, 
-                IEqual equalityChecker,
-                ILogger<PlayerWatcher> logger = null,
-                int pollPeriod = 3000
-        ) : base(logger) {
-
+        public SpotifyPlayerWatcher(IPlayerClient spotifyClient,
+            IEqual equalityChecker,
+            ILogger<SpotifyPlayerWatcher> logger = null,
+            int pollPeriod = 3000
+        ) : base(logger)
+        {
             this.spotifyClient = spotifyClient;
             eq = equalityChecker;
-            Logger = logger ?? NullLogger<PlayerWatcher>.Instance;
+            Logger = logger ?? NullLogger<SpotifyPlayerWatcher>.Instance;
             PollPeriod = pollPeriod;
         }
 
@@ -51,15 +50,17 @@ namespace Selector
             return Task.CompletedTask;
         }
 
-        public override async Task WatchOne(CancellationToken token = default) 
+        public override async Task WatchOne(CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
-            
-            try{
+
+            try
+            {
                 Logger.LogTrace("Making Spotify call");
                 var polledCurrent = await spotifyClient.GetCurrentPlayback();
 
-                using var polledLogScope = Logger.BeginScope(new Dictionary<string, object>() { { "context", polledCurrent?.DisplayString() } });
+                using var polledLogScope = Logger.BeginScope(new Dictionary<string, object>()
+                    { { "context", polledCurrent?.DisplayString() } });
 
                 Logger.LogTrace("Received Spotify call");
 
@@ -75,20 +76,19 @@ namespace Selector
                 CheckContext();
                 CheckItem();
                 CheckDevice();
-
             }
-            catch(APIUnauthorizedException e)
+            catch (APIUnauthorizedException e)
             {
                 Logger.LogDebug("Unauthorised error: [{message}] (should be refreshed and retried?)", e.Message);
                 //throw e;
             }
-            catch(APITooManyRequestsException e)
+            catch (APITooManyRequestsException e)
             {
                 Logger.LogDebug("Too many requests error: [{message}]", e.Message);
                 await Task.Delay(e.RetryAfter, token);
                 // throw e;
             }
-            catch(APIException e)
+            catch (APIException e)
             {
                 Logger.LogDebug("API error: [{message}]", e.Message);
                 // throw e;
@@ -97,7 +97,6 @@ namespace Selector
 
         protected void CheckItem()
         {
-
             switch (Previous, Live)
             {
                 case (null or { Item: null }, { Item: FullTrack track }):
@@ -127,38 +126,46 @@ namespace Selector
                 case ({ Item: FullTrack previousTrack }, { Item: FullTrack currentTrack }):
                     if (!eq.IsEqual(previousTrack, currentTrack))
                     {
-                        Logger.LogDebug("Track changed: {prevTrack} -> {currentTrack}", previousTrack.DisplayString(), currentTrack.DisplayString());
+                        Logger.LogDebug("Track changed: {prevTrack} -> {currentTrack}", previousTrack.DisplayString(),
+                            currentTrack.DisplayString());
                         OnItemChange(GetEvent());
                     }
 
                     if (!eq.IsEqual(previousTrack.Album, currentTrack.Album))
                     {
-                        Logger.LogDebug("Album changed: {previous} -> {current}", previousTrack.Album.DisplayString(), currentTrack.Album.DisplayString());
+                        Logger.LogDebug("Album changed: {previous} -> {current}", previousTrack.Album.DisplayString(),
+                            currentTrack.Album.DisplayString());
                         OnAlbumChange(GetEvent());
                     }
 
                     if (!eq.IsEqual(previousTrack.Artists[0], currentTrack.Artists[0]))
                     {
-                        Logger.LogDebug("Artist changed: {previous} -> {current}", previousTrack.Artists.DisplayString(), currentTrack.Artists.DisplayString());
+                        Logger.LogDebug("Artist changed: {previous} -> {current}",
+                            previousTrack.Artists.DisplayString(), currentTrack.Artists.DisplayString());
                         OnArtistChange(GetEvent());
                     }
+
                     break;
                 case ({ Item: FullTrack previousTrack }, { Item: FullEpisode currentEp }):
-                    Logger.LogDebug("Media type changed: {previous}, {current}", previousTrack.DisplayString(), currentEp.DisplayString());
+                    Logger.LogDebug("Media type changed: {previous}, {current}", previousTrack.DisplayString(),
+                        currentEp.DisplayString());
                     OnContentChange(GetEvent());
                     OnItemChange(GetEvent());
                     break;
                 case ({ Item: FullEpisode previousEpisode }, { Item: FullTrack currentTrack }):
-                    Logger.LogDebug("Media type changed: {previous}, {current}", previousEpisode.DisplayString(), currentTrack.DisplayString());
+                    Logger.LogDebug("Media type changed: {previous}, {current}", previousEpisode.DisplayString(),
+                        currentTrack.DisplayString());
                     OnContentChange(GetEvent());
                     OnItemChange(GetEvent());
                     break;
                 case ({ Item: FullEpisode previousEp }, { Item: FullEpisode currentEp }):
                     if (!eq.IsEqual(previousEp, currentEp))
                     {
-                        Logger.LogDebug("Podcast changed: {previous_ep} -> {current_ep}", previousEp.DisplayString(), currentEp.DisplayString());
+                        Logger.LogDebug("Podcast changed: {previous_ep} -> {current_ep}", previousEp.DisplayString(),
+                            currentEp.DisplayString());
                         OnItemChange(GetEvent());
                     }
+
                     break;
             }
         }
@@ -173,7 +180,8 @@ namespace Selector
             }
             else if (!eq.IsEqual(Previous?.Context, Live?.Context))
             {
-                Logger.LogDebug("Context changed: {previous_context} -> {live_context}", Previous?.Context?.DisplayString() ?? "none", Live?.Context?.DisplayString() ?? "none");
+                Logger.LogDebug("Context changed: {previous_context} -> {live_context}",
+                    Previous?.Context?.DisplayString() ?? "none", Live?.Context?.DisplayString() ?? "none");
                 OnContextChange(GetEvent());
             }
         }
@@ -196,7 +204,8 @@ namespace Selector
             // IS PLAYING
             if (Previous?.IsPlaying != Live?.IsPlaying)
             {
-                Logger.LogDebug("Playing state changed: {previous_playing} -> {live_playing}", Previous?.IsPlaying, Live?.IsPlaying);
+                Logger.LogDebug("Playing state changed: {previous_playing} -> {live_playing}", Previous?.IsPlaying,
+                    Live?.IsPlaying);
                 OnPlayingChange(GetEvent());
             }
         }
@@ -206,30 +215,34 @@ namespace Selector
             // DEVICE
             if (!eq.IsEqual(Previous?.Device, Live?.Device))
             {
-                Logger.LogDebug("Device changed: {previous_device} -> {live_device}", Previous?.Device?.DisplayString() ?? "none", Live?.Device?.DisplayString() ?? "none");
+                Logger.LogDebug("Device changed: {previous_device} -> {live_device}",
+                    Previous?.Device?.DisplayString() ?? "none", Live?.Device?.DisplayString() ?? "none");
                 OnDeviceChange(GetEvent());
             }
 
             // VOLUME
             if (Previous?.Device?.VolumePercent != Live?.Device?.VolumePercent)
             {
-                Logger.LogDebug("Volume changed: {previous_volume}% -> {live_volume}%", Previous?.Device?.VolumePercent, Live?.Device?.VolumePercent);
+                Logger.LogDebug("Volume changed: {previous_volume}% -> {live_volume}%", Previous?.Device?.VolumePercent,
+                    Live?.Device?.VolumePercent);
                 OnVolumeChange(GetEvent());
             }
         }
 
-        protected ListeningChangeEventArgs GetEvent() => ListeningChangeEventArgs.From(Previous, Live, Past, id: Id, username: SpotifyUsername);
+        protected ListeningChangeEventArgs GetEvent() =>
+            ListeningChangeEventArgs.From(Previous, Live, Past, id: Id, username: SpotifyUsername);
 
         /// <summary>
         /// Store currently playing in last plays. Determine whether new list or appending required
         /// </summary>
         /// <param name="current">New currently playing to store</param>
-        protected void StoreCurrentPlaying(CurrentlyPlayingContext current) 
+        protected void StoreCurrentPlaying(CurrentlyPlayingContext current)
         {
             Past?.Add(current);
         }
 
         #region Event Firers
+
         protected virtual void OnNetworkPoll(ListeningChangeEventArgs args)
         {
             NetworkPoll?.Invoke(this, args);
@@ -237,27 +250,27 @@ namespace Selector
 
         protected virtual void OnItemChange(ListeningChangeEventArgs args)
         {
-            ItemChange?.Invoke(this, args); 
+            ItemChange?.Invoke(this, args);
         }
 
         protected virtual void OnAlbumChange(ListeningChangeEventArgs args)
         {
-            AlbumChange?.Invoke(this, args); 
+            AlbumChange?.Invoke(this, args);
         }
 
         protected virtual void OnArtistChange(ListeningChangeEventArgs args)
         {
-            ArtistChange?.Invoke(this, args); 
+            ArtistChange?.Invoke(this, args);
         }
 
         protected virtual void OnContextChange(ListeningChangeEventArgs args)
         {
-            ContextChange?.Invoke(this, args); 
+            ContextChange?.Invoke(this, args);
         }
 
         protected virtual void OnContentChange(ListeningChangeEventArgs args)
         {
-            ContentChange?.Invoke(this, args); 
+            ContentChange?.Invoke(this, args);
         }
 
         protected virtual void OnVolumeChange(ListeningChangeEventArgs args)
@@ -267,12 +280,12 @@ namespace Selector
 
         protected virtual void OnDeviceChange(ListeningChangeEventArgs args)
         {
-            DeviceChange?.Invoke(this, args); 
+            DeviceChange?.Invoke(this, args);
         }
 
         protected virtual void OnPlayingChange(ListeningChangeEventArgs args)
         {
-            PlayingChange?.Invoke(this, args); 
+            PlayingChange?.Invoke(this, args);
         }
 
         #endregion

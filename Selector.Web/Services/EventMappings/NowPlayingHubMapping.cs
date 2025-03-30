@@ -1,14 +1,13 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
-
-using Selector.Web.Hubs;
 using Selector.Events;
 using Selector.SignalR;
+using Selector.Web.Hubs;
 
 namespace Selector.Web.Service
 {
-    public class NowPlayingHubMapping: IEventHubMapping<NowPlayingHub, INowPlayingHubClient>
+    public class NowPlayingHubMapping : IEventHubMapping<NowPlayingHub, INowPlayingHubClient>
     {
         private readonly ILogger<NowPlayingHubMapping> Logger;
         private readonly UserEventBus UserEvent;
@@ -27,12 +26,19 @@ namespace Selector.Web.Service
         {
             Logger.LogDebug("Forming now playing event mapping between event bus and SignalR hub");
 
-            UserEvent.CurrentlyPlaying += async (o, args) =>
+            UserEvent.CurrentlyPlayingSpotify += async (o, args) =>
             {
                 Logger.LogDebug("Passing now playing event to SignalR hub [{userId}]", args.UserId);
 
                 await Hub.Clients.User(args.UserId).OnNewPlaying(args);
             };
+
+            // UserEvent.CurrentlyPlayingApple += async (o, args) =>
+            // {
+            //     Logger.LogDebug("Passing now playing event to SignalR hub", args.UserId);
+            //
+            //     await Hub.Clients.User(args.UserId).OnNewPlaying(args);
+            // };
 
             return Task.CompletedTask;
         }

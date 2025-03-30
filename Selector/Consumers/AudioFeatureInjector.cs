@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -9,9 +7,9 @@ using SpotifyAPI.Web;
 
 namespace Selector
 {
-    public class AudioFeatureInjector : IPlayerConsumer
+    public class AudioFeatureInjector : ISpotifyPlayerConsumer
     {
-        protected readonly IPlayerWatcher Watcher;
+        protected readonly ISpotifyPlayerWatcher Watcher;
         protected readonly ITracksClient TrackClient;
         protected readonly ILogger<AudioFeatureInjector> Logger;
 
@@ -22,11 +20,12 @@ namespace Selector
         public AnalysedTrackTimeline Timeline { get; set; } = new();
 
         public AudioFeatureInjector(
-            IPlayerWatcher watcher, 
-            ITracksClient trackClient, 
+            ISpotifyPlayerWatcher watcher,
+            ITracksClient trackClient,
             ILogger<AudioFeatureInjector> logger = null,
             CancellationToken token = default
-        ){
+        )
+        {
             Watcher = watcher;
             TrackClient = trackClient;
             Logger = logger ?? NullLogger<AudioFeatureInjector>.Instance;
@@ -37,7 +36,8 @@ namespace Selector
         {
             if (e.Current is null) return;
 
-            Task.Run(async () => {
+            Task.Run(async () =>
+            {
                 try
                 {
                     await AsyncCallback(e);
@@ -57,10 +57,12 @@ namespace Selector
             {
                 if (string.IsNullOrWhiteSpace(track.Id)) return;
 
-                try {
+                try
+                {
                     Logger.LogTrace("Making Spotify call");
                     var audioFeatures = await TrackClient.GetAudioFeatures(track.Id);
-                    Logger.LogDebug("Adding audio features [{track}]: [{audio_features}]", track.DisplayString(), audioFeatures.DisplayString());
+                    Logger.LogDebug("Adding audio features [{track}]: [{audio_features}]", track.DisplayString(),
+                        audioFeatures.DisplayString());
 
                     var analysedTrack = AnalysedTrack.From(track, audioFeatures);
 
@@ -103,10 +105,10 @@ namespace Selector
         {
             var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
 
-            if (watcher is IPlayerWatcher watcherCast)
+            if (watcher is ISpotifyPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange += Callback;
-            } 
+            }
             else
             {
                 throw new ArgumentException("Provided watcher is not a PlayerWatcher");
@@ -117,7 +119,7 @@ namespace Selector
         {
             var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
 
-            if (watcher is IPlayerWatcher watcherCast)
+            if (watcher is ISpotifyPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange -= Callback;
             }
@@ -129,11 +131,12 @@ namespace Selector
 
         protected virtual void OnNewFeature(AnalysedTrack args)
         {
-            NewFeature?.Invoke(this, args); 
+            NewFeature?.Invoke(this, args);
         }
     }
 
-    public class AnalysedTrack {
+    public class AnalysedTrack
+    {
         public FullTrack Track { get; set; }
         public TrackAudioFeatures Features { get; set; }
 

@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-
-using StackExchange.Redis;
 using IF.Lastfm.Core.Api;
+using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 
 namespace Selector.Cache
 {
-    public class PlayCounterCachingFactory: IPlayCounterFactory
+    public class PlayCounterCachingFactory : IPlayCounterFactory
     {
         private readonly ILoggerFactory LoggerFactory;
         private readonly IDatabaseAsync Cache;
@@ -17,9 +14,9 @@ namespace Selector.Cache
         private readonly LastFmCredentials Creds;
 
         public PlayCounterCachingFactory(
-            ILoggerFactory loggerFactory, 
+            ILoggerFactory loggerFactory,
             IDatabaseAsync cache,
-            LastfmClient client = null, 
+            LastfmClient client = null,
             LastFmCredentials creds = null)
         {
             LoggerFactory = loggerFactory;
@@ -28,7 +25,8 @@ namespace Selector.Cache
             Creds = creds;
         }
 
-        public Task<IPlayerConsumer> Get(LastfmClient fmClient = null, LastFmCredentials creds = null, IPlayerWatcher watcher = null)
+        public Task<ISpotifyPlayerConsumer> Get(LastfmClient fmClient = null, LastFmCredentials creds = null,
+            ISpotifyPlayerWatcher watcher = null)
         {
             var client = fmClient ?? Client;
 
@@ -37,7 +35,7 @@ namespace Selector.Cache
                 throw new ArgumentNullException("No Last.fm client provided");
             }
 
-            return Task.FromResult<IPlayerConsumer>(new PlayCounterCaching(
+            return Task.FromResult<ISpotifyPlayerConsumer>(new PlayCounterCaching(
                 watcher,
                 client.Track,
                 client.Album,

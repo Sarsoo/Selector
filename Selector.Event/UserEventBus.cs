@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-
+using Selector.AppleMusic;
 using Selector.Model;
 
 namespace Selector.Events
 {
-    public class UserEventBus: IEventBus
+    public class UserEventBus : IEventBus
     {
         private readonly ILogger<UserEventBus> Logger;
 
@@ -13,7 +13,8 @@ namespace Selector.Events
         public event EventHandler<AppleMusicLinkChange> AppleLinkChange;
         public event EventHandler<LastfmChange> LastfmCredChange;
 
-        public event EventHandler<CurrentlyPlayingDTO> CurrentlyPlaying;
+        public event EventHandler<CurrentlyPlayingDTO> CurrentlyPlayingSpotify;
+        public event EventHandler<AppleListeningChangeEventArgs> CurrentlyPlayingApple;
 
         public UserEventBus(ILogger<UserEventBus> logger)
         {
@@ -44,10 +45,16 @@ namespace Selector.Events
             LastfmCredChange?.Invoke(sender, args);
         }
 
-        public void OnCurrentlyPlayingChange(object sender, CurrentlyPlayingDTO args)
+        public void OnCurrentlyPlayingChangeSpotify(object sender, CurrentlyPlayingDTO args)
         {
             Logger.LogTrace("Firing currently playing event [{usernamne}/{userId}]", args?.Username, args.UserId);
-            CurrentlyPlaying?.Invoke(sender, args);
+            CurrentlyPlayingSpotify?.Invoke(sender, args);
+        }
+
+        public void OnCurrentlyPlayingChangeApple(object sender, AppleListeningChangeEventArgs args)
+        {
+            Logger.LogTrace("Firing currently playing event");
+            CurrentlyPlayingApple?.Invoke(sender, args);
         }
     }
 }

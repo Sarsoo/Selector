@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Selector.AppleMusic\Selector.AppleMusic.csproj"/>
     <ProjectReference Include="..\Selector\Selector.csproj" />
   </ItemGroup>
 

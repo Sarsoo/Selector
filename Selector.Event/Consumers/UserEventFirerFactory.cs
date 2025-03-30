@@ -4,10 +4,10 @@ namespace Selector.Events
 {
     public interface IUserEventFirerFactory
     {
-        public Task<UserEventFirer> Get(IPlayerWatcher watcher = null);
+        public Task<SpotifyUserEventFirer> Get(ISpotifyPlayerWatcher watcher = null);
     }
-    
-    public class UserEventFirerFactory: IUserEventFirerFactory
+
+    public class UserEventFirerFactory : IUserEventFirerFactory
     {
         private readonly ILoggerFactory LoggerFactory;
         private readonly UserEventBus UserEvent;
@@ -18,12 +18,12 @@ namespace Selector.Events
             UserEvent = userEvent;
         }
 
-        public Task<UserEventFirer> Get(IPlayerWatcher watcher = null)
+        public Task<SpotifyUserEventFirer> Get(ISpotifyPlayerWatcher watcher = null)
         {
-            return Task.FromResult(new UserEventFirer(
+            return Task.FromResult(new SpotifyUserEventFirer(
                 watcher,
                 UserEvent,
-                LoggerFactory.CreateLogger<UserEventFirer>()
+                LoggerFactory.CreateLogger<SpotifyUserEventFirer>()
             ));
         }
     }

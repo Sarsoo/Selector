@@ -1,41 +1,41 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-
 using IF.Lastfm.Core.Api;
+using Microsoft.Extensions.Logging;
 
 namespace Selector
 {
     public interface IPlayCounterFactory
     {
-        public Task<IPlayerConsumer> Get(LastfmClient fmClient = null, LastFmCredentials creds = null, IPlayerWatcher watcher = null);
+        public Task<ISpotifyPlayerConsumer> Get(LastfmClient fmClient = null, LastFmCredentials creds = null,
+            ISpotifyPlayerWatcher watcher = null);
     }
-    
-    public class PlayCounterFactory: IPlayCounterFactory {
 
+    public class PlayCounterFactory : IPlayCounterFactory
+    {
         private readonly ILoggerFactory LoggerFactory;
         private readonly LastfmClient Client;
         private readonly LastFmCredentials Creds;
 
-        public PlayCounterFactory(ILoggerFactory loggerFactory, LastfmClient client = null, LastFmCredentials creds = null)
+        public PlayCounterFactory(ILoggerFactory loggerFactory, LastfmClient client = null,
+            LastFmCredentials creds = null)
         {
             LoggerFactory = loggerFactory;
             Client = client;
             Creds = creds;
         }
 
-        public Task<IPlayerConsumer> Get(LastfmClient fmClient = null, LastFmCredentials creds = null, IPlayerWatcher watcher = null)
+        public Task<ISpotifyPlayerConsumer> Get(LastfmClient fmClient = null, LastFmCredentials creds = null,
+            ISpotifyPlayerWatcher watcher = null)
         {
             var client = fmClient ?? Client;
 
-            if(client is null)
+            if (client is null)
             {
                 throw new ArgumentNullException("No Last.fm client provided");
             }
 
-            return Task.FromResult<IPlayerConsumer>(new PlayCounter(
+            return Task.FromResult<ISpotifyPlayerConsumer>(new PlayCounter(
                 watcher,
                 client.Track,
                 client.Album,

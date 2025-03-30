@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-
-using System.Net.Http;
 
 namespace Selector
 {
     public interface IWebHookFactory
     {
-        public Task<WebHook> Get(WebHookConfig config, IPlayerWatcher watcher = null);
+        public Task<WebHook> Get(WebHookConfig config, ISpotifyPlayerWatcher watcher = null);
     }
-    
-    public class WebHookFactory: IWebHookFactory
+
+    public class WebHookFactory : IWebHookFactory
     {
         private readonly ILoggerFactory LoggerFactory;
         private readonly HttpClient Http;
@@ -24,7 +20,7 @@ namespace Selector
             Http = httpClient;
         }
 
-        public Task<WebHook> Get(WebHookConfig config, IPlayerWatcher watcher = null)
+        public Task<WebHook> Get(WebHookConfig config, ISpotifyPlayerWatcher watcher = null)
         {
             return Task.FromResult(new WebHook(
                 watcher,

@@ -1,9 +1,8 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-
-using StackExchange.Redis;
-
+using Selector.AppleMusic;
 using Selector.Cache;
+using StackExchange.Redis;
 
 namespace Selector.Events
 {
@@ -28,20 +27,39 @@ namespace Selector.Events
             {
                 Logger.LogDebug("Forming now playing event mapping between cache and event bus");
 
-                (await Subscriber.SubscribeAsync(Key.AllCurrentlyPlaying)).OnMessage(message => {
-
+                (await Subscriber.SubscribeAsync(Key.AllCurrentlyPlayingSpotify)).OnMessage(message =>
+                {
                     try
                     {
                         var userId = Key.Param(message.Channel);
 
-                        var deserialised = JsonSerializer.Deserialize(message.Message, JsonContext.Default.CurrentlyPlayingDTO);
-                        Logger.LogDebug("Received new currently playing [{username}]", deserialised.Username);
+                        var deserialised =
+                            JsonSerializer.Deserialize(message.Message, JsonContext.Default.CurrentlyPlayingDTO);
+                        Logger.LogDebug("Received new Spotify currently playing [{username}]", deserialised.Username);
 
-                        UserEvent.OnCurrentlyPlayingChange(this, deserialised);
+                        UserEvent.OnCurrentlyPlayingChangeSpotify(this, deserialised);
                     }
                     catch (Exception e)
                     {
-                        Logger.LogError(e, "Error parsing new currently playing [{message}]", message);
+                        Logger.LogError(e, "Error parsing new Spotify currently playing [{message}]", message);
+                    }
+                });
+
+                (await Subscriber.SubscribeAsync(Key.AllCurrentlyPlayingApple)).OnMessage(message =>
+                {
+                    try
+                    {
+                        var userId = Key.Param(message.Channel);
+
+                        var deserialised = JsonSerializer.Deserialize(message.Message,
+                            AppleJsonContext.Default.AppleListeningChangeEventArgs);
+                        Logger.LogDebug("Received new Apple Music currently playing");
+
+                        UserEvent.OnCurrentlyPlayingChangeApple(this, deserialised);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.LogError(e, "Error parsing new Apple Music currently playing [{message}]", message);
                     }
                 });
             }
@@ -69,10 +87,16 @@ namespace Selector.Events
             {
                 Logger.LogDebug("Forming now playing event mapping TO cache FROM event bus");
 
-                UserEvent.CurrentlyPlaying += async (o, e) =>
+                UserEvent.CurrentlyPlayingSpotify += async (o, e) =>
                 {
                     var payload = JsonSerializer.Serialize(e, JsonContext.Default.CurrentlyPlayingDTO);
-                    await Subscriber.PublishAsync(Key.CurrentlyPlaying(e.UserId), payload);
+                    await Subscriber.PublishAsync(Key.CurrentlyPlayingSpotify(e.UserId), payload);
+                };
+
+                UserEvent.CurrentlyPlayingApple += async (o, e) =>
+                {
+                    var payload = JsonSerializer.Serialize(e, AppleJsonContext.Default.AppleListeningChangeEventArgs);
+                    await Subscriber.PublishAsync(Key.CurrentlyPlayingAppleMusic(e.Id), payload);
                 };
 
                 return Task.CompletedTask;

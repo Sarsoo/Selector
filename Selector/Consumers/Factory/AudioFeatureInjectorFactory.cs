@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-
 using SpotifyAPI.Web;
 
 namespace Selector
 {
     public interface IAudioFeatureInjectorFactory
     {
-        public Task<IPlayerConsumer> Get(ISpotifyConfigFactory spotifyFactory, IPlayerWatcher watcher = null);
+        public Task<ISpotifyPlayerConsumer> Get(ISpotifyConfigFactory spotifyFactory,
+            ISpotifyPlayerWatcher watcher = null);
     }
-    
-    public class AudioFeatureInjectorFactory: IAudioFeatureInjectorFactory {
 
+    public class AudioFeatureInjectorFactory : IAudioFeatureInjectorFactory
+    {
         private readonly ILoggerFactory LoggerFactory;
 
         public AudioFeatureInjectorFactory(ILoggerFactory loggerFactory)
@@ -22,7 +19,8 @@ namespace Selector
             LoggerFactory = loggerFactory;
         }
 
-        public async Task<IPlayerConsumer> Get(ISpotifyConfigFactory spotifyFactory, IPlayerWatcher watcher = null)
+        public async Task<ISpotifyPlayerConsumer> Get(ISpotifyConfigFactory spotifyFactory,
+            ISpotifyPlayerWatcher watcher = null)
         {
             if (!Magic.Dummy)
             {

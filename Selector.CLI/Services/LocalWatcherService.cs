@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
+using Selector.AppleMusic;
+using Selector.AppleMusic.Watcher;
 using Selector.Cache;
 using Selector.CLI.Consumer;
 
@@ -21,30 +21,38 @@ namespace Selector.CLI
 
         private readonly ILogger<LocalWatcherService> Logger;
         private readonly RootOptions Config;
-        private readonly IWatcherFactory WatcherFactory;
+        private readonly ISpotifyWatcherFactory _spotifyWatcherFactory;
+        private readonly IAppleMusicWatcherFactory _appleWatcherFactory;
         private readonly IWatcherCollectionFactory WatcherCollectionFactory;
         private readonly IRefreshTokenFactoryProvider SpotifyFactory;
+        private readonly AppleMusicApiProvider _appleMusicApiProvider;
+        private readonly IOptions<AppleMusicOptions> _appleMusicOptions;
 
         private readonly IServiceProvider ServiceProvider;
 
         private Dictionary<string, IWatcherCollection> Watchers { get; set; } = new();
 
         public LocalWatcherService(
-            IWatcherFactory watcherFactory,
+            ISpotifyWatcherFactory spotifyWatcherFactory,
+            IAppleMusicWatcherFactory appleWatcherFactory,
             IWatcherCollectionFactory watcherCollectionFactory,
             IRefreshTokenFactoryProvider spotifyFactory,
-
+            AppleMusicApiProvider appleMusicApiProvider,
+            IOptions<AppleMusicOptions> appleMusicOptions,
             IServiceProvider serviceProvider,
-
             ILogger<LocalWatcherService> logger,
             IOptions<RootOptions> config
-        ) {
+        )
+        {
             Logger = logger;
             Config = config.Value;
 
-            WatcherFactory = watcherFactory;
+            _spotifyWatcherFactory = spotifyWatcherFactory;
+            _appleWatcherFactory = appleWatcherFactory;
             WatcherCollectionFactory = watcherCollectionFactory;
             SpotifyFactory = spotifyFactory;
+            _appleMusicApiProvider = appleMusicApiProvider;
+            _appleMusicOptions = appleMusicOptions;
 
             ServiceProvider = serviceProvider;
         }
@@ -75,7 +83,8 @@ namespace Selector.CLI
                     logMsg.Append($"Creating new [{watcherOption.Type}] watcher");
                 }
 
-                if (!string.IsNullOrWhiteSpace(watcherOption.PlaylistUri)) logMsg.Append($" [{ watcherOption.PlaylistUri}]");
+                if (!string.IsNullOrWhiteSpace(watcherOption.PlaylistUri))
+                    logMsg.Append($" [{watcherOption.PlaylistUri}]");
                 Logger.LogInformation(logMsg.ToString());
 
                 var watcherCollectionIdx = watcherOption.WatcherCollection ?? ConfigInstanceKey;
@@ -90,16 +99,25 @@ namespace Selector.CLI
                 var spotifyFactory = await SpotifyFactory.GetFactory(watcherOption.RefreshKey);
 
                 IWatcher watcher = null;
-                switch(watcherOption.Type)
+                switch (watcherOption.Type)
                 {
-                    case WatcherType.Player:
-                        watcher = await WatcherFactory.Get<PlayerWatcher>(spotifyFactory, id: watcherOption.Name, pollPeriod: watcherOption.PollPeriod);
+                    case WatcherType.SpotifyPlayer:
+                        watcher = await _spotifyWatcherFactory.Get<SpotifyPlayerWatcher>(spotifyFactory,
+                            id: watcherOption.Name, pollPeriod: watcherOption.PollPeriod);
                         break;
-                    case WatcherType.Playlist:
-                        var playlistWatcher = await WatcherFactory.Get<PlaylistWatcher>(spotifyFactory, id: watcherOption.Name, pollPeriod: watcherOption.PollPeriod) as PlaylistWatcher;
+                    case WatcherType.SpotifyPlaylist:
+                        var playlistWatcher = await _spotifyWatcherFactory.Get<PlaylistWatcher>(spotifyFactory,
+                            id: watcherOption.Name, pollPeriod: watcherOption.PollPeriod) as PlaylistWatcher;
                         playlistWatcher.config = new() { PlaylistId = watcherOption.PlaylistUri };
 
                         watcher = playlistWatcher;
+                        break;
+                    case WatcherType.AppleMusicPlayer:
+                        var appleMusicWatcher = await _appleWatcherFactory.Get<AppleMusicPlayerWatcher>(
+                            _appleMusicApiProvider, _appleMusicOptions.Value.Key, _appleMusicOptions.Value.TeamId,
+                            _appleMusicOptions.Value.KeyId, watcherOption.AppleUserToken);
+
+                        watcher = appleMusicWatcher;
                         break;
                 }
 
@@ -112,11 +130,13 @@ namespace Selector.CLI
                         switch (consumer)
                         {
                             case Consumers.AudioFeatures:
-                                consumers.Add(await ServiceProvider.GetService<AudioFeatureInjectorFactory>().Get(spotifyFactory));
+                                consumers.Add(await ServiceProvider.GetService<AudioFeatureInjectorFactory>()
+                                    .Get(spotifyFactory));
                                 break;
 
                             case Consumers.AudioFeaturesCache:
-                                consumers.Add(await ServiceProvider.GetService<CachingAudioFeatureInjectorFactory>().Get(spotifyFactory));
+                                consumers.Add(await ServiceProvider.GetService<CachingAudioFeatureInjectorFactory>()
+                                    .Get(spotifyFactory));
                                 break;
 
                             case Consumers.CacheWriter:
@@ -124,18 +144,20 @@ namespace Selector.CLI
                                 break;
 
                             case Consumers.Publisher:
-                                consumers.Add(await ServiceProvider.GetService<PublisherFactory>().Get());
+                                consumers.Add(await ServiceProvider.GetService<PublisherFactory>().GetSpotify());
                                 break;
 
                             case Consumers.PlayCounter:
                                 if (!string.IsNullOrWhiteSpace(watcherOption.LastFmUsername))
                                 {
-                                    consumers.Add(await ServiceProvider.GetService<PlayCounterFactory>().Get(creds: new() { Username = watcherOption.LastFmUsername }));
+                                    consumers.Add(await ServiceProvider.GetService<PlayCounterFactory>()
+                                        .Get(creds: new() { Username = watcherOption.LastFmUsername }));
                                 }
                                 else
                                 {
                                     Logger.LogError("No Last.fm username provided, skipping play counter");
                                 }
+
                                 break;
 
                             case Consumers.MappingPersister:
@@ -171,7 +193,7 @@ namespace Selector.CLI
         {
             Logger.LogInformation("Shutting down");
 
-            foreach((var key, var watcher) in Watchers)
+            foreach ((var key, var watcher) in Watchers)
             {
                 Logger.LogInformation("Stopping watcher collection [{key}]", key);
                 watcher.Stop();

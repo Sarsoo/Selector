@@ -1,8 +1,7 @@
 using System;
-using System.Net.Http;
-using System.Linq;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -19,7 +18,7 @@ namespace Selector
 
         public bool ShouldRequest(ListeningChangeEventArgs e)
         {
-            if(Predicates is not null)
+            if (Predicates is not null)
             {
                 return Predicates.Select(p => p(e)).Aggregate((a, b) => a && b);
             }
@@ -30,9 +29,9 @@ namespace Selector
         }
     }
 
-    public class WebHook : IPlayerConsumer
+    public class WebHook : ISpotifyPlayerConsumer
     {
-        protected readonly IPlayerWatcher Watcher;
+        protected readonly ISpotifyPlayerWatcher Watcher;
         protected readonly HttpClient HttpClient;
         protected readonly ILogger<WebHook> Logger;
 
@@ -47,7 +46,7 @@ namespace Selector
         public AnalysedTrackTimeline Timeline { get; set; } = new();
 
         public WebHook(
-            IPlayerWatcher watcher,
+            ISpotifyPlayerWatcher watcher,
             HttpClient httpClient,
             WebHookConfig config,
             ILogger<WebHook> logger = null,
@@ -64,8 +63,9 @@ namespace Selector
         public void Callback(object sender, ListeningChangeEventArgs e)
         {
             if (e.Current is null) return;
-            
-            Task.Run(async () => {
+
+            Task.Run(async () =>
+            {
                 try
                 {
                     await AsyncCallback(e);
@@ -79,7 +79,11 @@ namespace Selector
 
         public async Task AsyncCallback(ListeningChangeEventArgs e)
         {
-            using var scope = Logger.BeginScope(new Dictionary<string, object>() { { "spotify_username", e.SpotifyUsername }, { "id", e.Id }, { "name", Config.Name }, { "url", Config.Url } });
+            using var scope = Logger.BeginScope(new Dictionary<string, object>()
+            {
+                { "spotify_username", e.SpotifyUsername }, { "id", e.Id }, { "name", Config.Name },
+                { "url", Config.Url }
+            });
 
             if (Config.ShouldRequest(e))
             {
@@ -101,7 +105,7 @@ namespace Selector
                         OnFailedRequest(new EventArgs());
                     }
                 }
-                catch(HttpRequestException ex)
+                catch (HttpRequestException ex)
                 {
                     Logger.LogError(ex, "Exception occured during request");
                 }
@@ -120,7 +124,7 @@ namespace Selector
         {
             var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
 
-            if (watcher is IPlayerWatcher watcherCast)
+            if (watcher is ISpotifyPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange += Callback;
             }
@@ -134,7 +138,7 @@ namespace Selector
         {
             var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
 
-            if (watcher is IPlayerWatcher watcherCast)
+            if (watcher is ISpotifyPlayerWatcher watcherCast)
             {
                 watcherCast.ItemChange -= Callback;
             }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -7,13 +8,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-
+using Microsoft.Extensions.Options;
+using Selector.AppleMusic;
+using Selector.AppleMusic.Watcher;
 using Selector.Cache;
+using Selector.CLI.Consumer;
+using Selector.Events;
 using Selector.Model;
 using Selector.Model.Extensions;
-using Selector.Events;
-using System.Collections.Concurrent;
-using Selector.CLI.Consumer;
 
 namespace Selector.CLI
 {
@@ -22,13 +24,16 @@ namespace Selector.CLI
         private const int PollPeriod = 1000;
 
         private readonly ILogger<DbWatcherService> Logger;
+        private readonly IOptions<AppleMusicOptions> _appleMusicOptions;
         private readonly IServiceProvider ServiceProvider;
         private readonly UserEventBus UserEventBus;
 
-        private readonly IWatcherFactory WatcherFactory;
+        private readonly ISpotifyWatcherFactory _spotifyWatcherFactory;
+        private readonly IAppleMusicWatcherFactory _appleWatcherFactory;
         private readonly IWatcherCollectionFactory WatcherCollectionFactory;
         private readonly IRefreshTokenFactoryProvider SpotifyFactory;
-        
+        private readonly AppleMusicApiProvider _appleMusicProvider;
+
         private readonly IAudioFeatureInjectorFactory AudioFeatureInjectorFactory;
         private readonly IPlayCounterFactory PlayCounterFactory;
 
@@ -42,23 +47,20 @@ namespace Selector.CLI
         private ConcurrentDictionary<string, IWatcherCollection> Watchers { get; set; } = new();
 
         public DbWatcherService(
-            IWatcherFactory watcherFactory,
+            ISpotifyWatcherFactory spotifyWatcherFactory,
+            IAppleMusicWatcherFactory appleWatcherFactory,
             IWatcherCollectionFactory watcherCollectionFactory,
             IRefreshTokenFactoryProvider spotifyFactory,
-
+            AppleMusicApiProvider appleMusicProvider,
             IAudioFeatureInjectorFactory audioFeatureInjectorFactory,
             IPlayCounterFactory playCounterFactory,
-
             UserEventBus userEventBus,
-
             ILogger<DbWatcherService> logger,
+            IOptions<AppleMusicOptions> appleMusicOptions,
             IServiceProvider serviceProvider,
-
             IPublisherFactory publisherFactory = null,
             ICacheWriterFactory cacheWriterFactory = null,
-
             IMappingPersisterFactory mappingPersisterFactory = null,
-
             IUserEventFirerFactory userEventFirerFactory = null
         )
         {
@@ -66,10 +68,13 @@ namespace Selector.CLI
             ServiceProvider = serviceProvider;
             UserEventBus = userEventBus;
 
-            WatcherFactory = watcherFactory;
+            _spotifyWatcherFactory = spotifyWatcherFactory;
+            _appleWatcherFactory = appleWatcherFactory;
+            _appleMusicOptions = appleMusicOptions;
             WatcherCollectionFactory = watcherCollectionFactory;
             SpotifyFactory = spotifyFactory;
-                
+            _appleMusicProvider = appleMusicProvider;
+
             AudioFeatureInjectorFactory = audioFeatureInjectorFactory;
             PlayCounterFactory = playCounterFactory;
 
@@ -100,8 +105,8 @@ namespace Selector.CLI
             var indices = new HashSet<string>();
 
             foreach (var dbWatcher in db.Watcher
-                                        .Include(w => w.User)
-                                        .Where(w => !string.IsNullOrWhiteSpace(w.User.SpotifyRefreshToken)))
+                         .Include(w => w.User)
+                         .Where(w => !string.IsNullOrWhiteSpace(w.User.SpotifyRefreshToken)))
             {
                 var watcherCollectionIdx = dbWatcher.UserId;
                 indices.Add(watcherCollectionIdx);
@@ -131,31 +136,43 @@ namespace Selector.CLI
 
             switch (dbWatcher.Type)
             {
-                case WatcherType.Player:
-                    watcher = await WatcherFactory.Get<PlayerWatcher>(spotifyFactory, id: dbWatcher.UserId, pollPeriod: PollPeriod);
+                case WatcherType.SpotifyPlayer:
+                    watcher = await _spotifyWatcherFactory.Get<SpotifyPlayerWatcher>(spotifyFactory,
+                        id: dbWatcher.UserId, pollPeriod: PollPeriod);
 
                     consumers.Add(await AudioFeatureInjectorFactory.Get(spotifyFactory));
                     if (CacheWriterFactory is not null) consumers.Add(await CacheWriterFactory.Get());
-                    if (PublisherFactory is not null) consumers.Add(await PublisherFactory.Get());
+                    if (PublisherFactory is not null) consumers.Add(await PublisherFactory.GetSpotify());
 
-                    if (MappingPersisterFactory is not null && !Magic.Dummy) consumers.Add(await MappingPersisterFactory.Get());
+                    if (MappingPersisterFactory is not null && !Magic.Dummy)
+                        consumers.Add(await MappingPersisterFactory.Get());
 
                     if (UserEventFirerFactory is not null) consumers.Add(await UserEventFirerFactory.Get());
 
                     if (dbWatcher.User.LastFmConnected())
                     {
-                        consumers.Add(await PlayCounterFactory.Get(creds: new() { Username = dbWatcher.User.LastFmUsername }));
+                        consumers.Add(await PlayCounterFactory.Get(creds: new()
+                            { Username = dbWatcher.User.LastFmUsername }));
                     }
                     else
                     {
-                        Logger.LogDebug("[{username}] No Last.fm username, skipping play counter", dbWatcher.User.UserName);
+                        Logger.LogDebug("[{username}] No Last.fm username, skipping play counter",
+                            dbWatcher.User.UserName);
                     }
 
                     break;
 
-                case WatcherType.Playlist:
+                case WatcherType.SpotifyPlaylist:
                     throw new NotImplementedException("Playlist watchers not implemented");
-                    // break;
+                    break;
+                case WatcherType.AppleMusicPlayer:
+                    watcher = await _appleWatcherFactory.Get<AppleMusicPlayerWatcher>(_appleMusicProvider,
+                        _appleMusicOptions.Value.Key, _appleMusicOptions.Value.TeamId, _appleMusicOptions.Value.KeyId,
+                        dbWatcher.User.AppleMusicKey);
+
+                    if (PublisherFactory is not null) consumers.Add(await PublisherFactory.GetApple());
+
+                    break;
             }
 
             return watcherCollection.Add(watcher, consumers);
@@ -181,7 +198,7 @@ namespace Selector.CLI
         {
             Logger.LogInformation("Shutting down");
 
-            foreach((var key, var watcher) in Watchers)
+            foreach ((var key, var watcher) in Watchers)
             {
                 Logger.LogInformation("Stopping watcher collection [{key}]", key);
                 watcher.Stop();
@@ -195,24 +212,27 @@ namespace Selector.CLI
         private void AttachEventBus()
         {
             UserEventBus.SpotifyLinkChange += SpotifyChangeCallback;
+            UserEventBus.AppleLinkChange += AppleMusicChangeCallback;
             UserEventBus.LastfmCredChange += LastfmChangeCallback;
         }
 
         private void DetachEventBus()
         {
             UserEventBus.SpotifyLinkChange -= SpotifyChangeCallback;
+            UserEventBus.AppleLinkChange -= AppleMusicChangeCallback;
             UserEventBus.LastfmCredChange -= LastfmChangeCallback;
         }
 
         public async void SpotifyChangeCallback(object sender, SpotifyLinkChange change)
         {
-            if(Watchers.ContainsKey(change.UserId))
+            if (Watchers.ContainsKey(change.UserId))
             {
-                Logger.LogDebug("Setting new Spotify link state for [{username}], [{}]", change.UserId, change.NewLinkState);
+                Logger.LogDebug("Setting new Spotify link state for [{username}], [{}]", change.UserId,
+                    change.NewLinkState);
 
                 var watcherCollection = Watchers[change.UserId];
 
-                if(change.NewLinkState)
+                if (change.NewLinkState)
                 {
                     watcherCollection.Start();
                 }
@@ -227,8 +247,46 @@ namespace Selector.CLI
                 var db = scope.ServiceProvider.GetService<ApplicationDbContext>();
 
                 var watcherEnum = db.Watcher
-                                    .Include(w => w.User)
-                                    .Where(w => w.UserId == change.UserId);
+                    .Include(w => w.User)
+                    .Where(w => w.UserId == change.UserId);
+
+                foreach (var dbWatcher in watcherEnum)
+                {
+                    var context = await InitInstance(dbWatcher);
+                }
+
+                Watchers[change.UserId].Start();
+
+                Logger.LogDebug("Started {} watchers for [{username}]", watcherEnum.Count(), change.UserId);
+            }
+        }
+
+        public async void AppleMusicChangeCallback(object sender, AppleMusicLinkChange change)
+        {
+            if (Watchers.ContainsKey(change.UserId))
+            {
+                Logger.LogDebug("Setting new Apple Music link state for [{username}], [{}]", change.UserId,
+                    change.NewLinkState);
+
+                var watcherCollection = Watchers[change.UserId];
+
+                if (change.NewLinkState)
+                {
+                    watcherCollection.Start();
+                }
+                else
+                {
+                    watcherCollection.Stop();
+                }
+            }
+            else
+            {
+                using var scope = ServiceProvider.CreateScope();
+                var db = scope.ServiceProvider.GetService<ApplicationDbContext>();
+
+                var watcherEnum = db.Watcher
+                    .Include(w => w.User)
+                    .Where(w => w.UserId == change.UserId);
 
                 foreach (var dbWatcher in watcherEnum)
                 {
@@ -249,9 +307,9 @@ namespace Selector.CLI
 
                 var watcherCollection = Watchers[change.UserId];
 
-                foreach(var watcher in watcherCollection.Consumers)
+                foreach (var watcher in watcherCollection.Consumers)
                 {
-                    if(watcher is PlayCounter counter)
+                    if (watcher is PlayCounter counter)
                     {
                         counter.Credentials.Username = change.NewUsername;
                     }
@@ -259,7 +317,6 @@ namespace Selector.CLI
             }
             else
             {
-
                 Logger.LogDebug("No watchers running for [{username}], skipping Spotify event", change.UserId);
             }
         }
