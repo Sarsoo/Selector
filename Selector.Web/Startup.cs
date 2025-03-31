@@ -15,6 +15,7 @@ using Selector.Events;
 using Selector.Extensions;
 using Selector.Model;
 using Selector.Model.Extensions;
+using Selector.Spotify;
 using Selector.Web.Auth;
 using Selector.Web.Extensions;
 using Selector.Web.Hubs;
@@ -33,10 +34,7 @@ namespace Selector.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<RootOptions>(options =>
-            {
-                OptionsHelper.ConfigureOptions(options, Configuration);
-            });
+            services.Configure<RootOptions>(options => { OptionsHelper.ConfigureOptions(options, Configuration); });
             services.Configure<RedisOptions>(options =>
             {
                 Configuration.GetSection(string.Join(':', RootOptions.Key, RedisOptions.Key)).Bind(options);
@@ -45,10 +43,7 @@ namespace Selector.Web
             {
                 Configuration.GetSection(string.Join(':', RootOptions.Key, NowPlayingOptions.Key)).Bind(options);
             });
-            services.Configure<JwtOptions>(options =>
-            {
-                Configuration.GetSection(JwtOptions._Key).Bind(options);
-            });
+            services.Configure<JwtOptions>(options => { Configuration.GetSection(JwtOptions._Key).Bind(options); });
             services.Configure<AppleMusicOptions>(options =>
             {
                 Configuration.GetSection(AppleMusicOptions._Key).Bind(options);
@@ -60,23 +55,23 @@ namespace Selector.Web
             {
                 options.ClientId = config.ClientId;
                 options.ClientSecret = config.ClientSecret;
-            }); 
+            });
 
             services.AddRazorPages(o =>
-            {
-                o.Conventions.AllowAnonymousToPage("/");
-                o.Conventions.AuthorizePage("/Now", AuthConstants.CookieAuthentication);
-                o.Conventions.AuthorizePage("/Past", AuthConstants.CookieAuthentication);
-                o.Conventions.AllowAnonymousToPage("/Privacy");
-                o.Conventions.AllowAnonymousToPage("/Error");
-                o.Conventions.AllowAnonymousToAreaPage("Identity", "/Login");
-                o.Conventions.AllowAnonymousToAreaPage("Identity", "/Logout");
-                o.Conventions.AllowAnonymousToAreaPage("Identity", "/Register");
-                o.Conventions.AllowAnonymousToAreaPage("Identity", "/AccessDenied");
-                o.Conventions.AllowAnonymousToAreaPage("Identity", "/Lockout");
-                o.Conventions.AuthorizeAreaPage("Identity", "/Manage", AuthConstants.CookieAuthentication);
-            })
-                    .AddRazorRuntimeCompilation();
+                {
+                    o.Conventions.AllowAnonymousToPage("/");
+                    o.Conventions.AuthorizePage("/Now", AuthConstants.CookieAuthentication);
+                    o.Conventions.AuthorizePage("/Past", AuthConstants.CookieAuthentication);
+                    o.Conventions.AllowAnonymousToPage("/Privacy");
+                    o.Conventions.AllowAnonymousToPage("/Error");
+                    o.Conventions.AllowAnonymousToAreaPage("Identity", "/Login");
+                    o.Conventions.AllowAnonymousToAreaPage("Identity", "/Logout");
+                    o.Conventions.AllowAnonymousToAreaPage("Identity", "/Register");
+                    o.Conventions.AllowAnonymousToAreaPage("Identity", "/AccessDenied");
+                    o.Conventions.AllowAnonymousToAreaPage("Identity", "/Lockout");
+                    o.Conventions.AuthorizeAreaPage("Identity", "/Manage", AuthConstants.CookieAuthentication);
+                })
+                .AddRazorRuntimeCompilation();
             services.AddControllers();
             services.AddSignalR(o => o.EnableDetailedErrors = true);
             services.AddHttpClient();
@@ -95,12 +90,12 @@ namespace Selector.Web
 
         public void ConfigureDB(IServiceCollection services, RootOptions config)
         {
-            services.AddDbContext<ApplicationDbContext>(options => 
+            services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("Default"))
             );
             services.AddDBPlayCountPuller();
             services.AddTransient<IScrobbleRepository, ScrobbleRepository>()
-                    .AddTransient<ISpotifyListenRepository, SpotifyListenRepository>();
+                .AddTransient<ISpotifyListenRepository, SpotifyListenRepository>();
 
             services.AddTransient<IListenRepository, MetaListenRepository>();
             //services.AddTransient<IListenRepository, SpotifyListenRepository>();
@@ -130,7 +125,7 @@ namespace Selector.Web
 
                 // User settings.
                 options.User.AllowedUserNameCharacters =
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                 options.User.RequireUniqueEmail = false;
                 options.SignIn.RequireConfirmedEmail = false;
             });
@@ -173,7 +168,8 @@ namespace Selector.Web
             {
                 options.FallbackPolicy = new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
-                    .AddAuthenticationSchemes(IdentityConstants.ApplicationScheme, JwtBearerDefaults.AuthenticationScheme)
+                    .AddAuthenticationSchemes(IdentityConstants.ApplicationScheme,
+                        JwtBearerDefaults.AuthenticationScheme)
                     .Build();
 
                 options.AddPolicy(AuthConstants.CookieAuthentication, new AuthorizationPolicyBuilder()

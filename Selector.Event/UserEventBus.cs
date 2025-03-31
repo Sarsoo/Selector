@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Selector.AppleMusic;
 using Selector.Model;
+using Selector.Spotify;
 
 namespace Selector.Events
 {

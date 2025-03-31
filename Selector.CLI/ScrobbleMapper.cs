@@ -1,13 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Selector.Model;
-using Selector.Operations;
-using SpotifyAPI.Web;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Selector.Mapping;
+using Selector.Model;
+using Selector.Operations;
+using SpotifyAPI.Web;
 
 namespace Selector
 {
@@ -30,7 +30,9 @@ namespace Selector
         private readonly IScrobbleRepository scrobbleRepo;
         private readonly IScrobbleMappingRepository mappingRepo;
 
-        public ScrobbleMapper(ISearchClient _searchClient, ScrobbleMapperConfig _config, IScrobbleRepository _scrobbleRepository, IScrobbleMappingRepository _scrobbleMappingRepository, ILogger<ScrobbleMapper> _logger, ILoggerFactory _loggerFactory = null)
+        public ScrobbleMapper(ISearchClient _searchClient, ScrobbleMapperConfig _config,
+            IScrobbleRepository _scrobbleRepository, IScrobbleMappingRepository _scrobbleMappingRepository,
+            ILogger<ScrobbleMapper> _logger, ILoggerFactory _loggerFactory = null)
         {
             searchClient = _searchClient;
             config = _config;
@@ -68,9 +70,9 @@ namespace Selector
                 .ExceptBy(currentTracks.Select(a => (a.LastfmArtistName, a.LastfmTrackName)), a => a);
 
             var requests = tracksToPull.Select(a => new ScrobbleTrackMapping(
-                 searchClient,
-                 loggerFactory.CreateLogger<ScrobbleTrackMapping>(),
-                 a.TrackName, a.ArtistName)
+                searchClient,
+                loggerFactory.CreateLogger<ScrobbleTrackMapping>(),
+                a.TrackName, a.ArtistName)
             ).ToArray();
 
             logger.LogInformation("Found {} tracks to map, starting", requests.Length);
@@ -95,11 +97,12 @@ namespace Selector
                 if (existingTrackUris.Contains(track.Uri))
                 {
                     var artistName = track.Artists.FirstOrDefault()?.Name;
-                    var duplicates = currentTracks.Where(a => a.LastfmArtistName.Equals(artistName, StringComparison.OrdinalIgnoreCase)
-                                                                && a.LastfmTrackName.Equals(track.Name, StringComparison.OrdinalIgnoreCase));
-                    logger.LogWarning("Found duplicate Spotify uri ({}), [{}, {}] {}", 
-                        track.Uri, 
-                        track.Name, 
+                    var duplicates = currentTracks.Where(a =>
+                        a.LastfmArtistName.Equals(artistName, StringComparison.OrdinalIgnoreCase)
+                        && a.LastfmTrackName.Equals(track.Name, StringComparison.OrdinalIgnoreCase));
+                    logger.LogWarning("Found duplicate Spotify uri ({}), [{}, {}] {}",
+                        track.Uri,
+                        track.Name,
                         artistName,
                         string.Join(", ", duplicates.Select(d => $"{d.LastfmTrackName} {d.LastfmArtistName}"))
                     );
@@ -114,7 +117,7 @@ namespace Selector
                     });
                 }
 
-                if(!existingAlbumUris.Contains(track.Album.Uri))
+                if (!existingAlbumUris.Contains(track.Album.Uri))
                 {
                     mappingRepo.Add(new AlbumLastfmSpotifyMapping()
                     {
@@ -124,7 +127,7 @@ namespace Selector
                     });
                 }
 
-                foreach(var artist in track.Artists.UnionBy(track.Album.Artists, a => a.Name))
+                foreach (var artist in track.Artists.UnionBy(track.Album.Artists, a => a.Name))
                 {
                     if (!existingArtistUris.Contains(artist.Uri))
                     {
@@ -138,7 +141,7 @@ namespace Selector
             }
         }
 
-        private BatchingOperation<T> GetOperation<T>(IEnumerable<T> requests) where T: IOperation 
-            => new (config.InterRequestDelay, config.Timeout, config.SimultaneousConnections, requests);
+        private BatchingOperation<T> GetOperation<T>(IEnumerable<T> requests) where T : IOperation
+            => new(config.InterRequestDelay, config.Timeout, config.SimultaneousConnections, requests);
     }
 }

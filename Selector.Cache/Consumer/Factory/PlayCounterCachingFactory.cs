@@ -2,6 +2,9 @@
 using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
 using Microsoft.Extensions.Logging;
+using Selector.Spotify;
+using Selector.Spotify.Consumer;
+using Selector.Spotify.Consumer.Factory;
 using StackExchange.Redis;
 
 namespace Selector.Cache

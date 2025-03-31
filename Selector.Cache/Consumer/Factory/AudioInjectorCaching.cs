@@ -1,5 +1,9 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Selector.Spotify;
+using Selector.Spotify.ConfigFactory;
+using Selector.Spotify.Consumer;
+using Selector.Spotify.Consumer.Factory;
 using SpotifyAPI.Web;
 using StackExchange.Redis;
 

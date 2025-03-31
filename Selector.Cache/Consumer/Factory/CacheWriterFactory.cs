@@ -1,12 +1,16 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Selector.AppleMusic.Consumer;
+using Selector.Spotify;
+using Selector.Spotify.Consumer;
 using StackExchange.Redis;
 
 namespace Selector.Cache
 {
     public interface ICacheWriterFactory
     {
-        public Task<ISpotifyPlayerConsumer> Get(ISpotifyPlayerWatcher watcher = null);
+        public Task<ISpotifyPlayerConsumer> GetSpotify(ISpotifyPlayerWatcher watcher = null);
+        public Task<IApplePlayerConsumer> GetApple(IAppleMusicPlayerWatcher watcher = null);
     }
 
     public class CacheWriterFactory : ICacheWriterFactory
@@ -23,12 +27,21 @@ namespace Selector.Cache
             LoggerFactory = loggerFactory;
         }
 
-        public Task<ISpotifyPlayerConsumer> Get(ISpotifyPlayerWatcher watcher = null)
+        public Task<ISpotifyPlayerConsumer> GetSpotify(ISpotifyPlayerWatcher watcher = null)
         {
-            return Task.FromResult<ISpotifyPlayerConsumer>(new CacheWriter(
+            return Task.FromResult<ISpotifyPlayerConsumer>(new SpotifyCacheWriter(
                 watcher,
                 Cache,
-                LoggerFactory.CreateLogger<CacheWriter>()
+                LoggerFactory.CreateLogger<SpotifyCacheWriter>()
+            ));
+        }
+
+        public Task<IApplePlayerConsumer> GetApple(IAppleMusicPlayerWatcher watcher = null)
+        {
+            return Task.FromResult<IApplePlayerConsumer>(new AppleCacheWriter(
+                watcher,
+                Cache,
+                LoggerFactory.CreateLogger<AppleCacheWriter>()
             ));
         }
     }

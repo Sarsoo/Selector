@@ -7,7 +7,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Selector.Extensions;
 using Selector.Model;
+using Selector.Spotify;
+using Selector.Spotify.Consumer;
 using SpotifyAPI.Web;
 
 namespace Selector.CLI.Consumer
@@ -36,7 +39,7 @@ namespace Selector.CLI.Consumer
             CancelToken = token;
         }
 
-        public void Callback(object sender, ListeningChangeEventArgs e)
+        public void Callback(object sender, SpotifyListeningChangeEventArgs e)
         {
             if (e.Current is null) return;
 
@@ -57,7 +60,7 @@ namespace Selector.CLI.Consumer
             }, CancelToken);
         }
 
-        public async Task AsyncCallback(ListeningChangeEventArgs e)
+        public async Task AsyncCallback(SpotifyListeningChangeEventArgs e)
         {
             using var serviceScope = ScopeFactory.CreateScope();
             using var scope = Logger.BeginScope(new Dictionary<string, object>()

@@ -1,41 +1,42 @@
-﻿using System;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using Selector.Spotify;
+using Selector.Spotify.Consumer;
 using SpotifyAPI.Web;
 
 namespace Selector.SignalR;
 
 public class NowHubCache
 {
-	private readonly NowHubClient _connection;
+    private readonly NowHubClient _connection;
     private readonly ILogger<NowHubCache> logger;
 
     public TrackAudioFeatures LastFeature { get; private set; }
-	public List<Card> LastCards { get; private set; } = new();
-	private readonly object updateLock = new();
+    public List<Card> LastCards { get; private set; } = new();
+    private readonly object updateLock = new();
 
-	private readonly object bindingLock = new();
-	private bool isBound = false;
+    private readonly object bindingLock = new();
+    private bool isBound = false;
 
-    public PlayCount LastPlayCount { get; private set; } 
-	public CurrentlyPlayingDTO LastPlaying { get; private set; }
+    public PlayCount LastPlayCount { get; private set; }
+    public CurrentlyPlayingDTO LastPlaying { get; private set; }
 
-	public event EventHandler NewAudioFeature;
-	public event EventHandler NewCard;
-	public event EventHandler NewPlayCount;
-	public event EventHandler NewNowPlaying;
+    public event EventHandler NewAudioFeature;
+    public event EventHandler NewCard;
+    public event EventHandler NewPlayCount;
+    public event EventHandler NewNowPlaying;
 
     public NowHubCache(NowHubClient connection, ILogger<NowHubCache> logger)
-	{
-		_connection = connection;
+    {
+        _connection = connection;
         this.logger = logger;
     }
 
-	public void BindClient()
-	{
-		lock(bindingLock)
-		{
-			if(!isBound)
-			{
+    public void BindClient()
+    {
+        lock (bindingLock)
+        {
+            if (!isBound)
+            {
                 _connection.OnNewAudioFeature(af =>
                 {
                     lock (updateLock)
@@ -108,7 +109,6 @@ public class NowHubCache
 
                 isBound = true;
             }
-		}
-	}
+        }
+    }
 }
-

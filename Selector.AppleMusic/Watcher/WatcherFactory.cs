@@ -6,7 +6,7 @@ namespace Selector.AppleMusic.Watcher
     public interface IAppleMusicWatcherFactory
     {
         Task<IWatcher> Get<T>(AppleMusicApiProvider appleMusicProvider, string developerToken, string teamId,
-            string keyId, string userToken, int pollPeriod = 3000)
+            string keyId, string userToken, string id = null, int pollPeriod = 3000)
             where T : class, IWatcher;
     }
 
@@ -22,7 +22,7 @@ namespace Selector.AppleMusic.Watcher
         }
 
         public async Task<IWatcher> Get<T>(AppleMusicApiProvider appleMusicProvider, string developerToken,
-            string teamId, string keyId, string userToken, int pollPeriod = 3000)
+            string teamId, string keyId, string userToken, string id = null, int pollPeriod = 3000)
             where T : class, IWatcher
         {
             if (typeof(T).IsAssignableFrom(typeof(AppleMusicPlayerWatcher)))
@@ -36,18 +36,14 @@ namespace Selector.AppleMusic.Watcher
                         LoggerFactory?.CreateLogger<AppleMusicPlayerWatcher>() ??
                         NullLogger<AppleMusicPlayerWatcher>.Instance,
                         pollPeriod: pollPeriod
-                    );
+                    )
+                    {
+                        Id = id
+                    };
                 }
                 else
                 {
-                    return new DummySpotifyPlayerWatcher(
-                        Equal,
-                        LoggerFactory?.CreateLogger<DummySpotifyPlayerWatcher>() ??
-                        NullLogger<DummySpotifyPlayerWatcher>.Instance,
-                        pollPeriod: pollPeriod
-                    )
-                    {
-                    };
+                    throw new NotImplementedException();
                 }
             }
             else

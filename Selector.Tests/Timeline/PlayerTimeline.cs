@@ -1,35 +1,35 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xunit;
-using Moq;
 using FluentAssertions;
+using Selector.Spotify.Timeline;
 using SpotifyAPI.Web;
-
-using Selector;
+using Xunit;
 
 namespace Selector.Tests
 {
     public class PlayerTimelineTests
     {
-        public static IEnumerable<object[]> CountData => 
-        new List<object[]>
-        {
-            new object[] {
-                new CurrentlyPlayingContext[]
+        public static IEnumerable<object[]> CountData =>
+            new List<object[]>
+            {
+                new object[]
                 {
-                    Helper.CurrentPlayback(Helper.FullTrack("uri1"))
-                }
-            },
-            new object[] {
-                new CurrentlyPlayingContext[]
+                    new CurrentlyPlayingContext[]
+                    {
+                        Helper.CurrentPlayback(Helper.FullTrack("uri1"))
+                    }
+                },
+                new object[]
                 {
-                    Helper.CurrentPlayback(Helper.FullTrack("uri1")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri2")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri3")),
-                }
-            },
-        };
+                    new CurrentlyPlayingContext[]
+                    {
+                        Helper.CurrentPlayback(Helper.FullTrack("uri1")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri2")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri3")),
+                    }
+                },
+            };
 
         [Theory]
         [MemberData(nameof(CountData))]
@@ -37,7 +37,7 @@ namespace Selector.Tests
         {
             var timeline = new PlayerTimeline();
 
-            foreach(var i in currentlyPlaying)
+            foreach (var i in currentlyPlaying)
             {
                 timeline.Add(i);
             }
@@ -45,52 +45,60 @@ namespace Selector.Tests
             timeline.Count.Should().Be(currentlyPlaying.Length);
         }
 
-        public static IEnumerable<object[]> MaxSizeData => 
-        new List<object[]>
-        {
-            new object[] {
-                new CurrentlyPlayingContext[]
+        public static IEnumerable<object[]> MaxSizeData =>
+            new List<object[]>
+            {
+                new object[]
                 {
-                    Helper.CurrentPlayback(Helper.FullTrack("uri1"))
-                }, 5, 1
-            },
-            new object[] {
-                new CurrentlyPlayingContext[]
+                    new CurrentlyPlayingContext[]
+                    {
+                        Helper.CurrentPlayback(Helper.FullTrack("uri1"))
+                    },
+                    5, 1
+                },
+                new object[]
                 {
-                    Helper.CurrentPlayback(Helper.FullTrack("uri1")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri2")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri3"))
-                }, 1, 1
-            },
-            new object[] {
-                new CurrentlyPlayingContext[]
+                    new CurrentlyPlayingContext[]
+                    {
+                        Helper.CurrentPlayback(Helper.FullTrack("uri1")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri2")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri3"))
+                    },
+                    1, 1
+                },
+                new object[]
                 {
-                    Helper.CurrentPlayback(Helper.FullTrack("uri1")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri2")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri3")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri4")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri5")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri6")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri7")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri8")),
-                }, 5, 5
-            },
-            new object[] {
-                new CurrentlyPlayingContext[]
+                    new CurrentlyPlayingContext[]
+                    {
+                        Helper.CurrentPlayback(Helper.FullTrack("uri1")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri2")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri3")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri4")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri5")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri6")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri7")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri8")),
+                    },
+                    5, 5
+                },
+                new object[]
                 {
-                    Helper.CurrentPlayback(Helper.FullTrack("uri1")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri2")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri3")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri4")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri5")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri6")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri7")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri8")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri9")),
-                    Helper.CurrentPlayback(Helper.FullTrack("uri10"))
-                }, null, 10
-            }            
-        };
+                    new CurrentlyPlayingContext[]
+                    {
+                        Helper.CurrentPlayback(Helper.FullTrack("uri1")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri2")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri3")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri4")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri5")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri6")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri7")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri8")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri9")),
+                        Helper.CurrentPlayback(Helper.FullTrack("uri10"))
+                    },
+                    null, 10
+                }
+            };
 
         [Theory]
         [MemberData(nameof(MaxSizeData))]
@@ -133,7 +141,8 @@ namespace Selector.Tests
         [Fact]
         public void Sort()
         {
-            var timeline = new PlayerTimeline(){
+            var timeline = new PlayerTimeline()
+            {
                 SortOnBackDate = false
             };
 
@@ -164,7 +173,7 @@ namespace Selector.Tests
             var earlier = Helper.CurrentPlayback(Helper.FullTrack("uri1"));
             var earlierDate = DateTime.Now;
 
-            var middle= Helper.CurrentPlayback(Helper.FullTrack("uri3"));
+            var middle = Helper.CurrentPlayback(Helper.FullTrack("uri3"));
             var middleDate = DateTime.Now.AddDays(1);
 
             var later = Helper.CurrentPlayback(Helper.FullTrack("uri2"));

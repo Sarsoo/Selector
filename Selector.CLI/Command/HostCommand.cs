@@ -1,19 +1,21 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using Selector.AppleMusic.Extensions;
 using Selector.Cache.Extensions;
 using Selector.CLI.Extensions;
 using Selector.Events;
 using Selector.Extensions;
-using System;
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using Selector.AppleMusic.Extensions;
+using Selector.Model.Extensions;
+using Selector.Spotify;
 
 namespace Selector.CLI
 {
-    public class HostRootCommand: RootCommand
+    public class HostRootCommand : RootCommand
     {
         public HostRootCommand()
         {
@@ -32,7 +34,7 @@ namespace Selector.CLI
         {
             try
             {
-                var host = CreateHostBuilder(Environment.GetCommandLineArgs(),ConfigureDefault, ConfigureDefaultNlog)
+                var host = CreateHostBuilder(Environment.GetCommandLineArgs(), ConfigureDefault, ConfigureDefaultNlog)
                     .Build();
 
                 var logger = host.Services.GetRequiredService<ILogger<HostCommand>>();
@@ -41,7 +43,7 @@ namespace Selector.CLI
 
                 host.Run();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 return 1;
@@ -54,7 +56,7 @@ namespace Selector.CLI
         {
             AppDomain.CurrentDomain.UnhandledException += (_, e) =>
             {
-                if(e.ExceptionObject is Exception ex)
+                if (e.ExceptionObject is Exception ex)
                 {
                     logger.LogError(ex, "Unhandled exception thrown");
 
@@ -97,7 +99,7 @@ namespace Selector.CLI
             Console.WriteLine("> Adding Services...");
             // SERVICES
             services.AddHttpClient()
-                    .ConfigureDb(config);
+                .ConfigureDb(config);
 
             services.AddConsumerFactories();
             services.AddCLIConsumerFactories();
@@ -108,13 +110,14 @@ namespace Selector.CLI
             }
 
             services.AddWatcher()
-                    .AddEvents()
-                    .AddSpotify()
-                    .AddAppleMusic();
+                .AddSpotifyWatcher()
+                .AddEvents()
+                .AddSpotify()
+                .AddAppleMusic();
 
             services.ConfigureLastFm(config)
-                    .ConfigureEqual(config)
-                    .ConfigureJobs(config);
+                .ConfigureEqual(config)
+                .ConfigureJobs(config);
 
             if (config.RedisOptions.Enabled)
             {
@@ -123,8 +126,8 @@ namespace Selector.CLI
 
                 Console.WriteLine("> Adding cache event maps...");
                 services.AddTransient<IEventMapping, FromPubSub.SpotifyLink>()
-                        .AddTransient<IEventMapping, FromPubSub.AppleMusicLink>()
-                        .AddTransient<IEventMapping, FromPubSub.Lastfm>();
+                    .AddTransient<IEventMapping, FromPubSub.AppleMusicLink>()
+                    .AddTransient<IEventMapping, FromPubSub.Lastfm>();
 
                 Console.WriteLine("> Adding caching Spotify consumers...");
                 services.AddCachingSpotify();
@@ -150,11 +153,13 @@ namespace Selector.CLI
         public static void ConfigureDefaultNlog(HostBuilderContext context, ILoggingBuilder builder)
         {
             builder.ClearProviders()
-                   .SetMinimumLevel(LogLevel.Trace)
-                   .AddNLog(context.Configuration);
+                .SetMinimumLevel(LogLevel.Trace)
+                .AddNLog(context.Configuration);
         }
 
-        static IHostBuilder CreateHostBuilder(string[] args, Action<HostBuilderContext, IServiceCollection> buildServices, Action<HostBuilderContext, ILoggingBuilder> buildLogs)
+        static IHostBuilder CreateHostBuilder(string[] args,
+            Action<HostBuilderContext, IServiceCollection> buildServices,
+            Action<HostBuilderContext, ILoggingBuilder> buildLogs)
             => Host.CreateDefaultBuilder(args)
                 .UseSystemd()
                 .ConfigureServices((context, services) => buildServices(context, services))

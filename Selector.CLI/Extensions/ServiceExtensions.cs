@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using Selector.Cache.Extensions;
@@ -7,7 +8,7 @@ using Selector.CLI.Jobs;
 using Selector.Extensions;
 using Selector.Model;
 using Selector.Model.Services;
-using System;
+using Selector.Spotify.Equality;
 
 namespace Selector.CLI.Extensions
 {
@@ -41,16 +42,13 @@ namespace Selector.CLI.Extensions
             {
                 Console.WriteLine("> Adding Jobs...");
 
-                services.AddQuartz(options => {
-
+                services.AddQuartz(options =>
+                {
                     options.UseMicrosoftDependencyInjectionJobFactory();
 
                     options.UseSimpleTypeLoader();
                     options.UseInMemoryStore();
-                    options.UseDefaultThreadPool(tp =>
-                    {
-                        tp.MaxConcurrency = 5;
-                    });
+                    options.UseDefaultThreadPool(tp => { tp.MaxConcurrency = 5; });
 
                     if (config.JobOptions.Scrobble.Enabled)
                     {
@@ -68,7 +66,8 @@ namespace Selector.CLI.Extensions
                             .WithIdentity("scrobble-watcher-agile-trigger")
                             .ForJob(scrobbleKey)
                             .StartNow()
-                            .WithSimpleSchedule(x => x.WithInterval(config.JobOptions.Scrobble.InterJobDelay).RepeatForever())
+                            .WithSimpleSchedule(x =>
+                                x.WithInterval(config.JobOptions.Scrobble.InterJobDelay).RepeatForever())
                             .WithDescription("Periodic trigger for scrobble watcher")
                         );
 
@@ -86,17 +85,14 @@ namespace Selector.CLI.Extensions
                             .WithCronSchedule(config.JobOptions.Scrobble.FullScrobbleCron)
                             .WithDescription("Periodic trigger for scrobble watcher")
                         );
-                    }   
+                    }
                     else
                     {
                         Console.WriteLine("> Skipping Scrobble Jobs...");
                     }
                 });
 
-                services.AddQuartzHostedService(options => {
-
-                    options.WaitForJobsToComplete = true;
-                });
+                services.AddQuartzHostedService(options => { options.WaitForJobsToComplete = true; });
 
                 services.AddTransient<ScrobbleWatcherJob>();
                 services.AddTransient<IJob, ScrobbleWatcherJob>();
@@ -115,7 +111,7 @@ namespace Selector.CLI.Extensions
                 );
 
                 services.AddTransient<IScrobbleRepository, ScrobbleRepository>()
-                        .AddTransient<ISpotifyListenRepository, SpotifyListenRepository>();
+                    .AddTransient<ISpotifyListenRepository, SpotifyListenRepository>();
 
                 services.AddTransient<IListenRepository, MetaListenRepository>();
                 //services.AddTransient<IListenRepository, SpotifyListenRepository>();
@@ -152,5 +148,5 @@ namespace Selector.CLI.Extensions
 
             return services;
         }
-    }    
+    }
 }

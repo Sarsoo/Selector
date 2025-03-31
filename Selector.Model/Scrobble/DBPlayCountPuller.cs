@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Selector.Model;
+using Selector.Spotify.Consumer;
 
 namespace Selector.Cache
 {
@@ -27,7 +28,8 @@ namespace Selector.Cache
 
             var userScrobbleCount = ScrobbleRepository.Count(username: username);
 
-            var artistScrobbles = ScrobbleRepository.GetAll(username: username, artistName: artist, tracking: false, orderTime: true).ToArray();
+            var artistScrobbles = ScrobbleRepository
+                .GetAll(username: username, artistName: artist, tracking: false, orderTime: true).ToArray();
             var albumScrobbles = artistScrobbles.Where(
                 s => s.AlbumName.Equals(album, StringComparison.CurrentCultureIgnoreCase)).ToArray();
             var trackScrobbles = artistScrobbles.Where(

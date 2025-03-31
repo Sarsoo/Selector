@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Selector.Spotify\Selector.Spotify.csproj"/>
     <ProjectReference Include="..\Selector\Selector.csproj" />
     <!-- <ProjectReference Include="..\Selector.Model\Selector.Model.csproj" /> -->
   </ItemGroup>

@@ -4,6 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Selector.Extensions;
+using Selector.Spotify;
+using Selector.Spotify.Consumer;
 using StackExchange.Redis;
 
 namespace Selector.Cache
@@ -29,7 +32,7 @@ namespace Selector.Cache
             CancelToken = token;
         }
 
-        public void Callback(object sender, ListeningChangeEventArgs e)
+        public void Callback(object sender, SpotifyListeningChangeEventArgs e)
         {
             if (e.Current is null) return;
 
@@ -46,16 +49,18 @@ namespace Selector.Cache
             }, CancelToken);
         }
 
-        public async Task AsyncCallback(ListeningChangeEventArgs e)
+        public async Task AsyncCallback(SpotifyListeningChangeEventArgs e)
         {
             using var scope = Logger.GetListeningEventArgsScope(e);
 
-            var payload = JsonSerializer.Serialize((CurrentlyPlayingDTO)e, JsonContext.Default.CurrentlyPlayingDTO);
+            var payload =
+                JsonSerializer.Serialize((CurrentlyPlayingDTO)e, SpotifyJsonContext.Default.CurrentlyPlayingDTO);
 
             Logger.LogTrace("Publishing current");
 
             // TODO: currently using spotify username for cache key, use db username
-            var receivers = await Subscriber.PublishAsync(Key.CurrentlyPlayingSpotify(e.Id), payload);
+            var receivers =
+                await Subscriber.PublishAsync(RedisChannel.Literal(Key.CurrentlyPlayingSpotify(e.Id)), payload);
 
             Logger.LogDebug("Published current, {receivers} receivers", receivers);
         }

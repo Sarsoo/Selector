@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Selector.AppleMusic;
-using Selector.AppleMusic.Watcher.Consumer;
+using Selector.AppleMusic.Consumer;
 
 namespace Selector.Events
 {

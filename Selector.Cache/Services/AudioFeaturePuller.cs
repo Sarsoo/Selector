@@ -1,6 +1,8 @@
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Selector.Spotify;
+using Selector.Spotify.FactoryProvider;
 using SpotifyAPI.Web;
 using StackExchange.Redis;
 
@@ -22,12 +24,12 @@ namespace Selector.Cache
 
         public async Task<TrackAudioFeatures> Get(string refreshToken, string trackId)
         {
-            if(string.IsNullOrWhiteSpace(trackId)) throw new ArgumentNullException("No track Id provided");
+            if (string.IsNullOrWhiteSpace(trackId)) throw new ArgumentNullException("No track Id provided");
 
             var track = await Cache?.StringGetAsync(Key.AudioFeature(trackId));
             if (Cache is null || track == RedisValue.Null)
             {
-                if(!string.IsNullOrWhiteSpace(refreshToken) && !Magic.Dummy)
+                if (!string.IsNullOrWhiteSpace(refreshToken) && !Magic.Dummy)
                 {
                     var factory = await SpotifyFactory.GetFactory(refreshToken);
                     var spotifyClient = new SpotifyClient(await factory.GetConfig());
@@ -35,17 +37,16 @@ namespace Selector.Cache
                     // TODO: Error checking
                     return await spotifyClient.Tracks.GetAudioFeatures(trackId);
                 }
-                else 
+                else
                 {
                     return null;
                 }
             }
             else
             {
-                var deserialised = JsonSerializer.Deserialize(track, JsonContext.Default.TrackAudioFeatures);
+                var deserialised = JsonSerializer.Deserialize(track, SpotifyJsonContext.Default.TrackAudioFeatures);
                 return deserialised;
             }
         }
-
     }
 }

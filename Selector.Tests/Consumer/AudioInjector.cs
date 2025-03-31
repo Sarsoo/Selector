@@ -1,6 +1,10 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Moq;
+using Selector.Spotify;
+using Selector.Spotify.Consumer;
+using Selector.Spotify.Timeline;
 using SpotifyAPI.Web;
 using Xunit;
 
@@ -18,7 +22,7 @@ namespace Selector.Tests
 
             featureInjector.Subscribe();
 
-            watcherMock.VerifyAdd(m => m.ItemChange += It.IsAny<EventHandler<ListeningChangeEventArgs>>());
+            watcherMock.VerifyAdd(m => m.ItemChange += It.IsAny<EventHandler<SpotifyListeningChangeEventArgs>>());
         }
 
         [Fact]
@@ -31,7 +35,7 @@ namespace Selector.Tests
 
             featureInjector.Unsubscribe();
 
-            watcherMock.VerifyRemove(m => m.ItemChange -= It.IsAny<EventHandler<ListeningChangeEventArgs>>());
+            watcherMock.VerifyRemove(m => m.ItemChange -= It.IsAny<EventHandler<SpotifyListeningChangeEventArgs>>());
         }
 
         [Fact]
@@ -45,7 +49,8 @@ namespace Selector.Tests
 
             featureInjector.Subscribe(watcherFuncArgMock.Object);
 
-            watcherFuncArgMock.VerifyAdd(m => m.ItemChange += It.IsAny<EventHandler<ListeningChangeEventArgs>>());
+            watcherFuncArgMock.VerifyAdd(m =>
+                m.ItemChange += It.IsAny<EventHandler<SpotifyListeningChangeEventArgs>>());
             watcherMock.VerifyNoOtherCalls();
         }
 
@@ -60,17 +65,18 @@ namespace Selector.Tests
 
             featureInjector.Unsubscribe(watcherFuncArgMock.Object);
 
-            watcherFuncArgMock.VerifyRemove(m => m.ItemChange -= It.IsAny<EventHandler<ListeningChangeEventArgs>>());
+            watcherFuncArgMock.VerifyRemove(m =>
+                m.ItemChange -= It.IsAny<EventHandler<SpotifyListeningChangeEventArgs>>());
             watcherMock.VerifyNoOtherCalls();
         }
 
         [Fact]
-        public async void CallbackNoId()
+        public async Task CallbackNoId()
         {
             var watcherMock = new Mock<ISpotifyPlayerWatcher>();
             var spotifyMock = new Mock<ITracksClient>();
             var timelineMock = new Mock<AnalysedTrackTimeline>();
-            var eventArgsMock = new Mock<ListeningChangeEventArgs>();
+            var eventArgsMock = new Mock<SpotifyListeningChangeEventArgs>();
             var playingMock = new Mock<CurrentlyPlayingContext>();
             var trackMock = new Mock<FullTrack>();
             var featureMock = new Mock<TrackAudioFeatures>();
@@ -93,12 +99,12 @@ namespace Selector.Tests
         }
 
         [Fact]
-        public async void CallbackWithId()
+        public async Task CallbackWithId()
         {
             var watcherMock = new Mock<ISpotifyPlayerWatcher>();
             var spotifyMock = new Mock<ITracksClient>();
             var timelineMock = new Mock<AnalysedTrackTimeline>();
-            var eventArgsMock = new Mock<ListeningChangeEventArgs>();
+            var eventArgsMock = new Mock<SpotifyListeningChangeEventArgs>();
             var playingMock = new Mock<CurrentlyPlayingContext>();
             var trackMock = new Mock<FullTrack>();
             var featureMock = new Mock<TrackAudioFeatures>();

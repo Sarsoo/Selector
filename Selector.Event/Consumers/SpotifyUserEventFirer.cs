@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Selector.Spotify;
+using Selector.Spotify.Consumer;
 
 namespace Selector.Events
 {
@@ -25,7 +27,7 @@ namespace Selector.Events
             CancelToken = token;
         }
 
-        public void Callback(object sender, ListeningChangeEventArgs e)
+        public void Callback(object sender, SpotifyListeningChangeEventArgs e)
         {
             if (e.Current is null) return;
 
@@ -42,7 +44,7 @@ namespace Selector.Events
             }, CancelToken);
         }
 
-        public Task AsyncCallback(ListeningChangeEventArgs e)
+        public Task AsyncCallback(SpotifyListeningChangeEventArgs e)
         {
             Logger.LogDebug("Firing Spotify now playing event on user bus [{username}/{userId}]", e.SpotifyUsername,
                 e.Id);

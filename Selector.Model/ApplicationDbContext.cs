@@ -20,6 +20,7 @@ namespace Selector.Model
         public DbSet<ArtistLastfmSpotifyMapping> ArtistMapping { get; set; }
 
         public DbSet<SpotifyListen> SpotifyListen { get; set; }
+        public DbSet<AppleMusicListen> AppleMusicListen { get; set; }
 
         public ApplicationDbContext(
             DbContextOptions<ApplicationDbContext> options,
@@ -101,6 +102,17 @@ namespace Selector.Model
                 .UseCollation("case_insensitive");
             //modelBuilder.Entity<SpotifyListen>()
             //    .HasIndex(x => new { x.UserId, x.ArtistName, x.TrackName });
+
+            modelBuilder.Entity<AppleMusicListen>().HasKey(s => s.Id);
+            modelBuilder.Entity<AppleMusicListen>()
+                .Property(s => s.TrackName)
+                .UseCollation("case_insensitive");
+            modelBuilder.Entity<AppleMusicListen>()
+                .Property(s => s.AlbumName)
+                .UseCollation("case_insensitive");
+            modelBuilder.Entity<AppleMusicListen>()
+                .Property(s => s.ArtistName)
+                .UseCollation("case_insensitive");
 
             SeedData.Seed(modelBuilder);
         }

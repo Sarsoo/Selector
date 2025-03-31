@@ -11,6 +11,8 @@ using Selector.Cache;
 using Selector.Model;
 using Selector.Model.Extensions;
 using Selector.SignalR;
+using Selector.Spotify;
+using Selector.Spotify.Consumer;
 using StackExchange.Redis;
 
 namespace Selector.Web.Hubs
@@ -55,7 +57,8 @@ namespace Selector.Web.Hubs
             var nowPlaying = await Cache.StringGetAsync(Key.CurrentlyPlayingSpotify(Context.UserIdentifier));
             if (nowPlaying != RedisValue.Null)
             {
-                var deserialised = JsonSerializer.Deserialize(nowPlaying, JsonContext.Default.CurrentlyPlayingDTO);
+                var deserialised =
+                    JsonSerializer.Deserialize(nowPlaying, SpotifyJsonContext.Default.CurrentlyPlayingDTO);
                 await Clients.Caller.OnNewPlaying(deserialised);
             }
         }

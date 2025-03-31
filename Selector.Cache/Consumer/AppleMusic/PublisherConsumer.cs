@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Selector.AppleMusic;
-using Selector.AppleMusic.Watcher.Consumer;
+using Selector.AppleMusic.Consumer;
 using StackExchange.Redis;
 
 namespace Selector.Cache.Consumer.AppleMusic
@@ -57,7 +57,8 @@ namespace Selector.Cache.Consumer.AppleMusic
             Logger.LogTrace("Publishing current");
 
             // TODO: currently using spotify username for cache key, use db username
-            var receivers = await Subscriber.PublishAsync(Key.CurrentlyPlayingAppleMusic(e.Id), payload);
+            var receivers =
+                await Subscriber.PublishAsync(RedisChannel.Literal(Key.CurrentlyPlayingAppleMusic(e.Id)), payload);
 
             Logger.LogDebug("Published current, {receivers} receivers", receivers);
         }

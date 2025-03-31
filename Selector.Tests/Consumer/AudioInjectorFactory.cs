@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Xunit;
-using Moq;
 using FluentAssertions;
-using SpotifyAPI.Web;
-
-using Selector;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Selector.Spotify.ConfigFactory;
+using Selector.Spotify.Consumer.Factory;
+using Xunit;
 
 namespace Selector.Tests
 {

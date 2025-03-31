@@ -4,33 +4,36 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Selector.Extensions;
+using Selector.Spotify;
+using Selector.Spotify.Consumer;
 using StackExchange.Redis;
 
 namespace Selector.Cache
 {
-    public class CacheWriter : ISpotifyPlayerConsumer
+    public class SpotifyCacheWriter : ISpotifyPlayerConsumer
     {
         private readonly ISpotifyPlayerWatcher Watcher;
         private readonly IDatabaseAsync Db;
-        private readonly ILogger<CacheWriter> Logger;
+        private readonly ILogger<SpotifyCacheWriter> Logger;
         public TimeSpan CacheExpiry { get; set; } = TimeSpan.FromMinutes(20);
 
         public CancellationToken CancelToken { get; set; }
 
-        public CacheWriter(
+        public SpotifyCacheWriter(
             ISpotifyPlayerWatcher watcher,
             IDatabaseAsync db,
-            ILogger<CacheWriter> logger = null,
+            ILogger<SpotifyCacheWriter> logger = null,
             CancellationToken token = default
         )
         {
             Watcher = watcher;
             Db = db;
-            Logger = logger ?? NullLogger<CacheWriter>.Instance;
+            Logger = logger ?? NullLogger<SpotifyCacheWriter>.Instance;
             CancelToken = token;
         }
 
-        public void Callback(object sender, ListeningChangeEventArgs e)
+        public void Callback(object sender, SpotifyListeningChangeEventArgs e)
         {
             if (e.Current is null) return;
 
@@ -47,11 +50,12 @@ namespace Selector.Cache
             }, CancelToken);
         }
 
-        public async Task AsyncCallback(ListeningChangeEventArgs e)
+        public async Task AsyncCallback(SpotifyListeningChangeEventArgs e)
         {
             using var scope = Logger.GetListeningEventArgsScope(e);
 
-            var payload = JsonSerializer.Serialize((CurrentlyPlayingDTO)e, JsonContext.Default.CurrentlyPlayingDTO);
+            var payload =
+                JsonSerializer.Serialize((CurrentlyPlayingDTO)e, SpotifyJsonContext.Default.CurrentlyPlayingDTO);
 
             Logger.LogTrace("Caching current");
 

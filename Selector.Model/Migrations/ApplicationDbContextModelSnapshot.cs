@@ -181,6 +181,45 @@ namespace Selector.Model.Migrations
                     b.ToTable("AlbumMapping");
                 });
 
+            modelBuilder.Entity("Selector.Model.AppleMusicListen", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AlbumName")
+                        .HasColumnType("text")
+                        .UseCollation("case_insensitive");
+
+                    b.Property<string>("ArtistName")
+                        .HasColumnType("text")
+                        .UseCollation("case_insensitive");
+
+                    b.Property<string>("Isrc")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TrackId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TrackName")
+                        .HasColumnType("text")
+                        .UseCollation("case_insensitive");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AppleMusicListen");
+                });
+
             modelBuilder.Entity("Selector.Model.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -454,6 +493,15 @@ namespace Selector.Model.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Selector.Model.AppleMusicListen", b =>
+                {
+                    b.HasOne("Selector.Model.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Selector.Model.SpotifyListen", b =>

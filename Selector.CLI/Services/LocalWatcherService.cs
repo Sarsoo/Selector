@@ -12,6 +12,10 @@ using Selector.AppleMusic;
 using Selector.AppleMusic.Watcher;
 using Selector.Cache;
 using Selector.CLI.Consumer;
+using Selector.Spotify;
+using Selector.Spotify.Consumer.Factory;
+using Selector.Spotify.FactoryProvider;
+using Selector.Spotify.Watcher;
 
 namespace Selector.CLI
 {
@@ -115,7 +119,8 @@ namespace Selector.CLI
                     case WatcherType.AppleMusicPlayer:
                         var appleMusicWatcher = await _appleWatcherFactory.Get<AppleMusicPlayerWatcher>(
                             _appleMusicApiProvider, _appleMusicOptions.Value.Key, _appleMusicOptions.Value.TeamId,
-                            _appleMusicOptions.Value.KeyId, watcherOption.AppleUserToken);
+                            _appleMusicOptions.Value.KeyId, watcherOption.AppleUserToken,
+                            id: watcherOption.Name);
 
                         watcher = appleMusicWatcher;
                         break;
@@ -140,11 +145,27 @@ namespace Selector.CLI
                                 break;
 
                             case Consumers.CacheWriter:
-                                consumers.Add(await ServiceProvider.GetService<CacheWriterFactory>().Get());
+                                if (watcher is ISpotifyPlayerWatcher or IPlaylistWatcher)
+                                {
+                                    consumers.Add(await ServiceProvider.GetService<CacheWriterFactory>().GetSpotify());
+                                }
+                                else
+                                {
+                                    consumers.Add(await ServiceProvider.GetService<CacheWriterFactory>().GetApple());
+                                }
+
                                 break;
 
                             case Consumers.Publisher:
-                                consumers.Add(await ServiceProvider.GetService<PublisherFactory>().GetSpotify());
+                                if (watcher is ISpotifyPlayerWatcher or IPlaylistWatcher)
+                                {
+                                    consumers.Add(await ServiceProvider.GetService<PublisherFactory>().GetSpotify());
+                                }
+                                else
+                                {
+                                    consumers.Add(await ServiceProvider.GetService<PublisherFactory>().GetApple());
+                                }
+
                                 break;
 
                             case Consumers.PlayCounter:

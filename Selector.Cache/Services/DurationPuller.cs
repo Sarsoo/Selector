@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using SpotifyAPI.Web;
 using StackExchange.Redis;
 
@@ -21,7 +20,6 @@ namespace Selector.Cache
 
         public DurationPuller(
             ILogger<DurationPuller> logger,
-
             ITracksClient spotifyClient,
             IDatabaseAsync cache = null
         )
@@ -41,7 +39,8 @@ namespace Selector.Cache
             var cachedVal = await Cache?.HashGetAsync(Key.Track(trackId), Key.Duration);
             if (Cache is null || cachedVal == RedisValue.Null || cachedVal.IsNullOrEmpty)
             {
-                try {
+                try
+                {
                     Logger.LogDebug("Missed cache, pulling");
 
                     var info = await SpotifyClient.Get(trackId);
@@ -55,13 +54,14 @@ namespace Selector.Cache
                 catch (APIUnauthorizedException e)
                 {
                     Logger.LogError("Unauthorised error: [{message}] (should be refreshed and retried?)", e.Message);
-                    throw e;
+                    throw;
                 }
                 catch (APITooManyRequestsException e)
                 {
-                    if(_retries <= 3)
+                    if (_retries <= 3)
                     {
-                        Logger.LogWarning("Too many requests error, retrying ({}): [{message}]", e.RetryAfter, e.Message);
+                        Logger.LogWarning("Too many requests error, retrying ({}): [{message}]", e.RetryAfter,
+                            e.Message);
                         _retries++;
                         await Task.Delay(e.RetryAfter);
                         return await Get(uri);
@@ -69,7 +69,7 @@ namespace Selector.Cache
                     else
                     {
                         Logger.LogError("Too many requests error, done retrying: [{message}]", e.Message);
-                        throw e;
+                        throw;
                     }
                 }
                 catch (APIException e)
@@ -84,13 +84,13 @@ namespace Selector.Cache
                     else
                     {
                         Logger.LogError("API error, done retrying: [{message}]", e.Message);
-                        throw e;
+                        throw;
                     }
                 }
             }
             else
             {
-                return (int?) cachedVal;
+                return (int?)cachedVal;
             }
         }
 
@@ -111,17 +111,17 @@ namespace Selector.Cache
                 }
                 else
                 {
-                    ret[input] = (int) cachedVal;
+                    ret[input] = (int)cachedVal;
                 }
             }
 
             var retries = new List<string>();
 
-            foreach(var chunk in toPullFromSpotify.Chunk(50))
+            foreach (var chunk in toPullFromSpotify.Chunk(50))
             {
                 await PullChunk(chunk, ret);
                 await Task.Delay(TimeSpan.FromMilliseconds(500));
-            }            
+            }
 
             return ret;
         }
@@ -144,7 +144,7 @@ namespace Selector.Cache
             catch (APIUnauthorizedException e)
             {
                 Logger.LogError("Unauthorised error: [{message}] (should be refreshed and retried?)", e.Message);
-                throw e;
+                throw;
             }
             catch (APITooManyRequestsException e)
             {
@@ -159,7 +159,7 @@ namespace Selector.Cache
                 else
                 {
                     Logger.LogError("Too many requests error, done retrying: [{message}]", e.Message);
-                    throw e;
+                    throw;
                 }
             }
             catch (APIException e)
@@ -175,7 +175,7 @@ namespace Selector.Cache
                 else
                 {
                     Logger.LogError("API error, done retrying: [{message}]", e.Message);
-                    throw e;
+                    throw;
                 }
             }
         }

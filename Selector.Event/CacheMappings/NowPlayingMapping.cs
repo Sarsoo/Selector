@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Selector.AppleMusic;
 using Selector.Cache;
+using Selector.Spotify;
 using StackExchange.Redis;
 
 namespace Selector.Events
@@ -27,41 +28,45 @@ namespace Selector.Events
             {
                 Logger.LogDebug("Forming now playing event mapping between cache and event bus");
 
-                (await Subscriber.SubscribeAsync(Key.AllCurrentlyPlayingSpotify)).OnMessage(message =>
-                {
-                    try
+                (await Subscriber.SubscribeAsync(RedisChannel.Pattern(Key.AllCurrentlyPlayingSpotify))).OnMessage(
+                    message =>
                     {
-                        var userId = Key.Param(message.Channel);
+                        try
+                        {
+                            var userId = Key.Param(message.Channel);
 
-                        var deserialised =
-                            JsonSerializer.Deserialize(message.Message, JsonContext.Default.CurrentlyPlayingDTO);
-                        Logger.LogDebug("Received new Spotify currently playing [{username}]", deserialised.Username);
+                            var deserialised =
+                                JsonSerializer.Deserialize(message.Message,
+                                    SpotifyJsonContext.Default.CurrentlyPlayingDTO);
+                            Logger.LogDebug("Received new Spotify currently playing [{username}]",
+                                deserialised.Username);
 
-                        UserEvent.OnCurrentlyPlayingChangeSpotify(this, deserialised);
-                    }
-                    catch (Exception e)
+                            UserEvent.OnCurrentlyPlayingChangeSpotify(this, deserialised);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.LogError(e, "Error parsing new Spotify currently playing [{message}]", message);
+                        }
+                    });
+
+                (await Subscriber.SubscribeAsync(RedisChannel.Pattern(Key.AllCurrentlyPlayingApple))).OnMessage(
+                    message =>
                     {
-                        Logger.LogError(e, "Error parsing new Spotify currently playing [{message}]", message);
-                    }
-                });
+                        try
+                        {
+                            var userId = Key.Param(message.Channel);
 
-                (await Subscriber.SubscribeAsync(Key.AllCurrentlyPlayingApple)).OnMessage(message =>
-                {
-                    try
-                    {
-                        var userId = Key.Param(message.Channel);
+                            var deserialised = JsonSerializer.Deserialize(message.Message,
+                                AppleJsonContext.Default.AppleListeningChangeEventArgs);
+                            Logger.LogDebug("Received new Apple Music currently playing");
 
-                        var deserialised = JsonSerializer.Deserialize(message.Message,
-                            AppleJsonContext.Default.AppleListeningChangeEventArgs);
-                        Logger.LogDebug("Received new Apple Music currently playing");
-
-                        UserEvent.OnCurrentlyPlayingChangeApple(this, deserialised);
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.LogError(e, "Error parsing new Apple Music currently playing [{message}]", message);
-                    }
-                });
+                            UserEvent.OnCurrentlyPlayingChangeApple(this, deserialised);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.LogError(e, "Error parsing new Apple Music currently playing [{message}]", message);
+                        }
+                    });
             }
         }
     }
@@ -89,14 +94,14 @@ namespace Selector.Events
 
                 UserEvent.CurrentlyPlayingSpotify += async (o, e) =>
                 {
-                    var payload = JsonSerializer.Serialize(e, JsonContext.Default.CurrentlyPlayingDTO);
-                    await Subscriber.PublishAsync(Key.CurrentlyPlayingSpotify(e.UserId), payload);
+                    var payload = JsonSerializer.Serialize(e, SpotifyJsonContext.Default.CurrentlyPlayingDTO);
+                    await Subscriber.PublishAsync(RedisChannel.Literal(Key.CurrentlyPlayingSpotify(e.UserId)), payload);
                 };
 
                 UserEvent.CurrentlyPlayingApple += async (o, e) =>
                 {
                     var payload = JsonSerializer.Serialize(e, AppleJsonContext.Default.AppleListeningChangeEventArgs);
-                    await Subscriber.PublishAsync(Key.CurrentlyPlayingAppleMusic(e.Id), payload);
+                    await Subscriber.PublishAsync(RedisChannel.Literal(Key.CurrentlyPlayingAppleMusic(e.Id)), payload);
                 };
 
                 return Task.CompletedTask;

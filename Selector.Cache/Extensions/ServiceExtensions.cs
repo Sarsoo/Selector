@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Extensions.DependencyInjection;
-
+using Selector.Spotify.Consumer.Factory;
 using StackExchange.Redis;
 
 namespace Selector.Cache.Extensions
@@ -21,8 +19,10 @@ namespace Selector.Cache.Extensions
 
             var connMulti = ConnectionMultiplexer.Connect(connectionStr);
             services.AddSingleton(connMulti);
-            services.AddTransient<IDatabaseAsync>(services => services.GetService<ConnectionMultiplexer>().GetDatabase());
-            services.AddTransient<ISubscriber>(services => services.GetService<ConnectionMultiplexer>().GetSubscriber());
+            services.AddTransient<IDatabaseAsync>(
+                services => services.GetService<ConnectionMultiplexer>().GetDatabase());
+            services.AddTransient<ISubscriber>(services =>
+                services.GetService<ConnectionMultiplexer>().GetSubscriber());
 
             return services;
         }

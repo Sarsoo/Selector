@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using Moq.Protected;
+using Selector.Spotify;
+using Selector.Spotify.Consumer;
 using Xunit;
 
 namespace Selector.Tests
@@ -24,8 +26,8 @@ namespace Selector.Tests
                 .ReturnsAsync(msg);
 
             var watcherMock = new Mock<ISpotifyPlayerWatcher>();
-            watcherMock.SetupAdd(w => w.ItemChange += It.IsAny<EventHandler<ListeningChangeEventArgs>>());
-            watcherMock.SetupRemove(w => w.ItemChange -= It.IsAny<EventHandler<ListeningChangeEventArgs>>());
+            watcherMock.SetupAdd(w => w.ItemChange += It.IsAny<EventHandler<SpotifyListeningChangeEventArgs>>());
+            watcherMock.SetupRemove(w => w.ItemChange -= It.IsAny<EventHandler<SpotifyListeningChangeEventArgs>>());
 
             var link = "https://link";
             var content = new StringContent("");
@@ -40,7 +42,7 @@ namespace Selector.Tests
             var webHook = new WebHook(watcherMock.Object, http, config);
 
             webHook.Subscribe();
-            watcherMock.Raise(w => w.ItemChange += null, this, new ListeningChangeEventArgs());
+            watcherMock.Raise(w => w.ItemChange += null, this, new SpotifyListeningChangeEventArgs());
 
             await Task.Delay(100);
 
@@ -84,7 +86,7 @@ namespace Selector.Tests
 
             webHook.FailedRequest += (o, e) => { failedEvent = !successful; };
 
-            await webHook.AsyncCallback(ListeningChangeEventArgs.From(new(), new(), new()));
+            await webHook.AsyncCallback(SpotifyListeningChangeEventArgs.From(new(), new(), new()));
 
             predicateEvent.Should().Be(predicate);
             successfulEvent.Should().Be(successful);

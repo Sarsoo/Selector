@@ -10,12 +10,4 @@
     {
         public void Callback(object sender, T e);
     }
-
-    public interface ISpotifyPlayerConsumer : IConsumer<ListeningChangeEventArgs>
-    {
-    }
-
-    public interface IPlaylistConsumer : IConsumer<PlaylistChangeEventArgs>
-    {
-    }
 }

@@ -10,17 +10,16 @@ public partial class App : Application
     private readonly ILogger<App> logger;
 
     public App(NowHubClient nowClient, ILogger<App> logger)
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
 
-		MainPage = new MainPage();
         this.nowClient = nowClient;
         this.logger = logger;
     }
 
     protected override Window CreateWindow(IActivationState activationState)
     {
-        Window window = base.CreateWindow(activationState);
+        Window window = new Window(new MainPage());
 
         window.Resumed += async (s, e) =>
         {
@@ -36,16 +35,13 @@ public partial class App : Application
                 await nowClient.OnConnected();
 
                 logger.LogInformation("Hubs reconnected");
-
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.LogError(ex, "Error while reconnecting hubs");
             }
-            
         };
 
         return window;
     }
 }
-

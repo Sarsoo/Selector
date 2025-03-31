@@ -1,11 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR.Client;
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using Selector.Spotify;
+using Selector.Spotify.Consumer;
 using SpotifyAPI.Web;
 
 namespace Selector.SignalR;
 
-public class NowHubClient: BaseSignalRClient, INowPlayingHub, IDisposable
+public class NowHubClient : BaseSignalRClient, INowPlayingHub, IDisposable
 {
     private List<IDisposable> NewPlayingCallbacks = new();
     private List<IDisposable> NewAudioFeatureCallbacks = new();
@@ -13,9 +13,9 @@ public class NowHubClient: BaseSignalRClient, INowPlayingHub, IDisposable
     private List<IDisposable> NewCardCallbacks = new();
     private bool disposedValue;
 
-    public NowHubClient(string token = null): base("nowhub", token)
-	{
-	}
+    public NowHubClient(string token = null) : base("nowhub", token)
+    {
+    }
 
     public void OnNewPlaying(Action<CurrentlyPlayingDTO> action)
     {
@@ -93,10 +93,10 @@ public class NowHubClient: BaseSignalRClient, INowPlayingHub, IDisposable
         {
             if (disposing)
             {
-                foreach(var callback in NewPlayingCallbacks
-                    .Concat(NewAudioFeatureCallbacks)
-                    .Concat(NewPlayCountCallbacks)
-                    .Concat(NewCardCallbacks))
+                foreach (var callback in NewPlayingCallbacks
+                             .Concat(NewAudioFeatureCallbacks)
+                             .Concat(NewPlayCountCallbacks)
+                             .Concat(NewCardCallbacks))
                 {
                     callback.Dispose();
                 }
@@ -115,4 +115,3 @@ public class NowHubClient: BaseSignalRClient, INowPlayingHub, IDisposable
         GC.SuppressFinalize(this);
     }
 }
-

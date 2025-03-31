@@ -1,9 +1,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-
-using StackExchange.Redis;
-
 using Selector.Cache;
+using StackExchange.Redis;
 
 namespace Selector.Events
 {
@@ -35,18 +33,20 @@ namespace Selector.Events
             {
                 Logger.LogDebug("Forming Spotify link event mapping FROM cache TO event bus");
 
-                (await Subscriber.SubscribeAsync(Key.AllUserSpotify)).OnMessage(message => {
-
+                (await Subscriber.SubscribeAsync(RedisChannel.Pattern(Key.AllUserSpotify))).OnMessage(message =>
+                {
                     try
                     {
                         var userId = Key.Param(message.Channel);
 
-                        var deserialised = JsonSerializer.Deserialize(message.Message, CacheJsonContext.Default.SpotifyLinkChange);
+                        var deserialised = JsonSerializer.Deserialize(message.Message,
+                            CacheJsonContext.Default.SpotifyLinkChange);
                         Logger.LogDebug("Received new Spotify link event for [{userId}]", deserialised.UserId);
 
                         if (!userId.Equals(deserialised.UserId))
                         {
-                            Logger.LogWarning("Serialised user ID [{}] does not match cache channel [{}]", userId, deserialised.UserId);
+                            Logger.LogWarning("Serialised user ID [{}] does not match cache channel [{}]", userId,
+                                deserialised.UserId);
                         }
 
                         UserEvent.OnSpotifyLinkChange(this, deserialised);
@@ -88,7 +88,7 @@ namespace Selector.Events
                 UserEvent.SpotifyLinkChange += async (o, e) =>
                 {
                     var payload = JsonSerializer.Serialize(e, CacheJsonContext.Default.SpotifyLinkChange);
-                    await Subscriber.PublishAsync(Key.UserSpotify(e.UserId), payload);
+                    await Subscriber.PublishAsync(RedisChannel.Literal(Key.UserSpotify(e.UserId)), payload);
                 };
 
                 return Task.CompletedTask;

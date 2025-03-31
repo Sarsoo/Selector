@@ -16,6 +16,11 @@ using Selector.CLI.Consumer;
 using Selector.Events;
 using Selector.Model;
 using Selector.Model.Extensions;
+using Selector.Spotify;
+using Selector.Spotify.Consumer;
+using Selector.Spotify.Consumer.Factory;
+using Selector.Spotify.FactoryProvider;
+using Selector.Spotify.Watcher;
 
 namespace Selector.CLI
 {
@@ -106,8 +111,17 @@ namespace Selector.CLI
 
             foreach (var dbWatcher in db.Watcher
                          .Include(w => w.User)
-                         .Where(w => !string.IsNullOrWhiteSpace(w.User.SpotifyRefreshToken)))
+                         .Where(w =>
+                             ((w.Type == WatcherType.SpotifyPlayer || w.Type == WatcherType.SpotifyPlaylist) &&
+                              !string.IsNullOrWhiteSpace(w.User.SpotifyRefreshToken)) ||
+                             (w.Type == WatcherType.AppleMusicPlayer && w.User.AppleMusicLinked)
+                         ))
             {
+                using var logScope = Logger.BeginScope(new Dictionary<string, string>
+                {
+                    { "username", dbWatcher.User.UserName }
+                });
+
                 var watcherCollectionIdx = dbWatcher.UserId;
                 indices.Add(watcherCollectionIdx);
 
@@ -128,20 +142,20 @@ namespace Selector.CLI
 
             var watcherCollection = Watchers[watcherCollectionIdx];
 
-            Logger.LogDebug("Getting Spotify factory");
-            var spotifyFactory = await SpotifyFactory.GetFactory(dbWatcher.User.SpotifyRefreshToken);
-
             IWatcher watcher = null;
             List<IConsumer> consumers = new();
 
             switch (dbWatcher.Type)
             {
                 case WatcherType.SpotifyPlayer:
+                    Logger.LogDebug("Getting Spotify factory");
+                    var spotifyFactory = await SpotifyFactory.GetFactory(dbWatcher.User.SpotifyRefreshToken);
+
                     watcher = await _spotifyWatcherFactory.Get<SpotifyPlayerWatcher>(spotifyFactory,
                         id: dbWatcher.UserId, pollPeriod: PollPeriod);
 
                     consumers.Add(await AudioFeatureInjectorFactory.Get(spotifyFactory));
-                    if (CacheWriterFactory is not null) consumers.Add(await CacheWriterFactory.Get());
+                    if (CacheWriterFactory is not null) consumers.Add(await CacheWriterFactory.GetSpotify());
                     if (PublisherFactory is not null) consumers.Add(await PublisherFactory.GetSpotify());
 
                     if (MappingPersisterFactory is not null && !Magic.Dummy)
@@ -168,8 +182,9 @@ namespace Selector.CLI
                 case WatcherType.AppleMusicPlayer:
                     watcher = await _appleWatcherFactory.Get<AppleMusicPlayerWatcher>(_appleMusicProvider,
                         _appleMusicOptions.Value.Key, _appleMusicOptions.Value.TeamId, _appleMusicOptions.Value.KeyId,
-                        dbWatcher.User.AppleMusicKey);
+                        dbWatcher.User.AppleMusicKey, id: dbWatcher.UserId);
 
+                    if (CacheWriterFactory is not null) consumers.Add(await CacheWriterFactory.GetApple());
                     if (PublisherFactory is not null) consumers.Add(await PublisherFactory.GetApple());
 
                     break;

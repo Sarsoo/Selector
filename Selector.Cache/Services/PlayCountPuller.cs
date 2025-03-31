@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Api.Helpers;
 using IF.Lastfm.Core.Objects;
+using Microsoft.Extensions.Logging;
+using Selector.Spotify.Consumer;
 using StackExchange.Redis;
 
 namespace Selector.Cache
@@ -24,7 +22,6 @@ namespace Selector.Cache
 
         public PlayCountPuller(
             ILogger<PlayCountPuller> logger,
-
             ITrackApi trackClient,
             IAlbumApi albumClient,
             IArtistApi artistClient,
@@ -47,7 +44,7 @@ namespace Selector.Cache
 
             var trackCache = Cache?.StringGetAsync(Key.TrackPlayCount(username, track, artist));
             var albumCache = Cache?.StringGetAsync(Key.AlbumPlayCount(username, album, albumArtist));
-            var artistCache = Cache?.StringGetAsync(Key.ArtistPlayCount(username,  artist));
+            var artistCache = Cache?.StringGetAsync(Key.ArtistPlayCount(username, artist));
             var userCache = Cache?.StringGetAsync(Key.UserPlayCount(username));
 
             var cacheTasks = new Task[] { trackCache, albumCache, artistCache, userCache };
@@ -66,7 +63,7 @@ namespace Selector.Cache
 
             if (trackCache is not null && trackCache.IsCompletedSuccessfully && trackCache.Result != RedisValue.Null)
             {
-                playCount.Track = (int) trackCache.Result;
+                playCount.Track = (int)trackCache.Result;
             }
             else
             {
@@ -75,7 +72,7 @@ namespace Selector.Cache
 
             if (albumCache is not null && albumCache.IsCompletedSuccessfully && albumCache.Result != RedisValue.Null)
             {
-                playCount.Album = (int) albumCache.Result;
+                playCount.Album = (int)albumCache.Result;
             }
             else
             {
@@ -84,7 +81,7 @@ namespace Selector.Cache
 
             if (artistCache is not null && artistCache.IsCompletedSuccessfully && artistCache.Result != RedisValue.Null)
             {
-                playCount.Artist = (int) artistCache.Result;
+                playCount.Artist = (int)artistCache.Result;
             }
             else
             {
@@ -93,14 +90,14 @@ namespace Selector.Cache
 
             if (userCache is not null && userCache.IsCompletedSuccessfully && userCache.Result != RedisValue.Null)
             {
-                playCount.User = (int) userCache.Result;
+                playCount.User = (int)userCache.Result;
             }
             else
             {
                 userHttp = UserClient.GetInfoAsync(username);
             }
 
-            await Task.WhenAll(new Task[] {trackHttp, albumHttp, artistHttp, userHttp}.Where(t => t is not null));
+            await Task.WhenAll(new Task[] { trackHttp, albumHttp, artistHttp, userHttp }.Where(t => t is not null));
 
             if (trackHttp is not null && trackHttp.IsCompletedSuccessfully)
             {
@@ -136,7 +133,8 @@ namespace Selector.Cache
                 }
                 else
                 {
-                    Logger.LogDebug("User info error [{username}] [{userHttp.Result.Status}]", username, userHttp.Result.Status);
+                    Logger.LogDebug("User info error [{username}] [{userHttp.Result.Status}]", username,
+                        userHttp.Result.Status);
                 }
             }
 

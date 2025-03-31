@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Selector.Spotify;
+using Selector.Spotify.Consumer;
 using SpotifyAPI.Web;
-using System.Threading.Tasks;
 
 namespace Selector.SignalR;
 
@@ -21,4 +21,3 @@ public interface INowPlayingHub
     Task SendNewPlaying();
     Task SendPlayCount(string track, string artist, string album, string albumArtist);
 }
-

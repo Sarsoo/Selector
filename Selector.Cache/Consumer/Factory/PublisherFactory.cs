@@ -1,7 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Selector.AppleMusic.Watcher.Consumer;
+using Selector.AppleMusic.Consumer;
 using Selector.Cache.Consumer.AppleMusic;
+using Selector.Spotify;
+using Selector.Spotify.Consumer;
 using StackExchange.Redis;
 
 namespace Selector.Cache

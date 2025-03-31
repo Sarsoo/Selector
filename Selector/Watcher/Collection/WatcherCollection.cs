@@ -1,16 +1,15 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Selector
 {
-    public class WatcherCollection: IWatcherCollection, IDisposable, IEnumerable<WatcherContext>
+    public class WatcherCollection : IWatcherCollection, IDisposable, IEnumerable<WatcherContext>
     {
         private readonly ILogger<WatcherCollection> Logger;
         public bool IsRunning { get; private set; } = false;
@@ -28,12 +27,12 @@ namespace Selector
                 .SelectMany(w => w.Consumers)
                 .Where(t => t is not null);
 
-        public IEnumerable<Task> Tasks 
+        public IEnumerable<Task> Tasks
             => Watchers
                 .Select(w => w.Task)
                 .Where(t => t is not null);
 
-        public IEnumerable<CancellationTokenSource> TokenSources 
+        public IEnumerable<CancellationTokenSource> TokenSources
             => Watchers
                 .Select(w => w.TokenSource)
                 .Where(t => t is not null);
@@ -60,13 +59,14 @@ namespace Selector
             if (IsRunning) return;
 
             Logger.LogDebug("Starting {} watcher(s)", Count);
-            foreach(var watcher in Watchers)
+            foreach (var watcher in Watchers)
             {
                 watcher.Start();
             }
+
             IsRunning = true;
         }
-        
+
         public void Stop()
         {
             if (!IsRunning) return;
@@ -78,6 +78,7 @@ namespace Selector
                 {
                     watcher.Stop();
                 }
+
                 Task.WaitAll(Tasks.ToArray());
                 IsRunning = false;
             }
@@ -87,20 +88,21 @@ namespace Selector
             }
             catch (AggregateException ex)
             {
-                if(ex.InnerException is TaskCanceledException || ex.InnerExceptions.Any(e => e is TaskCanceledException))
+                if (ex.InnerException is TaskCanceledException ||
+                    ex.InnerExceptions.Any(e => e is TaskCanceledException))
                 {
                     Logger.LogTrace("Caught task cancelled exception");
                 }
                 else
                 {
-                    throw ex;
+                    throw;
                 }
             }
         }
 
         public void Dispose()
         {
-            foreach(var watcher in Watchers)
+            foreach (var watcher in Watchers)
             {
                 watcher.Dispose();
             }

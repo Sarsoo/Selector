@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Selector.Spotify;
 
 namespace Selector.Events
 {

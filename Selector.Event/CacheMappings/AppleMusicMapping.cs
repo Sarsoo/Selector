@@ -1,9 +1,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-
-using StackExchange.Redis;
-
 using Selector.Cache;
+using StackExchange.Redis;
 
 namespace Selector.Events
 {
@@ -35,18 +33,20 @@ namespace Selector.Events
             {
                 Logger.LogDebug("Forming Apple Music link event mapping FROM cache TO event bus");
 
-                (await Subscriber.SubscribeAsync(Key.AllUserAppleMusic)).OnMessage(message => {
-
+                (await Subscriber.SubscribeAsync(RedisChannel.Pattern(Key.AllUserAppleMusic))).OnMessage(message =>
+                {
                     try
                     {
                         var userId = Key.Param(message.Channel);
 
-                        var deserialised = JsonSerializer.Deserialize(message.Message, CacheJsonContext.Default.AppleMusicLinkChange);
+                        var deserialised = JsonSerializer.Deserialize(message.Message,
+                            CacheJsonContext.Default.AppleMusicLinkChange);
                         Logger.LogDebug("Received new Apple Music link event for [{userId}]", deserialised.UserId);
 
                         if (!userId.Equals(deserialised.UserId))
                         {
-                            Logger.LogWarning("Serialised user ID [{}] does not match cache channel [{}]", userId, deserialised.UserId);
+                            Logger.LogWarning("Serialised user ID [{}] does not match cache channel [{}]", userId,
+                                deserialised.UserId);
                         }
 
                         UserEvent.OnAppleMusicLinkChange(this, deserialised);
@@ -88,7 +88,7 @@ namespace Selector.Events
                 UserEvent.AppleLinkChange += async (o, e) =>
                 {
                     var payload = JsonSerializer.Serialize(e, CacheJsonContext.Default.AppleMusicLinkChange);
-                    await Subscriber.PublishAsync(Key.UserAppleMusic(e.UserId), payload);
+                    await Subscriber.PublishAsync(RedisChannel.Literal(Key.UserAppleMusic(e.UserId)), payload);
                 };
 
                 return Task.CompletedTask;

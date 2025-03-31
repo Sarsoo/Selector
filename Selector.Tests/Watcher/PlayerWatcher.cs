@@ -3,6 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
+using Selector.Spotify.Equality;
+using Selector.Spotify.Watcher;
 using SpotifyAPI.Web;
 using Xunit;
 
@@ -26,7 +28,7 @@ namespace Selector.Tests
 
         [Theory]
         [MemberData(nameof(NowPlayingData))]
-        public async void NowPlaying(List<CurrentlyPlayingContext> playing)
+        public async Task NowPlaying(List<CurrentlyPlayingContext> playing)
         {
             var playingQueue = new Queue<CurrentlyPlayingContext>(playing);
 
@@ -252,7 +254,7 @@ namespace Selector.Tests
 
         [Theory]
         [MemberData(nameof(EventsData))]
-        public async void Events(List<CurrentlyPlayingContext> playing, List<string> toRaise, List<string> toNotRaise)
+        public async Task Events(List<CurrentlyPlayingContext> playing, List<string> toRaise, List<string> toNotRaise)
         {
             var playingQueue = new Queue<CurrentlyPlayingContext>(playing);
 
@@ -279,7 +281,7 @@ namespace Selector.Tests
         [InlineData(1000, 3500, 4)]
         [InlineData(500, 3800, 8)]
         [InlineData(100, 250, 3)]
-        public async void Watch(int pollPeriod, int execTime, int numberOfCalls)
+        public async Task Watch(int pollPeriod, int execTime, int numberOfCalls)
         {
             var spotMock = new Mock<IPlayerClient>();
             var eq = new UriEqual();

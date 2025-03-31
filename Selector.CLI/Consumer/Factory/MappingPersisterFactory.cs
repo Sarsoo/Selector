@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Selector.Spotify;
+using Selector.Spotify.Consumer;
 
 namespace Selector.CLI.Consumer
 {

@@ -1,9 +1,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-
-using StackExchange.Redis;
-
 using Selector.Cache;
+using StackExchange.Redis;
 
 namespace Selector.Events
 {
@@ -35,18 +33,20 @@ namespace Selector.Events
             {
                 Logger.LogDebug("Forming Last.fm username event mapping FROM cache TO event bus");
 
-                (await Subscriber.SubscribeAsync(Key.AllUserLastfm)).OnMessage(message => {
-
+                (await Subscriber.SubscribeAsync(RedisChannel.Pattern(Key.AllUserLastfm))).OnMessage(message =>
+                {
                     try
                     {
                         var userId = Key.Param(message.Channel);
 
-                        var deserialised = JsonSerializer.Deserialize(message.Message, CacheJsonContext.Default.LastfmChange);
+                        var deserialised =
+                            JsonSerializer.Deserialize(message.Message, CacheJsonContext.Default.LastfmChange);
                         Logger.LogDebug("Received new Last.fm username event for [{userId}]", deserialised.UserId);
 
                         if (!userId.Equals(deserialised.UserId))
                         {
-                            Logger.LogWarning("Serialised user ID [{}] does not match cache channel [{}]", userId, deserialised.UserId);
+                            Logger.LogWarning("Serialised user ID [{}] does not match cache channel [{}]", userId,
+                                deserialised.UserId);
                         }
 
                         UserEvent.OnLastfmCredChange(this, deserialised);
@@ -84,7 +84,7 @@ namespace Selector.Events
                 UserEvent.LastfmCredChange += async (o, e) =>
                 {
                     var payload = JsonSerializer.Serialize(e, CacheJsonContext.Default.LastfmChange);
-                    await Subscriber.PublishAsync(Key.UserLastfm(e.UserId), payload);
+                    await Subscriber.PublishAsync(RedisChannel.Literal(Key.UserLastfm(e.UserId)), payload);
                 };
 
                 return Task.CompletedTask;
