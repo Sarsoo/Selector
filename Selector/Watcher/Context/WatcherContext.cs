@@ -1,22 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Selector
 {
-    public class WatcherContext: IDisposable, IWatcherContext
+    public class WatcherContext : IDisposable, IWatcherContext
     {
         public IWatcher Watcher { get; set; }
         public List<IConsumer> Consumers { get; private set; } = new();
         public bool IsRunning { get; private set; }
+
         /// <summary>
         /// Reference to Watcher.Watch() task when running
         /// </summary>
         /// <value></value>
         public Task Task { get; set; }
+
         public CancellationTokenSource TokenSource { get; set; }
 
         public WatcherContext(IWatcher watcher)
@@ -52,18 +53,25 @@ namespace Selector
         {
             if (IsRunning)
                 Stop();
-            
+
             IsRunning = true;
             TokenSource = new();
 
             Consumers.ForEach(c => c.Subscribe(Watcher));
+            foreach (var consumer in Consumers)
+            {
+                if (consumer is IProcessingConsumer c)
+                {
+                    c.ProcessQueue(TokenSource.Token);
+                }
+            }
 
             Reset();
         }
 
         private void Reset()
         {
-            if(Task is not null && !Task.IsCompleted)
+            if (Task is not null && !Task.IsCompleted)
             {
                 TokenSource.Cancel();
             }
@@ -89,13 +97,13 @@ namespace Selector
 
         private void Clear()
         {
-            if(IsRunning 
-            || Task.Status == TaskStatus.Running
-            || Task.Status == TaskStatus.WaitingToRun)
+            if (IsRunning
+                || Task.Status == TaskStatus.Running
+                || Task.Status == TaskStatus.WaitingToRun)
             {
                 Stop();
             }
-            
+
             Task = null;
             TokenSource = null;
         }

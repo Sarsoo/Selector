@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Selector.Extensions;
 using Selector.Spotify.Timeline;
 using SpotifyAPI.Web;
@@ -7,11 +6,10 @@ using SpotifyAPI.Web;
 namespace Selector.Spotify.Consumer
 {
     [Obsolete]
-    public class AudioFeatureInjector : ISpotifyPlayerConsumer
+    public class AudioFeatureInjector :
+        BaseParallelPlayerConsumer<ISpotifyPlayerWatcher, SpotifyListeningChangeEventArgs>, ISpotifyPlayerConsumer
     {
-        protected readonly ISpotifyPlayerWatcher Watcher;
         protected readonly ITracksClient TrackClient;
-        protected readonly ILogger<AudioFeatureInjector> Logger;
 
         protected event EventHandler<AnalysedTrack> NewFeature;
 
@@ -24,33 +22,16 @@ namespace Selector.Spotify.Consumer
             ITracksClient trackClient,
             ILogger<AudioFeatureInjector> logger = null,
             CancellationToken token = default
-        )
+        ) : base(watcher, logger)
         {
-            Watcher = watcher;
             TrackClient = trackClient;
-            Logger = logger ?? NullLogger<AudioFeatureInjector>.Instance;
             CancelToken = token;
         }
 
-        public void Callback(object sender, SpotifyListeningChangeEventArgs e)
+        protected override async Task ProcessEvent(SpotifyListeningChangeEventArgs e)
         {
             if (e.Current is null) return;
 
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await AsyncCallback(e);
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError(e, "Error occured during callback");
-                }
-            }, CancelToken);
-        }
-
-        public virtual async Task AsyncCallback(SpotifyListeningChangeEventArgs e)
-        {
             using var scope = Logger.GetListeningEventArgsScope(e);
 
             if (e.Current.Item is FullTrack track)
@@ -98,34 +79,6 @@ namespace Selector.Spotify.Consumer
             else
             {
                 Logger.LogError("Unknown item pulled from API [{item}]", e.Current.Item);
-            }
-        }
-
-        public void Subscribe(IWatcher watch = null)
-        {
-            var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
-
-            if (watcher is ISpotifyPlayerWatcher watcherCast)
-            {
-                watcherCast.ItemChange += Callback;
-            }
-            else
-            {
-                throw new ArgumentException("Provided watcher is not a PlayerWatcher");
-            }
-        }
-
-        public void Unsubscribe(IWatcher watch = null)
-        {
-            var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
-
-            if (watcher is ISpotifyPlayerWatcher watcherCast)
-            {
-                watcherCast.ItemChange -= Callback;
-            }
-            else
-            {
-                throw new ArgumentException("Provided watcher is not a PlayerWatcher");
             }
         }
 

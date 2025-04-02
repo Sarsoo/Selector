@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Selector.Spotify.Timeline;
 
 namespace Selector.Spotify.Consumer
@@ -24,56 +23,31 @@ namespace Selector.Spotify.Consumer
         }
     }
 
-    public class WebHook : ISpotifyPlayerConsumer
+    public class WebHook(
+        ISpotifyPlayerWatcher watcher,
+        HttpClient httpClient,
+        WebHookConfig config,
+        ILogger<WebHook> logger = null,
+        CancellationToken token = default)
+        : BaseParallelPlayerConsumer<ISpotifyPlayerWatcher, SpotifyListeningChangeEventArgs>(watcher, logger),
+            ISpotifyPlayerConsumer
     {
-        protected readonly ISpotifyPlayerWatcher Watcher;
-        protected readonly HttpClient HttpClient;
-        protected readonly ILogger<WebHook> Logger;
+        protected readonly HttpClient HttpClient = httpClient;
 
-        protected readonly WebHookConfig Config;
+        protected readonly WebHookConfig Config = config;
 
         public event EventHandler PredicatePass;
         public event EventHandler SuccessfulRequest;
         public event EventHandler FailedRequest;
 
-        public CancellationToken CancelToken { get; set; }
+        public CancellationToken CancelToken { get; set; } = token;
 
         public AnalysedTrackTimeline Timeline { get; set; } = new();
 
-        public WebHook(
-            ISpotifyPlayerWatcher watcher,
-            HttpClient httpClient,
-            WebHookConfig config,
-            ILogger<WebHook> logger = null,
-            CancellationToken token = default
-        )
-        {
-            Watcher = watcher;
-            HttpClient = httpClient;
-            Config = config;
-            Logger = logger ?? NullLogger<WebHook>.Instance;
-            CancelToken = token;
-        }
-
-        public void Callback(object sender, SpotifyListeningChangeEventArgs e)
+        protected override async Task ProcessEvent(SpotifyListeningChangeEventArgs e)
         {
             if (e.Current is null) return;
 
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await AsyncCallback(e);
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError(e, "Error occured during callback");
-                }
-            }, CancelToken);
-        }
-
-        public async Task AsyncCallback(SpotifyListeningChangeEventArgs e)
-        {
             using var scope = Logger.BeginScope(new Dictionary<string, object>()
             {
                 { "spotify_username", e.SpotifyUsername }, { "id", e.Id }, { "name", Config.Name },
@@ -112,34 +86,6 @@ namespace Selector.Spotify.Consumer
             else
             {
                 Logger.LogTrace("Predicate failed, skipping");
-            }
-        }
-
-        public void Subscribe(IWatcher watch = null)
-        {
-            var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
-
-            if (watcher is ISpotifyPlayerWatcher watcherCast)
-            {
-                watcherCast.ItemChange += Callback;
-            }
-            else
-            {
-                throw new ArgumentException("Provided watcher is not a PlayerWatcher");
-            }
-        }
-
-        public void Unsubscribe(IWatcher watch = null)
-        {
-            var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
-
-            if (watcher is ISpotifyPlayerWatcher watcherCast)
-            {
-                watcherCast.ItemChange -= Callback;
-            }
-            else
-            {
-                throw new ArgumentException("Provided watcher is not a PlayerWatcher");
             }
         }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,6 +12,7 @@ namespace Selector
         /// <param name="cancelToken">Token for early cancell</param>
         /// <returns>awaitable task</returns>
         public Task WatchOne(CancellationToken cancelToken);
+
         /// <summary>
         /// Begin periodically polling with interval of PollPeriod
         /// </summary>
@@ -25,5 +27,10 @@ namespace Selector
         /// </summary>
         /// <value></value>
         public int PollPeriod { get; set; }
+    }
+
+    public interface IWatcher<T> : IWatcher
+    {
+        public event EventHandler<T> ItemChange;
     }
 }

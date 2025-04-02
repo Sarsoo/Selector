@@ -7,62 +7,36 @@ using SpotifyAPI.Web;
 
 namespace Selector.Spotify.Consumer
 {
-    public class PlayCounter : ISpotifyPlayerConsumer
+    public class PlayCounter(
+        ISpotifyPlayerWatcher watcher,
+        ITrackApi trackClient,
+        IAlbumApi albumClient,
+        IArtistApi artistClient,
+        IUserApi userClient,
+        LastFmCredentials credentials = null,
+        ILogger<PlayCounter> logger = null,
+        CancellationToken token = default)
+        : BaseParallelPlayerConsumer<ISpotifyPlayerWatcher, SpotifyListeningChangeEventArgs>(watcher, logger),
+            ISpotifyPlayerConsumer
     {
-        protected readonly ISpotifyPlayerWatcher Watcher;
-        protected readonly ITrackApi TrackClient;
-        protected readonly IAlbumApi AlbumClient;
-        protected readonly IArtistApi ArtistClient;
-        protected readonly IUserApi UserClient;
-        public readonly LastFmCredentials Credentials;
-        protected readonly ILogger<PlayCounter> Logger;
+        protected readonly ISpotifyPlayerWatcher Watcher = watcher;
+        protected readonly ITrackApi TrackClient = trackClient;
+        protected readonly IAlbumApi AlbumClient = albumClient;
+        protected readonly IArtistApi ArtistClient = artistClient;
+        protected readonly IUserApi UserClient = userClient;
+        public readonly LastFmCredentials Credentials = credentials;
+        protected readonly ILogger<PlayCounter> Logger = logger ?? NullLogger<PlayCounter>.Instance;
 
         protected event EventHandler<PlayCount> NewPlayCount;
 
-        public CancellationToken CancelToken { get; set; }
+        public CancellationToken CancelToken { get; set; } = token;
 
         public AnalysedTrackTimeline Timeline { get; set; } = new();
 
-        public PlayCounter(
-            ISpotifyPlayerWatcher watcher,
-            ITrackApi trackClient,
-            IAlbumApi albumClient,
-            IArtistApi artistClient,
-            IUserApi userClient,
-            LastFmCredentials credentials = null,
-            ILogger<PlayCounter> logger = null,
-            CancellationToken token = default
-        )
-        {
-            Watcher = watcher;
-            TrackClient = trackClient;
-            AlbumClient = albumClient;
-            ArtistClient = artistClient;
-            UserClient = userClient;
-            Credentials = credentials;
-            Logger = logger ?? NullLogger<PlayCounter>.Instance;
-            CancelToken = token;
-        }
-
-        public void Callback(object sender, SpotifyListeningChangeEventArgs e)
+        protected override async Task ProcessEvent(SpotifyListeningChangeEventArgs e)
         {
             if (e.Current is null) return;
 
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await AsyncCallback(e);
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError(e, "Error occured during callback");
-                }
-            }, CancelToken);
-        }
-
-        public async Task AsyncCallback(SpotifyListeningChangeEventArgs e)
-        {
             using var scope = Logger.BeginScope(new Dictionary<string, object>()
                 { { "spotify_username", e.SpotifyUsername }, { "id", e.Id }, { "username", Credentials.Username } });
 
@@ -172,34 +146,6 @@ namespace Selector.Spotify.Consumer
             else
             {
                 Logger.LogError("Unknown item pulled from API [{item}]", e.Current.Item);
-            }
-        }
-
-        public void Subscribe(IWatcher watch = null)
-        {
-            var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
-
-            if (watcher is ISpotifyPlayerWatcher watcherCast)
-            {
-                watcherCast.ItemChange += Callback;
-            }
-            else
-            {
-                throw new ArgumentException("Provided watcher is not a PlayerWatcher");
-            }
-        }
-
-        public void Unsubscribe(IWatcher watch = null)
-        {
-            var watcher = watch ?? Watcher ?? throw new ArgumentNullException("No watcher provided");
-
-            if (watcher is ISpotifyPlayerWatcher watcherCast)
-            {
-                watcherCast.ItemChange -= Callback;
-            }
-            else
-            {
-                throw new ArgumentException("Provided watcher is not a PlayerWatcher");
             }
         }
 

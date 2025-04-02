@@ -61,7 +61,7 @@ public class AppleTimeline : Timeline<AppleMusicCurrentlyPlayingContext>
 
         if (popped is not null)
         {
-            var idx = Recent.FindIndex(x => x.Item.Track.Id == popped.Item.Track.Id);
+            var idx = newItems.FindIndex(x => x.Track.Id == popped.Item.Track.Id);
             if (idx >= 0)
             {
                 newItems.RemoveAt(idx);

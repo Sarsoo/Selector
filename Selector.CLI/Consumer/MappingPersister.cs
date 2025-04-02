@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Selector.Extensions;
 using Selector.Model;
 using Selector.Spotify;
@@ -18,11 +15,10 @@ namespace Selector.CLI.Consumer
     /// <summary>
     /// Save name -> Spotify URI mappings as new objects come through the watcher without making extra queries of the Spotify API
     /// </summary>
-    public class MappingPersister : ISpotifyPlayerConsumer
+    public class MappingPersister : BaseParallelPlayerConsumer<ISpotifyPlayerWatcher, SpotifyListeningChangeEventArgs>,
+        ISpotifyPlayerConsumer
     {
-        protected readonly ISpotifyPlayerWatcher Watcher;
         protected readonly IServiceScopeFactory ScopeFactory;
-        protected readonly ILogger<MappingPersister> Logger;
 
         public CancellationToken CancelToken { get; set; }
 
@@ -31,37 +27,15 @@ namespace Selector.CLI.Consumer
             IServiceScopeFactory scopeFactory,
             ILogger<MappingPersister> logger = null,
             CancellationToken token = default
-        )
+        ) : base(watcher, logger)
         {
-            Watcher = watcher;
             ScopeFactory = scopeFactory;
-            Logger = logger ?? NullLogger<MappingPersister>.Instance;
-            CancelToken = token;
         }
 
-        public void Callback(object sender, SpotifyListeningChangeEventArgs e)
+        protected override async Task ProcessEvent(SpotifyListeningChangeEventArgs e)
         {
             if (e.Current is null) return;
 
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await AsyncCallback(e);
-                }
-                catch (DbUpdateException)
-                {
-                    Logger.LogWarning("Failed to update database, likely a duplicate Spotify URI");
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Error occured during callback");
-                }
-            }, CancelToken);
-        }
-
-        public async Task AsyncCallback(SpotifyListeningChangeEventArgs e)
-        {
             using var serviceScope = ScopeFactory.CreateScope();
             using var scope = Logger.BeginScope(new Dictionary<string, object>()
                 { { "spotify_username", e.SpotifyUsername }, { "id", e.Id } });
@@ -118,34 +92,6 @@ namespace Selector.CLI.Consumer
             else
             {
                 Logger.LogError("Unknown item pulled from API [{item}]", e.Current.Item);
-            }
-        }
-
-        public void Subscribe(IWatcher watch = null)
-        {
-            var watcher = watch ?? Watcher ?? throw new ArgumentNullException(nameof(watch));
-
-            if (watcher is ISpotifyPlayerWatcher watcherCast)
-            {
-                watcherCast.ItemChange += Callback;
-            }
-            else
-            {
-                throw new ArgumentException("Provided watcher is not a PlayerWatcher");
-            }
-        }
-
-        public void Unsubscribe(IWatcher watch = null)
-        {
-            var watcher = watch ?? Watcher ?? throw new ArgumentNullException(nameof(watch));
-
-            if (watcher is ISpotifyPlayerWatcher watcherCast)
-            {
-                watcherCast.ItemChange -= Callback;
-            }
-            else
-            {
-                throw new ArgumentException("Provided watcher is not a PlayerWatcher");
             }
         }
     }

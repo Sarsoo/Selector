@@ -60,8 +60,10 @@ namespace Selector.Spotify.Consumer
             return _features[_contextIdx];
         }
 
-        public override Task AsyncCallback(SpotifyListeningChangeEventArgs e)
+        protected override Task ProcessEvent(SpotifyListeningChangeEventArgs e)
         {
+            if (e.Current is null) return Task.CompletedTask;
+
             using var scope = Logger.GetListeningEventArgsScope(e);
 
             if (e.Current.Item is FullTrack track)

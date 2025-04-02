@@ -3,10 +3,9 @@ using Selector.AppleMusic.Watcher;
 
 namespace Selector
 {
-    public interface IAppleMusicPlayerWatcher : IWatcher
+    public interface IAppleMusicPlayerWatcher : IWatcher<AppleListeningChangeEventArgs>
     {
         public event EventHandler<AppleListeningChangeEventArgs> NetworkPoll;
-        public event EventHandler<AppleListeningChangeEventArgs> ItemChange;
         public event EventHandler<AppleListeningChangeEventArgs> AlbumChange;
         public event EventHandler<AppleListeningChangeEventArgs> ArtistChange;
 

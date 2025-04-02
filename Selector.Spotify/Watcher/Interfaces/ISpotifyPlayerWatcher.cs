@@ -3,14 +3,13 @@ using SpotifyAPI.Web;
 
 namespace Selector.Spotify
 {
-    public interface ISpotifyPlayerWatcher : IWatcher
+    public interface ISpotifyPlayerWatcher : IWatcher<SpotifyListeningChangeEventArgs>
     {
         /// <summary>
         /// Track or episode changes
         /// </summary>
         public event EventHandler<SpotifyListeningChangeEventArgs> NetworkPoll;
 
-        public event EventHandler<SpotifyListeningChangeEventArgs> ItemChange;
         public event EventHandler<SpotifyListeningChangeEventArgs> AlbumChange;
         public event EventHandler<SpotifyListeningChangeEventArgs> ArtistChange;
         public event EventHandler<SpotifyListeningChangeEventArgs> ContextChange;
