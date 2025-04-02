@@ -97,7 +97,7 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
-          version: 1.68.1
+          version: latest
 
       - name: Deploy
         run: ssh -o StrictHostKeyChecking=no ${{ secrets.TS_SSH }} -t "cd selector/ && docker compose up -d --pull always"

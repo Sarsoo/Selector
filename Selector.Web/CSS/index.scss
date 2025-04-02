@@ -1,5 +1,5 @@
-@import "now.scss";
-@import "past.scss";
+@use "now.scss";
+@use "past.scss";
 
 $background-color: #2b2b2b;
 $nav-background-color: #232323;
@@ -82,19 +82,19 @@ body {
 input[type=text], input[type=email], input[type=tel], input[type=password] {
     background-color: #444444 !important;
     border-color: #545454;
-    color: $text-color;
+    color: now.$text-color;
 
     &:focus {
-        color: $text-color;
+        color: now.$text-color;
     }
 }
 
 .card {
     background-color: $card-background-color;
-    color: $text-color;
+    color: now.$text-color;
     margin: 5px;
     padding: 15px;
-    box-shadow: 5px 5px 0px $shadow-color;
+    box-shadow: 5px 5px 0px now.$shadow-color;
     transition: box-shadow 0.5s;
 
     border-style: solid;

@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Selector.AppleMusic\Selector.AppleMusic.csproj"/>
     <ProjectReference Include="..\Selector.Spotify\Selector.Spotify.csproj"/>
     <ProjectReference Include="..\Selector\Selector.csproj" />
     <!-- <ProjectReference Include="..\Selector.Model\Selector.Model.csproj" /> -->
@@ -16,7 +17,7 @@
     <None Remove="Microsoft.AspNetCore.SignalR.Client" />
   </ItemGroup> -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.3"/>
   </ItemGroup>
   <ItemGroup>
     <None Remove="Models\" />
