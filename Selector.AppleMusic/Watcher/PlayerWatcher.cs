@@ -7,7 +7,7 @@ namespace Selector.AppleMusic.Watcher;
 
 public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
 {
-    new protected readonly ILogger<AppleMusicPlayerWatcher> Logger;
+    private new readonly ILogger<AppleMusicPlayerWatcher> Logger;
     private readonly AppleMusicApi _appleMusicApi;
 
     public event EventHandler<AppleListeningChangeEventArgs> NetworkPoll;
@@ -15,12 +15,12 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
     public event EventHandler<AppleListeningChangeEventArgs> AlbumChange;
     public event EventHandler<AppleListeningChangeEventArgs> ArtistChange;
 
-    public AppleMusicCurrentlyPlayingContext Live { get; protected set; }
-    protected AppleMusicCurrentlyPlayingContext Previous { get; set; }
-    public AppleTimeline Past { get; set; } = new();
+    public AppleMusicCurrentlyPlayingContext? Live { get; private set; }
+    private AppleMusicCurrentlyPlayingContext? Previous { get; set; }
+    public AppleTimeline Past { get; private set; } = new();
 
     public AppleMusicPlayerWatcher(AppleMusicApi appleMusicClient,
-        ILogger<AppleMusicPlayerWatcher> logger = null,
+        ILogger<AppleMusicPlayerWatcher>? logger = null,
         int pollPeriod = 3000
     ) : base(logger)
     {
@@ -35,10 +35,22 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
 
         try
         {
+            using var polledLogScope = Logger.BeginScope(new Dictionary<string, object>() { { "user_id", Id } });
+
             Logger.LogTrace("Making Apple Music call");
             var polledCurrent = await _appleMusicApi.GetRecentlyPlayedTracks();
 
-            // using var polledLogScope = Logger.BeginScope(new Dictionary<string, object>() { { "context", polledCurrent?.DisplayString() } });
+            if (polledCurrent is null)
+            {
+                Logger.LogInformation("Null response when calling Apple Music API");
+                return;
+            }
+
+            if (polledCurrent.Data is null)
+            {
+                Logger.LogInformation("Null track list when calling Apple Music API");
+                return;
+            }
 
             Logger.LogTrace("Received Apple Music call");
 
@@ -65,23 +77,28 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
         }
         catch (RateLimitException e)
         {
-            Logger.LogDebug("Rate Limit exception: [{message}]", e.Message);
-            // throw e;
+            Logger.LogError(e, "Rate Limit exception");
+            // throw;
         }
         catch (ForbiddenException e)
         {
-            Logger.LogDebug("Forbidden exception: [{message}]", e.Message);
-            throw;
+            Logger.LogError(e, "Forbidden exception");
+            // throw;
         }
         catch (ServiceException e)
         {
-            Logger.LogDebug("Apple Music internal error: [{message}]", e.Message);
-            // throw e;
+            Logger.LogInformation("Apple Music internal error");
+            // throw;
         }
         catch (UnauthorisedException e)
         {
-            Logger.LogDebug("Unauthorised exception: [{message}]", e.Message);
-            // throw e;
+            Logger.LogError(e, "Unauthorised exception");
+            // throw;
+        }
+        catch (AppleMusicException e)
+        {
+            Logger.LogInformation("Apple Music exception ({})", e.StatusCode);
+            // throw;
         }
     }
 
@@ -89,7 +106,7 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
     {
         var lastTrack = recentlyPlayedTracks.Data?.FirstOrDefault();
 
-        if (Live != null && Live.Track != null && Live.Track.Id == lastTrack?.Id)
+        if (Live is { Track: not null } && Live.Track.Id == lastTrack?.Id)
         {
             Live = new()
             {
@@ -116,27 +133,27 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
         return Task.CompletedTask;
     }
 
-    protected AppleListeningChangeEventArgs GetEvent() =>
+    private AppleListeningChangeEventArgs GetEvent() =>
         AppleListeningChangeEventArgs.From(Previous, Live, Past, id: Id);
 
     #region Event Firers
 
-    protected virtual void OnNetworkPoll(AppleListeningChangeEventArgs args)
+    private void OnNetworkPoll(AppleListeningChangeEventArgs args)
     {
         NetworkPoll?.Invoke(this, args);
     }
 
-    protected virtual void OnItemChange(AppleListeningChangeEventArgs args)
+    private void OnItemChange(AppleListeningChangeEventArgs args)
     {
         ItemChange?.Invoke(this, args);
     }
 
-    protected virtual void OnAlbumChange(AppleListeningChangeEventArgs args)
+    protected void OnAlbumChange(AppleListeningChangeEventArgs args)
     {
         AlbumChange?.Invoke(this, args);
     }
 
-    protected virtual void OnArtistChange(AppleListeningChangeEventArgs args)
+    protected void OnArtistChange(AppleListeningChangeEventArgs args)
     {
         ArtistChange?.Invoke(this, args);
     }

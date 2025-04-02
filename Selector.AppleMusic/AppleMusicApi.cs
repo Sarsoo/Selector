@@ -26,15 +26,19 @@ public class AppleMusicApi(HttpClient client, string developerToken, string user
         {
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                throw new UnauthorisedException();
+                throw new UnauthorisedException { StatusCode = response.StatusCode };
             }
             else if (response.StatusCode == HttpStatusCode.Forbidden)
             {
-                throw new ForbiddenException();
+                throw new ForbiddenException { StatusCode = response.StatusCode };
             }
             else if (response.StatusCode == HttpStatusCode.TooManyRequests)
             {
-                throw new RateLimitException();
+                throw new RateLimitException { StatusCode = response.StatusCode };
+            }
+            else
+            {
+                throw new AppleMusicException { StatusCode = response.StatusCode };
             }
         }
     }
