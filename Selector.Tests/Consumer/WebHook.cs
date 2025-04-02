@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Moq.Protected;
 using Selector.Spotify;
@@ -78,7 +80,7 @@ namespace Selector.Tests
 
             bool predicateEvent = false, successfulEvent = false, failedEvent = false;
 
-            var webHook = new WebHook(watcherMock.Object, http, config);
+            var webHook = new WebHook(watcherMock.Object, http, config, logger: NullLogger<WebHook>.Instance);
 
             webHook.PredicatePass += (o, e) => { predicateEvent = predicate; };
 
@@ -86,7 +88,8 @@ namespace Selector.Tests
 
             webHook.FailedRequest += (o, e) => { failedEvent = !successful; };
 
-            await webHook.AsyncCallback(SpotifyListeningChangeEventArgs.From(new(), new(), new()));
+            await (Task)typeof(WebHook).GetMethod("ProcessEvent", BindingFlags.NonPublic | BindingFlags.Instance)
+                .Invoke(webHook, new object[] { SpotifyListeningChangeEventArgs.From(new(), new(), new()) });
 
             predicateEvent.Should().Be(predicate);
             successfulEvent.Should().Be(successful);

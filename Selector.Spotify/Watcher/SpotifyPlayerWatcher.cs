@@ -77,18 +77,18 @@ namespace Selector.Spotify.Watcher
             }
             catch (APIUnauthorizedException e)
             {
-                Logger.LogDebug("Unauthorised error: [{message}] (should be refreshed and retried?)", e.Message);
+                Logger.LogInformation("Unauthorised error: [{message}] (should be refreshed and retried?)", e.Message);
                 //throw e;
             }
             catch (APITooManyRequestsException e)
             {
-                Logger.LogDebug("Too many requests error: [{message}]", e.Message);
+                Logger.LogInformation("Too many requests error: [{message}]", e.Message);
                 await Task.Delay(e.RetryAfter, token);
                 // throw e;
             }
             catch (APIException e)
             {
-                Logger.LogDebug("API error: [{message}]", e.Message);
+                Logger.LogInformation("API error: [{message}]", e.Message);
                 // throw e;
             }
         }
@@ -98,13 +98,13 @@ namespace Selector.Spotify.Watcher
             switch (Previous, Live)
             {
                 case (null or { Item: null }, { Item: FullTrack track }):
-                    Logger.LogDebug("Item started: {track}", track.DisplayString());
+                    Logger.LogInformation("Item started: {track}", track.DisplayString());
                     break;
                 case (null or { Item: null }, { Item: FullEpisode episode }):
-                    Logger.LogDebug("Item started: {episode}", episode.DisplayString());
+                    Logger.LogInformation("Item started: {episode}", episode.DisplayString());
                     break;
                 case (null or { Item: null }, { Item: not null }):
-                    Logger.LogDebug("Item started: {item}", Live.Item);
+                    Logger.LogInformation("Item started: {item}", Live.Item);
                     break;
             }
 
@@ -124,7 +124,8 @@ namespace Selector.Spotify.Watcher
                 case ({ Item: FullTrack previousTrack }, { Item: FullTrack currentTrack }):
                     if (!eq.IsEqual(previousTrack, currentTrack))
                     {
-                        Logger.LogDebug("Track changed: {prevTrack} -> {currentTrack}", previousTrack.DisplayString(),
+                        Logger.LogInformation("Track changed: {prevTrack} -> {currentTrack}",
+                            previousTrack.DisplayString(),
                             currentTrack.DisplayString());
                         OnItemChange(GetEvent());
                     }

@@ -1,6 +1,8 @@
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Selector.Spotify;
 using Selector.Spotify.Consumer;
@@ -87,12 +89,15 @@ namespace Selector.Tests
             spotifyMock.Setup(m => m.GetAudioFeatures(It.IsAny<string>(), It.IsAny<CancellationToken>()).Result)
                 .Returns(() => featureMock.Object);
 
-            var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object)
+            var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object,
+                logger: NullLogger<AudioFeatureInjector>.Instance)
             {
                 Timeline = timelineMock.Object
             };
 
-            await featureInjector.AsyncCallback(eventArgsMock.Object);
+            await (Task)typeof(AudioFeatureInjector)
+                .GetMethod("ProcessEvent", BindingFlags.NonPublic | BindingFlags.Instance)
+                .Invoke(featureInjector, new object[] { eventArgsMock.Object });
 
             spotifyMock.VerifyNoOtherCalls();
             timelineMock.VerifyNoOtherCalls();
@@ -116,12 +121,15 @@ namespace Selector.Tests
             spotifyMock.Setup(m => m.GetAudioFeatures(It.IsAny<string>(), It.IsAny<CancellationToken>()).Result)
                 .Returns(() => featureMock.Object);
 
-            var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object)
+            var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object,
+                logger: NullLogger<AudioFeatureInjector>.Instance)
             {
                 Timeline = timelineMock.Object
             };
 
-            await featureInjector.AsyncCallback(eventArgsMock.Object);
+            await (Task)typeof(AudioFeatureInjector)
+                .GetMethod("ProcessEvent", BindingFlags.NonPublic | BindingFlags.Instance)
+                .Invoke(featureInjector, new object[] { eventArgsMock.Object });
 
             spotifyMock.Verify(m => m.GetAudioFeatures(It.IsAny<string>(), It.IsAny<CancellationToken>()));
             spotifyMock.VerifyNoOtherCalls();
