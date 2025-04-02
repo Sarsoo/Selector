@@ -17,8 +17,9 @@ namespace Selector.Model.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("selector")
                 .HasAnnotation("Npgsql:CollationDefinition:case_insensitive", "en-u-ks-primary,en-u-ks-primary,icu,False")
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "9.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -46,7 +47,7 @@ namespace Selector.Model.Migrations
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex");
 
-                    b.ToTable("AspNetRoles", (string)null);
+                    b.ToTable("AspNetRoles", "selector");
 
                     b.HasData(
                         new
@@ -79,7 +80,7 @@ namespace Selector.Model.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims", (string)null);
+                    b.ToTable("AspNetRoleClaims", "selector");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -104,7 +105,7 @@ namespace Selector.Model.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims", (string)null);
+                    b.ToTable("AspNetUserClaims", "selector");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -126,7 +127,7 @@ namespace Selector.Model.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins", (string)null);
+                    b.ToTable("AspNetUserLogins", "selector");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -141,7 +142,7 @@ namespace Selector.Model.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles", (string)null);
+                    b.ToTable("AspNetUserRoles", "selector");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -160,7 +161,7 @@ namespace Selector.Model.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens", (string)null);
+                    b.ToTable("AspNetUserTokens", "selector");
                 });
 
             modelBuilder.Entity("Selector.Model.AlbumLastfmSpotifyMapping", b =>
@@ -178,7 +179,7 @@ namespace Selector.Model.Migrations
 
                     b.HasKey("SpotifyUri");
 
-                    b.ToTable("AlbumMapping");
+                    b.ToTable("AlbumMapping", "spotify");
                 });
 
             modelBuilder.Entity("Selector.Model.AppleMusicListen", b =>
@@ -217,7 +218,7 @@ namespace Selector.Model.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AppleMusicListen");
+                    b.ToTable("AppleMusicListen", "apple");
                 });
 
             modelBuilder.Entity("Selector.Model.ApplicationUser", b =>
@@ -312,7 +313,7 @@ namespace Selector.Model.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("AspNetUsers", "selector");
                 });
 
             modelBuilder.Entity("Selector.Model.ArtistLastfmSpotifyMapping", b =>
@@ -326,7 +327,7 @@ namespace Selector.Model.Migrations
 
                     b.HasKey("SpotifyUri");
 
-                    b.ToTable("ArtistMapping");
+                    b.ToTable("ArtistMapping", "spotify");
                 });
 
             modelBuilder.Entity("Selector.Model.SpotifyListen", b =>
@@ -365,7 +366,7 @@ namespace Selector.Model.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("SpotifyListen");
+                    b.ToTable("SpotifyListen", "spotify");
                 });
 
             modelBuilder.Entity("Selector.Model.TrackLastfmSpotifyMapping", b =>
@@ -383,7 +384,7 @@ namespace Selector.Model.Migrations
 
                     b.HasKey("SpotifyUri");
 
-                    b.ToTable("TrackMapping");
+                    b.ToTable("TrackMapping", "spotify");
                 });
 
             modelBuilder.Entity("Selector.Model.UserScrobble", b =>
@@ -419,7 +420,7 @@ namespace Selector.Model.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Scrobble");
+                    b.ToTable("Scrobble", "lastfm");
                 });
 
             modelBuilder.Entity("Selector.Model.Watcher", b =>
@@ -441,7 +442,7 @@ namespace Selector.Model.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Watcher");
+                    b.ToTable("Watcher", "selector");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

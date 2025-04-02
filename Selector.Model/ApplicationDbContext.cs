@@ -38,6 +38,8 @@ namespace Selector.Model
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.HasDefaultSchema("selector");
+
             modelBuilder.HasCollation("case_insensitive", locale: "en-u-ks-primary", provider: "icu",
                 deterministic: false);
 
@@ -54,6 +56,8 @@ namespace Selector.Model
                 .HasForeignKey(w => w.UserId);
 
             modelBuilder.Entity<UserScrobble>()
+                .ToTable(nameof(Scrobble), "lastfm");
+            modelBuilder.Entity<UserScrobble>()
                 .HasOne(w => w.User)
                 .WithMany(u => u.Scrobbles)
                 .HasForeignKey(w => w.UserId);
@@ -69,6 +73,8 @@ namespace Selector.Model
             //modelBuilder.Entity<UserScrobble>()
             //    .HasIndex(x => new { x.UserId, x.ArtistName, x.TrackName });
 
+            modelBuilder.Entity<TrackLastfmSpotifyMapping>()
+                .ToTable(nameof(TrackMapping), "spotify");
             modelBuilder.Entity<TrackLastfmSpotifyMapping>().HasKey(s => s.SpotifyUri);
             modelBuilder.Entity<TrackLastfmSpotifyMapping>()
                 .Property(s => s.LastfmTrackName)
@@ -77,6 +83,8 @@ namespace Selector.Model
                 .Property(s => s.LastfmArtistName)
                 .UseCollation("case_insensitive");
 
+            modelBuilder.Entity<AlbumLastfmSpotifyMapping>()
+                .ToTable(nameof(AlbumMapping), "spotify");
             modelBuilder.Entity<AlbumLastfmSpotifyMapping>().HasKey(s => s.SpotifyUri);
             modelBuilder.Entity<AlbumLastfmSpotifyMapping>()
                 .Property(s => s.LastfmAlbumName)
@@ -85,11 +93,15 @@ namespace Selector.Model
                 .Property(s => s.LastfmArtistName)
                 .UseCollation("case_insensitive");
 
+            modelBuilder.Entity<ArtistLastfmSpotifyMapping>()
+                .ToTable(nameof(ArtistMapping), "spotify");
             modelBuilder.Entity<ArtistLastfmSpotifyMapping>().HasKey(s => s.SpotifyUri);
             modelBuilder.Entity<ArtistLastfmSpotifyMapping>()
                 .Property(s => s.LastfmArtistName)
                 .UseCollation("case_insensitive");
 
+            modelBuilder.Entity<SpotifyListen>()
+                .ToTable(nameof(SpotifyListen), "spotify");
             modelBuilder.Entity<SpotifyListen>().HasKey(s => s.Id);
             modelBuilder.Entity<SpotifyListen>()
                 .Property(s => s.TrackName)
@@ -103,6 +115,8 @@ namespace Selector.Model
             //modelBuilder.Entity<SpotifyListen>()
             //    .HasIndex(x => new { x.UserId, x.ArtistName, x.TrackName });
 
+            modelBuilder.Entity<AppleMusicListen>()
+                .ToTable(nameof(AppleMusicListen), "apple");
             modelBuilder.Entity<AppleMusicListen>().HasKey(s => s.Id);
             modelBuilder.Entity<AppleMusicListen>()
                 .Property(s => s.TrackName)

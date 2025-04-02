@@ -154,7 +154,8 @@ namespace Selector.CLI
                     watcher = await _spotifyWatcherFactory.Get<SpotifyPlayerWatcher>(spotifyFactory,
                         id: dbWatcher.UserId, pollPeriod: PollPeriod);
 
-                    consumers.Add(await AudioFeatureInjectorFactory.Get(spotifyFactory));
+                    // deprecated, thanks Spotify!
+                    // consumers.Add(await AudioFeatureInjectorFactory.Get(spotifyFactory));
                     if (CacheWriterFactory is not null) consumers.Add(await CacheWriterFactory.GetSpotify());
                     if (PublisherFactory is not null) consumers.Add(await PublisherFactory.GetSpotify());
 
