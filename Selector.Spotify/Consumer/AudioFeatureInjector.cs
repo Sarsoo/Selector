@@ -6,6 +6,7 @@ using SpotifyAPI.Web;
 
 namespace Selector.Spotify.Consumer
 {
+    [Obsolete]
     public class AudioFeatureInjector : ISpotifyPlayerConsumer
     {
         protected readonly ISpotifyPlayerWatcher Watcher;

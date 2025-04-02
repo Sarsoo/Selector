@@ -7,11 +7,17 @@
 <div class="text-center">
     <h1 class="display-4">Now</h1>
     <div id="app" class="app col-12">
-        <now-playing-card :track="currentlyPlaying.track" v-if="currentlyPlaying !== null && currentlyPlaying !== undefined"></now-playing-card>
-        <now-playing-card v-else></now-playing-card>
+        <div class="now-playing-card-container">
+            <now-playing-card-spotify :track="currentlyPlayingSpotify.track"
+                                      v-if="currentlyPlayingSpotify !== null && currentlyPlayingSpotify !== undefined"></now-playing-card-spotify>
+            <now-playing-card-spotify v-else></now-playing-card-spotify>
+            <now-playing-card-apple :track="currentlyPlayingApple.track"
+                                    v-if="currentlyPlayingApple !== null && currentlyPlayingApple !== undefined"></now-playing-card-apple>
+            <now-playing-card-apple v-else></now-playing-card-apple>
+        </div>
 
-        <popularity :track="currentlyPlaying.track"
-                    v-if="currentlyPlaying !== null && currentlyPlaying !== undefined && currentlyPlaying.track != null && currentlyPlaying.track != undefined"></popularity>
+        <popularity :track="currentlyPlayingSpotify.track"
+                    v-if="currentlyPlayingSpotify !== null && currentlyPlayingSpotify !== undefined && currentlyPlayingSpotify.track != null && currentlyPlayingSpotify.track != undefined"></popularity>
 
         <audio-feature-card :feature="trackFeatures"
                             v-if="trackFeatures !== null && trackFeatures !== undefined"></audio-feature-card>
@@ -26,7 +32,7 @@
         <info-card v-for="card in cards" :html="card.content"></info-card>
 
         <artist-breakdown :play_count="playCount"
-                            v-if="showArtistBreakdown"></artist-breakdown>
+                          v-if="showArtistBreakdown"></artist-breakdown>
 
         <play-count-chart-card-comb :data_points="combinedData"
                                     :chart_id="'combined'"

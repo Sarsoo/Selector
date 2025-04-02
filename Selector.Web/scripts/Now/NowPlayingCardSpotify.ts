@@ -53,10 +53,6 @@ let component: Vue.Component = {
                 <img src="/live.gif" style="height: 20px; float: right">
             </div>
         </div>
-
-        <div class="card now-playing-card" v-else>
-            <h4>No Playback</h4>
-        </div>
     `
 }
 
