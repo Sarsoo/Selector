@@ -6,7 +6,7 @@ namespace Selector.AppleMusic.Watcher
     public interface IAppleMusicWatcherFactory
     {
         Task<IWatcher> Get<T>(AppleMusicApiProvider appleMusicProvider, string developerToken, string teamId,
-            string keyId, string userToken, string id = null, int pollPeriod = 3000)
+            string keyId, string userToken, string id = null, int pollPeriod = 10000)
             where T : class, IWatcher;
     }
 
@@ -22,7 +22,7 @@ namespace Selector.AppleMusic.Watcher
         }
 
         public async Task<IWatcher> Get<T>(AppleMusicApiProvider appleMusicProvider, string developerToken,
-            string teamId, string keyId, string userToken, string id = null, int pollPeriod = 3000)
+            string teamId, string keyId, string userToken, string id = null, int pollPeriod = 10000)
             where T : class, IWatcher
         {
             if (typeof(T).IsAssignableFrom(typeof(AppleMusicPlayerWatcher)))

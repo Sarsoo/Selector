@@ -161,7 +161,7 @@ namespace Selector.CLI
                     if (MappingPersisterFactory is not null && !Magic.Dummy)
                         consumers.Add(await MappingPersisterFactory.Get());
 
-                    if (UserEventFirerFactory is not null) consumers.Add(await UserEventFirerFactory.Get());
+                    if (UserEventFirerFactory is not null) consumers.Add(await UserEventFirerFactory.GetSpotify());
 
                     if (dbWatcher.User.LastFmConnected())
                     {
@@ -186,6 +186,8 @@ namespace Selector.CLI
 
                     if (CacheWriterFactory is not null) consumers.Add(await CacheWriterFactory.GetApple());
                     if (PublisherFactory is not null) consumers.Add(await PublisherFactory.GetApple());
+
+                    if (UserEventFirerFactory is not null) consumers.Add(await UserEventFirerFactory.GetApple());
 
                     break;
             }
