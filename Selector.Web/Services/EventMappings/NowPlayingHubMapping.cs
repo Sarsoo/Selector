@@ -28,17 +28,17 @@ namespace Selector.Web.Service
 
             UserEvent.CurrentlyPlayingSpotify += async (o, args) =>
             {
-                Logger.LogDebug("Passing now playing event to SignalR hub [{userId}]", args.UserId);
+                Logger.LogDebug("Passing Spotify now playing event to SignalR hub [{userId}]", args.UserId);
 
-                await Hub.Clients.User(args.UserId).OnNewPlaying(args);
+                await Hub.Clients.User(args.UserId).OnNewPlayingSpotify(args);
             };
 
-            // UserEvent.CurrentlyPlayingApple += async (o, args) =>
-            // {
-            //     Logger.LogDebug("Passing now playing event to SignalR hub", args.UserId);
-            //
-            //     await Hub.Clients.User(args.UserId).OnNewPlaying(args);
-            // };
+            UserEvent.CurrentlyPlayingApple += async (o, args) =>
+            {
+                Logger.LogDebug("Passing Apple now playing event to SignalR hub {userId}]", args.UserId);
+
+                await Hub.Clients.User(args.UserId).OnNewPlayingApple(args);
+            };
 
             return Task.CompletedTask;
         }

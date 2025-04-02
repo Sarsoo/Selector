@@ -17,7 +17,7 @@ public class NowHubClient : BaseSignalRClient, INowPlayingHub, IDisposable
     {
     }
 
-    public void OnNewPlaying(Action<CurrentlyPlayingDTO> action)
+    public void OnNewPlaying(Action<SpotifyCurrentlyPlayingDTO> action)
     {
         NewPlayingCallbacks.Add(hubConnection.On(nameof(OnNewPlaying), action));
     }
@@ -37,7 +37,7 @@ public class NowHubClient : BaseSignalRClient, INowPlayingHub, IDisposable
         NewCardCallbacks.Add(hubConnection.On(nameof(OnNewCard), action));
     }
 
-    public void OnNewPlaying(Func<CurrentlyPlayingDTO, Task> action)
+    public void OnNewPlaying(Func<SpotifyCurrentlyPlayingDTO, Task> action)
     {
         NewPlayingCallbacks.Add(hubConnection.On(nameof(OnNewPlaying), action));
     }

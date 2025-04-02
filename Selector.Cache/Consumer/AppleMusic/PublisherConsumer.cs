@@ -52,7 +52,8 @@ namespace Selector.Cache.Consumer.AppleMusic
         {
             // using var scope = Logger.GetListeningEventArgsScope(e);
 
-            var payload = JsonSerializer.Serialize(e, AppleJsonContext.Default.AppleListeningChangeEventArgs);
+            var payload = JsonSerializer.Serialize((AppleCurrentlyPlayingDTO)e,
+                AppleJsonContext.Default.AppleCurrentlyPlayingDTO);
 
             Logger.LogTrace("Publishing current");
 

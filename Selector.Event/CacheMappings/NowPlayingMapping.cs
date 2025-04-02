@@ -37,7 +37,7 @@ namespace Selector.Events
 
                             var deserialised =
                                 JsonSerializer.Deserialize(message.Message,
-                                    SpotifyJsonContext.Default.CurrentlyPlayingDTO);
+                                    SpotifyJsonContext.Default.SpotifyCurrentlyPlayingDTO);
                             Logger.LogDebug("Received new Spotify currently playing [{username}]",
                                 deserialised.Username);
 
@@ -57,7 +57,7 @@ namespace Selector.Events
                             var userId = Key.Param(message.Channel);
 
                             var deserialised = JsonSerializer.Deserialize(message.Message,
-                                AppleJsonContext.Default.AppleListeningChangeEventArgs);
+                                AppleJsonContext.Default.AppleCurrentlyPlayingDTO);
                             Logger.LogDebug("Received new Apple Music currently playing");
 
                             UserEvent.OnCurrentlyPlayingChangeApple(this, deserialised);
@@ -94,14 +94,15 @@ namespace Selector.Events
 
                 UserEvent.CurrentlyPlayingSpotify += async (o, e) =>
                 {
-                    var payload = JsonSerializer.Serialize(e, SpotifyJsonContext.Default.CurrentlyPlayingDTO);
+                    var payload = JsonSerializer.Serialize(e, SpotifyJsonContext.Default.SpotifyCurrentlyPlayingDTO);
                     await Subscriber.PublishAsync(RedisChannel.Literal(Key.CurrentlyPlayingSpotify(e.UserId)), payload);
                 };
 
                 UserEvent.CurrentlyPlayingApple += async (o, e) =>
                 {
-                    var payload = JsonSerializer.Serialize(e, AppleJsonContext.Default.AppleListeningChangeEventArgs);
-                    await Subscriber.PublishAsync(RedisChannel.Literal(Key.CurrentlyPlayingAppleMusic(e.Id)), payload);
+                    var payload = JsonSerializer.Serialize(e, AppleJsonContext.Default.AppleCurrentlyPlayingDTO);
+                    await Subscriber.PublishAsync(RedisChannel.Literal(Key.CurrentlyPlayingAppleMusic(e.UserId)),
+                        payload);
                 };
 
                 return Task.CompletedTask;

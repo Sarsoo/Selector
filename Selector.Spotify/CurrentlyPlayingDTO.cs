@@ -3,7 +3,7 @@ using SpotifyAPI.Web;
 
 namespace Selector.Spotify
 {
-    public class CurrentlyPlayingDTO
+    public class SpotifyCurrentlyPlayingDTO
     {
         public CurrentlyPlayingContextDTO Context { get; set; }
         public string Username { get; set; }
@@ -12,7 +12,7 @@ namespace Selector.Spotify
         public FullTrack Track { get; set; }
         public FullEpisode Episode { get; set; }
 
-        public static explicit operator CurrentlyPlayingDTO(SpotifyListeningChangeEventArgs e)
+        public static explicit operator SpotifyCurrentlyPlayingDTO(SpotifyListeningChangeEventArgs e)
         {
             if (e.Current.Item is FullTrack track)
             {

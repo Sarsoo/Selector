@@ -8,13 +8,14 @@ export interface nowPlayingProxy {
 }
 
 export interface NowPlayingHubClient {
-    OnNewPlaying: (context: CurrentlyPlayingDTO) => void;
+    OnNewPlayingSpotify: (context: SpotifyCurrentlyPlayingDTO) => void;
+    OnNewPlayingApple: (context: AppleCurrentlyPlayingDTO) => void;
     OnNewAudioFeature: (features: TrackAudioFeatures) => void;
     OnNewPlayCount: (playCount: PlayCount) => void;
 }
 
 export interface NowPlayingHub {
-    SendNewPlaying(context: CurrentlyPlayingDTO): void;
+    SendNewPlaying(context: SpotifyCurrentlyPlayingDTO): void;
 }
 
 export interface PlayCount {
@@ -55,7 +56,7 @@ export interface CountSample {
     value: number;
 }
 
-export interface CurrentlyPlayingDTO {
+export interface SpotifyCurrentlyPlayingDTO {
     context: CurrentlyPlayingContextDTO;
     username: string;
     track: FullTrack;
@@ -255,4 +256,26 @@ export interface Copyright {
 export interface ResumePoint {
     fullyPlayed: boolean;
     resumePositionMs: number;
+}
+
+export interface AppleCurrentlyPlayingDTO {
+    track: AppleTrack;
+}
+
+export interface AppleTrack {
+    albumName: string;
+    trackNumber: number,
+    durationInMillis: number;
+    releaseDate: string;
+    isrc: string;
+    composerName: string;
+    url: string;
+    discNumber: number;
+    name: string;
+    artistName: string;
+    artwork: AppleArtwork;
+}
+
+export interface AppleArtwork {
+    url: string;
 }

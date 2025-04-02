@@ -3,7 +3,7 @@ using SpotifyAPI.Web;
 
 namespace Selector.Spotify
 {
-    [JsonSerializable(typeof(CurrentlyPlayingDTO))]
+    [JsonSerializable(typeof(SpotifyCurrentlyPlayingDTO))]
     [JsonSerializable(typeof(TrackAudioFeatures))]
     [JsonSerializable(typeof(SpotifyListeningChangeEventArgs))]
     public partial class SpotifyJsonContext : JsonSerializerContext

@@ -1,8 +1,8 @@
 import * as Vue from "vue";
-import { Chart, PointElement, LineElement, LineController, CategoryScale, LinearScale, TimeSeriesScale } from "chart.js";
+import {CategoryScale, Chart, LinearScale, LineController, LineElement, PointElement, TimeSeriesScale} from "chart.js";
 import 'chartjs-adapter-luxon';
-import { CountSample } from "scripts/HubInterfaces";
-import { ScrobbleDataSeries } from "scripts/now";
+import {CountSample} from "scripts/HubInterfaces";
+import {ScrobbleDataSeries} from "scripts/now";
 
 Chart.register(LineController, CategoryScale, LinearScale, TimeSeriesScale, PointElement, LineElement);
 
@@ -51,10 +51,10 @@ export let PlayCountChartCard: Vue.Component = {
                     }
                 },
                 scales: {
-                    yAxis: {
+                    y: {
                         beginAtZero: true
                     },
-                    xAxis: {
+                    x: {
                         type: 'time',
                         // min: this.earliest_date,
                         // max: this.latest_date
@@ -111,10 +111,10 @@ export let CombinedPlayCountChartCard: Vue.Component = {
                     }
                 },
                 scales: {
-                    yAxis: {
+                    y: {
                         beginAtZero: true
                     },
-                    xAxis: {
+                    x: {
                         type: 'time',
                         min: this.earliest_date
                     }

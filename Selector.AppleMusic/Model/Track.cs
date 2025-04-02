@@ -11,6 +11,7 @@ public class TrackAttributes
     public string Isrc { get; set; }
 
     //TODO: Artwork
+    public Artwork Artwork { get; set; }
     public string ComposerName { get; set; }
     public string Url { get; set; }
     public PlayParams PlayParams { get; set; }
@@ -22,6 +23,11 @@ public class TrackAttributes
 
     //TODO: previews
     public string ArtistName { get; set; }
+}
+
+public class Artwork
+{
+    public string Url { get; set; }
 }
 
 public class PlayParams

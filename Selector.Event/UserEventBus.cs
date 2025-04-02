@@ -14,8 +14,8 @@ namespace Selector.Events
         public event EventHandler<AppleMusicLinkChange> AppleLinkChange;
         public event EventHandler<LastfmChange> LastfmCredChange;
 
-        public event EventHandler<CurrentlyPlayingDTO> CurrentlyPlayingSpotify;
-        public event EventHandler<AppleListeningChangeEventArgs> CurrentlyPlayingApple;
+        public event EventHandler<SpotifyCurrentlyPlayingDTO> CurrentlyPlayingSpotify;
+        public event EventHandler<AppleCurrentlyPlayingDTO> CurrentlyPlayingApple;
 
         public UserEventBus(ILogger<UserEventBus> logger)
         {
@@ -46,13 +46,13 @@ namespace Selector.Events
             LastfmCredChange?.Invoke(sender, args);
         }
 
-        public void OnCurrentlyPlayingChangeSpotify(object sender, CurrentlyPlayingDTO args)
+        public void OnCurrentlyPlayingChangeSpotify(object sender, SpotifyCurrentlyPlayingDTO args)
         {
             Logger.LogTrace("Firing currently playing event [{usernamne}/{userId}]", args?.Username, args.UserId);
             CurrentlyPlayingSpotify?.Invoke(sender, args);
         }
 
-        public void OnCurrentlyPlayingChangeApple(object sender, AppleListeningChangeEventArgs args)
+        public void OnCurrentlyPlayingChangeApple(object sender, AppleCurrentlyPlayingDTO args)
         {
             Logger.LogTrace("Firing currently playing event");
             CurrentlyPlayingApple?.Invoke(sender, args);

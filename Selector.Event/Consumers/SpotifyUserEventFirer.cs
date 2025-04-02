@@ -49,7 +49,7 @@ namespace Selector.Events
             Logger.LogDebug("Firing Spotify now playing event on user bus [{username}/{userId}]", e.SpotifyUsername,
                 e.Id);
 
-            UserEvent.OnCurrentlyPlayingChangeSpotify(this, (CurrentlyPlayingDTO)e);
+            UserEvent.OnCurrentlyPlayingChangeSpotify(this, (SpotifyCurrentlyPlayingDTO)e);
 
             return Task.CompletedTask;
         }

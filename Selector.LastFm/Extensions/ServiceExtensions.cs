@@ -8,7 +8,8 @@ public static class ServiceExtensions
 {
     public static IServiceCollection AddLastFm(this IServiceCollection services, string client, string secret)
     {
-        services.AddTransient(sp => new LastAuth(client, secret));
+        services.AddTransient<ILastAuth>(sp => new LastAuth(client, secret));
+        services.AddTransient<LastAuth>(sp => new LastAuth(client, secret));
         services.AddTransient(sp => new LastfmClient(sp.GetService<LastAuth>()));
 
         services.AddTransient<ITrackApi>(sp => sp.GetService<LastfmClient>().Track);

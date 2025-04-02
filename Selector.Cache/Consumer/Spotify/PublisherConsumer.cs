@@ -54,7 +54,8 @@ namespace Selector.Cache
             using var scope = Logger.GetListeningEventArgsScope(e);
 
             var payload =
-                JsonSerializer.Serialize((CurrentlyPlayingDTO)e, SpotifyJsonContext.Default.CurrentlyPlayingDTO);
+                JsonSerializer.Serialize((SpotifyCurrentlyPlayingDTO)e,
+                    SpotifyJsonContext.Default.SpotifyCurrentlyPlayingDTO);
 
             Logger.LogTrace("Publishing current");
 

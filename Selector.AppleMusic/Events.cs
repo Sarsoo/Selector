@@ -7,7 +7,7 @@ public class AppleListeningChangeEventArgs : ListeningChangeEventArgs
     public AppleMusicCurrentlyPlayingContext Previous { get; set; }
     public AppleMusicCurrentlyPlayingContext Current { get; set; }
 
-    // AppleTimeline Timeline { get; set; }
+    AppleTimeline Timeline { get; set; }
 
     public static AppleListeningChangeEventArgs From(AppleMusicCurrentlyPlayingContext previous,
         AppleMusicCurrentlyPlayingContext current, AppleTimeline timeline, string id = null, string username = null)
@@ -16,7 +16,7 @@ public class AppleListeningChangeEventArgs : ListeningChangeEventArgs
         {
             Previous = previous,
             Current = current,
-            // Timeline = timeline,
+            Timeline = timeline,
             Id = id
         };
     }

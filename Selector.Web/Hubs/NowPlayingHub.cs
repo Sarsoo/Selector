@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Selector.AppleMusic;
 using Selector.Cache;
 using Selector.Model;
 using Selector.Model.Extensions;
@@ -58,8 +59,16 @@ namespace Selector.Web.Hubs
             if (nowPlaying != RedisValue.Null)
             {
                 var deserialised =
-                    JsonSerializer.Deserialize(nowPlaying, SpotifyJsonContext.Default.CurrentlyPlayingDTO);
-                await Clients.Caller.OnNewPlaying(deserialised);
+                    JsonSerializer.Deserialize(nowPlaying, SpotifyJsonContext.Default.SpotifyCurrentlyPlayingDTO);
+                await Clients.Caller.OnNewPlayingSpotify(deserialised);
+            }
+
+            var nowPlayingApple = await Cache.StringGetAsync(Key.CurrentlyPlayingAppleMusic(Context.UserIdentifier));
+            if (nowPlayingApple != RedisValue.Null)
+            {
+                var deserialised =
+                    JsonSerializer.Deserialize(nowPlayingApple, AppleJsonContext.Default.AppleCurrentlyPlayingDTO);
+                await Clients.Caller.OnNewPlayingApple(deserialised);
             }
         }
 

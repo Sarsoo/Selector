@@ -18,7 +18,7 @@ public class NowHubCache
     private bool isBound = false;
 
     public PlayCount LastPlayCount { get; private set; }
-    public CurrentlyPlayingDTO LastPlaying { get; private set; }
+    public SpotifyCurrentlyPlayingDTO LastPlaying { get; private set; }
 
     public event EventHandler NewAudioFeature;
     public event EventHandler NewCard;

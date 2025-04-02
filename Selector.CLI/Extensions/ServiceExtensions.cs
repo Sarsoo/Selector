@@ -44,8 +44,6 @@ namespace Selector.CLI.Extensions
 
                 services.AddQuartz(options =>
                 {
-                    options.UseMicrosoftDependencyInjectionJobFactory();
-
                     options.UseSimpleTypeLoader();
                     options.UseInMemoryStore();
                     options.UseDefaultThreadPool(tp => { tp.MaxConcurrency = 5; });

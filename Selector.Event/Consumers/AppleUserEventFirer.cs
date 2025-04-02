@@ -48,7 +48,7 @@ namespace Selector.Events
         {
             Logger.LogDebug("Firing Apple now playing event on user bus [{userId}]", e.Id);
 
-            UserEvent.OnCurrentlyPlayingChangeApple(this, e);
+            UserEvent.OnCurrentlyPlayingChangeApple(this, (AppleCurrentlyPlayingDTO)e);
 
             return Task.CompletedTask;
         }

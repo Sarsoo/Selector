@@ -1,4 +1,5 @@
-﻿using Selector.Spotify;
+﻿using Selector.AppleMusic;
+using Selector.Spotify;
 using Selector.Spotify.Consumer;
 using SpotifyAPI.Web;
 
@@ -6,7 +7,8 @@ namespace Selector.SignalR;
 
 public interface INowPlayingHubClient
 {
-    public Task OnNewPlaying(CurrentlyPlayingDTO context);
+    public Task OnNewPlayingSpotify(SpotifyCurrentlyPlayingDTO context);
+    public Task OnNewPlayingApple(AppleCurrentlyPlayingDTO context);
     public Task OnNewAudioFeature(TrackAudioFeatures features);
     public Task OnNewPlayCount(PlayCount playCount);
     public Task OnNewCard(Card card);
