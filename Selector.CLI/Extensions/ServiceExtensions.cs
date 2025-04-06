@@ -105,7 +105,8 @@ namespace Selector.CLI.Extensions
             {
                 Console.WriteLine("> Adding Databse Context...");
                 services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseNpgsql(config.DatabaseOptions.ConnectionString)
+                    options.UseNpgsql(config.DatabaseOptions.ConnectionString,
+                        x => x.MigrationsHistoryTable("__EFMigrationsHistory", "public"))
                 );
 
                 services.AddTransient<IScrobbleRepository, ScrobbleRepository>()

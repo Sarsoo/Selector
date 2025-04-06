@@ -46,7 +46,7 @@ namespace Selector.CLI.Extensions
             context.DatabaseConfig = new DbContextOptionsBuilder<ApplicationDbContext>();
             context.DatabaseConfig.UseNpgsql(string.IsNullOrWhiteSpace(connectionString)
                 ? context.Config.DatabaseOptions.ConnectionString
-                : connectionString);
+                : connectionString, x => x.MigrationsHistoryTable("__EFMigrationsHistory", "public"));
 
             return context;
         }

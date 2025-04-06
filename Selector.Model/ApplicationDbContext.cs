@@ -177,7 +177,8 @@ namespace Selector.Model
                 .Build();
 
             var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            builder.UseNpgsql(configuration.GetConnectionString("Default"));
+            builder.UseNpgsql(configuration.GetConnectionString("Default"),
+                x => x.MigrationsHistoryTable("__EFMigrationsHistory", "public"));
 
             return new ApplicationDbContext(builder.Options, NullLogger<ApplicationDbContext>.Instance);
         }

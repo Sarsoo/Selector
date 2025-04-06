@@ -91,7 +91,8 @@ namespace Selector.Web
         public void ConfigureDB(IServiceCollection services, RootOptions config)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(Configuration.GetConnectionString("Default"))
+                options.UseNpgsql(Configuration.GetConnectionString("Default"),
+                    x => x.MigrationsHistoryTable("__EFMigrationsHistory", "public"))
             );
             services.AddDBPlayCountPuller();
             services.AddTransient<IScrobbleRepository, ScrobbleRepository>()
