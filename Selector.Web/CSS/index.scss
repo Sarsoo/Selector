@@ -10,6 +10,22 @@ body {
     color: #efefef;
 }
 
+.navbar-brand {
+    color: white;
+    font-size: 2em;
+    font-family: 'Pirata One', arial;
+    text-shadow: 3px 3px 3px black;
+
+    font-weight: bold;
+    padding: 0;
+    margin-block: 0;
+    margin-inline: 10px;
+}
+
+.gothic {
+    font-family: 'Pirata One', arial;
+}
+
 .navbar-bg {
     background-color: $nav-background-color;
 }

@@ -9,6 +9,10 @@ body {
     color: #efefef;
 }
 
+.gothic {
+    font-family: 'Pirata One', arial;
+}
+
 h1:focus {
     outline: none;
 }
