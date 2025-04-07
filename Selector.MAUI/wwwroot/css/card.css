@@ -16,7 +16,7 @@
 }
 
 @media only screen and (min-width: 768px) {
-    .now-playing-card {
+    .now-playing-card-container {
         position: fixed;
         z-index: 10;
         right: 20px;

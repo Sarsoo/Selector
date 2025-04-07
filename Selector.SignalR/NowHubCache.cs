@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Selector.AppleMusic;
 using Selector.Spotify;
 using Selector.Spotify.Consumer;
 using SpotifyAPI.Web;
@@ -18,12 +19,14 @@ public class NowHubCache
     private bool isBound = false;
 
     public PlayCount LastPlayCount { get; private set; }
-    public SpotifyCurrentlyPlayingDTO LastPlaying { get; private set; }
+    public SpotifyCurrentlyPlayingDTO LastPlayingSpotify { get; private set; }
+    public AppleCurrentlyPlayingDTO LastPlayingApple { get; private set; }
 
     public event EventHandler NewAudioFeature;
     public event EventHandler NewCard;
     public event EventHandler NewPlayCount;
-    public event EventHandler NewNowPlaying;
+    public event EventHandler NewNowPlayingSpotify;
+    public event EventHandler NewNowPlayingApple;
 
     public NowHubCache(NowHubClient connection, ILogger<NowHubCache> logger)
     {
@@ -67,43 +70,83 @@ public class NowHubCache
                     }
                 });
 
-                _connection.OnNewPlaying(async np =>
+                _connection.OnNewPlayingSpotify(async np =>
                 {
                     try
                     {
                         lock (updateLock)
                         {
-                            logger.LogInformation("New now playing recieved: {0}", np);
-                            LastPlaying = np;
+                            logger.LogInformation("New Spotify now playing recieved: {0}", np);
+                            LastPlayingSpotify = np;
                             LastCards.Clear();
-                            NewNowPlaying?.Invoke(this, null);
+                            NewNowPlayingSpotify?.Invoke(this, null);
                         }
 
-                        if (LastPlaying?.Track is not null)
+                        if (LastPlayingSpotify?.Track is not null)
                         {
-                            if (!string.IsNullOrWhiteSpace(LastPlaying.Track.Id))
-                            {
-                                await _connection.SendAudioFeatures(LastPlaying.Track.Id);
-                            }
+                            // if (!string.IsNullOrWhiteSpace(LastPlayingSpotify.Track.Id))
+                            // {
+                            //     await _connection.SendAudioFeatures(LastPlayingSpotify.Track.Id);
+                            // }
 
                             await _connection.SendPlayCount(
-                                LastPlaying.Track.Name,
-                                LastPlaying.Track.Artists.FirstOrDefault()?.Name,
-                                LastPlaying.Track.Album?.Name,
-                                LastPlaying.Track.Album?.Artists.FirstOrDefault()?.Name
+                                LastPlayingSpotify.Track.Name,
+                                LastPlayingSpotify.Track.Artists.FirstOrDefault()?.Name,
+                                LastPlayingSpotify.Track.Album?.Name,
+                                LastPlayingSpotify.Track.Album?.Artists.FirstOrDefault()?.Name
                             );
 
                             await _connection.SendFacts(
-                                LastPlaying.Track.Name,
-                                LastPlaying.Track.Artists.FirstOrDefault()?.Name,
-                                LastPlaying.Track.Album?.Name,
-                                LastPlaying.Track.Album?.Artists.FirstOrDefault()?.Name
+                                LastPlayingSpotify.Track.Name,
+                                LastPlayingSpotify.Track.Artists.FirstOrDefault()?.Name,
+                                LastPlayingSpotify.Track.Album?.Name,
+                                LastPlayingSpotify.Track.Album?.Artists.FirstOrDefault()?.Name
                             );
                         }
                     }
                     catch (Exception e)
                     {
-                        logger.LogError(e, "Error while handling new now playing");
+                        logger.LogError(e, "Error while handling new Spotify now playing");
+                    }
+                });
+
+                _connection.OnNewPlayingApple(async np =>
+                {
+                    try
+                    {
+                        lock (updateLock)
+                        {
+                            logger.LogInformation("New Apple now playing recieved: {0}", np);
+                            LastPlayingApple = np;
+                            LastCards.Clear();
+                            NewNowPlayingApple?.Invoke(this, null);
+                        }
+
+                        if (LastPlayingApple?.Track is not null)
+                        {
+                            // if (!string.IsNullOrWhiteSpace(LastPlayingApple.Track.Id))
+                            // {
+                            //     await _connection.SendAudioFeatures(LastPlayingApple.Track.Id);
+                            // }
+
+                            // await _connection.SendPlayCount(
+                            //     LastPlayingSpotify.Track.Name,
+                            //     LastPlayingSpotify.Track.Artists.FirstOrDefault()?.Name,
+                            //     LastPlayingSpotify.Track.Album?.Name,
+                            //     LastPlayingSpotify.Track.Album?.Artists.FirstOrDefault()?.Name
+                            // );
+                            //
+                            // await _connection.SendFacts(
+                            //     LastPlayingSpotify.Track.Name,
+                            //     LastPlayingSpotify.Track.Artists.FirstOrDefault()?.Name,
+                            //     LastPlayingSpotify.Track.Album?.Name,
+                            //     LastPlayingSpotify.Track.Album?.Artists.FirstOrDefault()?.Name
+                            // );
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError(e, "Error while handling new Apple now playing");
                     }
                 });
 

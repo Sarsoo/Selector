@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Selector.AppleMusic;
 using Selector.Spotify;
 using Selector.Spotify.Consumer;
 using SpotifyAPI.Web;
@@ -7,7 +8,8 @@ namespace Selector.SignalR;
 
 public class NowHubClient : BaseSignalRClient, INowPlayingHub, IDisposable
 {
-    private List<IDisposable> NewPlayingCallbacks = new();
+    private List<IDisposable> NewPlayingSpotifyCallbacks = new();
+    private List<IDisposable> NewPlayingAppleCallbacks = new();
     private List<IDisposable> NewAudioFeatureCallbacks = new();
     private List<IDisposable> NewPlayCountCallbacks = new();
     private List<IDisposable> NewCardCallbacks = new();
@@ -17,9 +19,14 @@ public class NowHubClient : BaseSignalRClient, INowPlayingHub, IDisposable
     {
     }
 
-    public void OnNewPlaying(Action<SpotifyCurrentlyPlayingDTO> action)
+    public void OnNewPlayingSpotify(Action<SpotifyCurrentlyPlayingDTO> action)
     {
-        NewPlayingCallbacks.Add(hubConnection.On(nameof(OnNewPlaying), action));
+        NewPlayingSpotifyCallbacks.Add(hubConnection.On(nameof(OnNewPlayingSpotify), action));
+    }
+
+    public void OnNewPlayingApple(Action<AppleCurrentlyPlayingDTO> action)
+    {
+        NewPlayingAppleCallbacks.Add(hubConnection.On(nameof(OnNewPlayingApple), action));
     }
 
     public void OnNewAudioFeature(Action<TrackAudioFeatures> action)
@@ -37,9 +44,14 @@ public class NowHubClient : BaseSignalRClient, INowPlayingHub, IDisposable
         NewCardCallbacks.Add(hubConnection.On(nameof(OnNewCard), action));
     }
 
-    public void OnNewPlaying(Func<SpotifyCurrentlyPlayingDTO, Task> action)
+    public void OnNewPlayingSpotify(Func<SpotifyCurrentlyPlayingDTO, Task> action)
     {
-        NewPlayingCallbacks.Add(hubConnection.On(nameof(OnNewPlaying), action));
+        NewPlayingSpotifyCallbacks.Add(hubConnection.On(nameof(OnNewPlayingSpotify), action));
+    }
+
+    public void OnNewPlayingApple(Func<AppleCurrentlyPlayingDTO, Task> action)
+    {
+        NewPlayingAppleCallbacks.Add(hubConnection.On(nameof(OnNewPlayingApple), action));
     }
 
     public void OnNewAudioFeature(Func<TrackAudioFeatures, Task> action)
@@ -67,6 +79,7 @@ public class NowHubClient : BaseSignalRClient, INowPlayingHub, IDisposable
         return hubConnection.InvokeAsync(nameof(PlayDensityFacts), track, artist, album, albumArtist);
     }
 
+    [Obsolete]
     public Task SendAudioFeatures(string trackId)
     {
         return hubConnection.InvokeAsync(nameof(SendAudioFeatures), trackId);
@@ -93,7 +106,7 @@ public class NowHubClient : BaseSignalRClient, INowPlayingHub, IDisposable
         {
             if (disposing)
             {
-                foreach (var callback in NewPlayingCallbacks
+                foreach (var callback in NewPlayingSpotifyCallbacks
                              .Concat(NewAudioFeatureCallbacks)
                              .Concat(NewPlayCountCallbacks)
                              .Concat(NewCardCallbacks))

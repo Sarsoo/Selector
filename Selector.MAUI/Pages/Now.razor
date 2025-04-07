@@ -1,14 +1,18 @@
 ﻿@page "/now"
-@using Selector.SignalR;
-@using System.Linq;
+@using Selector.SignalR
 @implements IDisposable
 
 <h1 class="text-center">Now</h1>
 
 <div class="app text-center">
 
-    <NowPlayingCard Track="@nowCache.LastPlaying?.Track" Episode="@nowCache.LastPlaying?.Episode" />
-    <PlayCountCard Track="@nowCache.LastPlaying?.Track" Count="@nowCache.LastPlayCount" Username="@nowCache.LastPlayCount?.Username" />
+    <div class="now-playing-card-container">
+        <NowPlayingCardSpotify Track="@nowCache.LastPlayingSpotify?.Track"
+                               Episode="@nowCache.LastPlayingSpotify?.Episode"/>
+        <NowPlayingCardApple Track="@nowCache.LastPlayingApple?.Track"/>
+    </div>
+    <PlayCountCard Track="@nowCache.LastPlayingSpotify?.Track" Count="@nowCache.LastPlayCount"
+                   Username="@nowCache.LastPlayCount?.Username"/>
 
     @if (nowCache.LastPlayCount?.AlbumCountData?.Count() > 3)
     {
@@ -105,7 +109,8 @@
 
     protected override void OnInitialized()
     {
-        nowCache.NewNowPlaying += OnNewPlaying;
+        nowCache.NewNowPlayingSpotify += OnNewPlaying;
+        nowCache.NewNowPlayingApple += OnNewPlaying;
         nowCache.NewCard += OnNewCard;
         nowCache.NewPlayCount += OnNewPlayCount;
         nowCache.NewAudioFeature += OnNewAudioFeature;
@@ -141,7 +146,8 @@
 
     public void Dispose()
     {
-        nowCache.NewNowPlaying -= OnNewPlaying;
+        nowCache.NewNowPlayingSpotify -= OnNewPlaying;
+        nowCache.NewNowPlayingApple -= OnNewPlaying;
         nowCache.NewCard -= OnNewCard;
         nowCache.NewPlayCount -= OnNewPlayCount;
         nowCache.NewAudioFeature -= OnNewAudioFeature;

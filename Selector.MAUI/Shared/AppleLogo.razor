@@ -1,0 +1,14 @@
+﻿@if (!string.IsNullOrWhiteSpace(Link))
+{
+    <a href="@Link" target="_blank" class="apple-logo" style="float: left">
+        <img src="/apple_icon.png">
+    </a>
+}
+else
+{
+    <img src="/apple_icon.png" class="apple-logo" style="float: left">
+}
+
+@code {
+    [Parameter] public string Link { get; set; }
+}

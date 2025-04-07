@@ -1,0 +1,27 @@
+﻿@using Selector.AppleMusic.Model
+@if (Track is not null)
+{
+    <div class="card now-playing-card">
+        <img src="@imageUrl" class="cover-art">
+        <h4>@Track.Attributes.Name</h4>
+        <h6>
+            @Track.Attributes.AlbumName
+        </h6>
+        <h6>
+            <span>
+                @Track.Attributes.ArtistName
+            </span>
+        </h6>
+        <div style="width: 100%">
+            <AppleLogo Link="@Track.Attributes?.Url"/>
+            @* <img src="/live.gif" style="height: 20px; float: right"> *@
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Track Track { get; set; }
+
+    private string imageUrl => Track?.Attributes?.Artwork?.Url.Replace("{w}", "300").Replace("{h}", "300") ?? string.Empty;
+}
+
