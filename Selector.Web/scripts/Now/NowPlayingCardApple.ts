@@ -23,11 +23,11 @@ let component: Vue.Component = {
               {{ track.attributes.albumName }}
             </h6>
             <h6>
-              {{ track.attributes.name }}
+              {{ track.attributes.artistName }}
             </h6>
             <div style="width: 100%">
               <apple-logo :link="track.attributes.url" style="float: left"/>
-              <img src="/live.gif" style="height: 20px; float: right">
+              <!--              <img src="/live.gif" style="height: 20px; float: right">-->
             </div>
           </div>
         `

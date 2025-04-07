@@ -263,6 +263,10 @@ export interface AppleCurrentlyPlayingDTO {
 }
 
 export interface AppleTrack {
+    attributes: AppleTrackAttributes;
+}
+
+export interface AppleTrackAttributes {
     albumName: string;
     trackNumber: number,
     durationInMillis: number;

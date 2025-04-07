@@ -150,10 +150,10 @@ const app = Vue.createApp({
                 //     connection.invoke("SendAudioFeatures", context.track.id);
                 // }
                 // connection.invoke("SendPlayCount",
-                //     context.track.name,
-                //     context.track.artists[0].name,
-                //     context.track.album.name,
-                //     context.track.album.artists[0].name
+                //     context.track.attributes.name,
+                //     context.track.attributes.artistName,
+                //     context.track.attributes.albumName,
+                //     ""
                 // );
                 // connection.invoke("SendFacts",
                 //     context.track.name,
