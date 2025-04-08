@@ -105,7 +105,7 @@ namespace Selector
 
         public class ListenComp : IEqualityComparer<IListen>
         {
-            public bool Equals(IListen x, IListen y) => x.Timestamp == y.Timestamp;
+            public bool Equals(IListen? x, IListen? y) => x?.Timestamp == y?.Timestamp;
 
             public int GetHashCode([DisallowNull] IListen obj) => obj.Timestamp.GetHashCode();
         }

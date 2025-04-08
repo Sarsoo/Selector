@@ -1,3 +1,4 @@
+using System;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -7,6 +8,7 @@ using Xunit;
 
 namespace Selector.Tests
 {
+    [Obsolete]
     public class AudioInjectorFactoryTests
     {
         [Fact]

@@ -96,7 +96,8 @@ namespace Selector.Web
             );
             services.AddDBPlayCountPuller();
             services.AddTransient<IScrobbleRepository, ScrobbleRepository>()
-                .AddTransient<ISpotifyListenRepository, SpotifyListenRepository>();
+                .AddTransient<ISpotifyListenRepository, SpotifyListenRepository>()
+                .AddTransient<IAppleListenRepository, AppleListenRepository>();
 
             services.AddTransient<IListenRepository, MetaListenRepository>();
             //services.AddTransient<IListenRepository, SpotifyListenRepository>();

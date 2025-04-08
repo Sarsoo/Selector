@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -11,10 +7,10 @@ namespace Selector
     public abstract class BaseWatcher : IWatcher
     {
         protected readonly ILogger<BaseWatcher> Logger;
-        public string Id { get; set; }
+        public required string Id { get; set; }
         private Stopwatch ExecutionTimer { get; set; }
 
-        public BaseWatcher(ILogger<BaseWatcher> logger = null)
+        public BaseWatcher(ILogger<BaseWatcher>? logger = null)
         {
             Logger = logger ?? NullLogger<BaseWatcher>.Instance;
             ExecutionTimer = new Stopwatch();

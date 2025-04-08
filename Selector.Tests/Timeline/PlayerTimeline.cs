@@ -35,7 +35,7 @@ namespace Selector.Tests
         [MemberData(nameof(CountData))]
         public void Count(CurrentlyPlayingContext[] currentlyPlaying)
         {
-            var timeline = new PlayerTimeline();
+            var timeline = new PlayerTimeline() { EqualityChecker = null };
 
             foreach (var i in currentlyPlaying)
             {
@@ -106,7 +106,8 @@ namespace Selector.Tests
         {
             var timeline = new PlayerTimeline
             {
-                MaxSize = maxSize
+                MaxSize = maxSize,
+                EqualityChecker = null
             };
 
             foreach (var i in currentlyPlaying)
@@ -120,7 +121,7 @@ namespace Selector.Tests
         [Fact]
         public void Clear()
         {
-            var timeline = new PlayerTimeline();
+            var timeline = new PlayerTimeline() { EqualityChecker = null };
             var tracks = new CurrentlyPlayingContext[]
             {
                 Helper.CurrentPlayback(Helper.FullTrack("uri1")),
@@ -143,7 +144,8 @@ namespace Selector.Tests
         {
             var timeline = new PlayerTimeline()
             {
-                SortOnBackDate = false
+                SortOnBackDate = false,
+                EqualityChecker = null
             };
 
             var earlier = Helper.CurrentPlayback(Helper.FullTrack("uri1"));
@@ -167,7 +169,8 @@ namespace Selector.Tests
         {
             var timeline = new PlayerTimeline()
             {
-                SortOnBackDate = false
+                SortOnBackDate = false,
+                EqualityChecker = null
             };
 
             var earlier = Helper.CurrentPlayback(Helper.FullTrack("uri1"));

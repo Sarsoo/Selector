@@ -11,6 +11,7 @@ using StackExchange.Redis;
 
 namespace Selector.Cache
 {
+    [Obsolete]
     public class CachingAudioFeatureInjector : AudioFeatureInjector
     {
         private readonly IDatabaseAsync Db;

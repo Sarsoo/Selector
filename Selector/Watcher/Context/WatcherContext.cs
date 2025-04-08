@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace Selector
 {
     public class WatcherContext : IDisposable, IWatcherContext
@@ -16,9 +10,9 @@ namespace Selector
         /// Reference to Watcher.Watch() task when running
         /// </summary>
         /// <value></value>
-        public Task Task { get; set; }
+        public Task? Task { get; private set; }
 
-        public CancellationTokenSource TokenSource { get; set; }
+        public CancellationTokenSource? TokenSource { get; private set; }
 
         public WatcherContext(IWatcher watcher)
         {
@@ -57,9 +51,9 @@ namespace Selector
             IsRunning = true;
             TokenSource = new();
 
-            Consumers.ForEach(c => c.Subscribe(Watcher));
             foreach (var consumer in Consumers)
             {
+                consumer.Subscribe(Watcher);
                 if (consumer is IProcessingConsumer c)
                 {
                     c.ProcessQueue(TokenSource.Token);
@@ -73,7 +67,7 @@ namespace Selector
         {
             if (Task is not null && !Task.IsCompleted)
             {
-                TokenSource.Cancel();
+                TokenSource?.Cancel();
             }
 
             TokenSource = new();
@@ -91,15 +85,15 @@ namespace Selector
         {
             Consumers.ForEach(c => c.Unsubscribe(Watcher));
 
-            TokenSource.Cancel();
+            TokenSource?.Cancel();
             IsRunning = false;
         }
 
         private void Clear()
         {
             if (IsRunning
-                || Task.Status == TaskStatus.Running
-                || Task.Status == TaskStatus.WaitingToRun)
+                || Task?.Status == TaskStatus.Running
+                || Task?.Status == TaskStatus.WaitingToRun)
             {
                 Stop();
             }

@@ -1,10 +1,6 @@
-﻿using System;
-using Selector.SignalR;
-
-namespace Selector.SignalR;
+﻿namespace Selector.SignalR;
 
 public class Card
 {
-    public string Content { get; set; }
+    public required string Content { get; set; }
 }
-

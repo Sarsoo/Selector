@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IF.Lastfm.Core.Objects;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Selector.Cache;
@@ -42,9 +41,9 @@ namespace Selector.Web.Hubs
             pastOptions = options;
         }
 
-        public async Task OnConnected()
+        public Task OnConnected()
         {
-
+            return Task.CompletedTask;
         }
 
         private static IEnumerable<string> AlbumSuffixes = new[]
@@ -63,8 +62,12 @@ namespace Selector.Web.Hubs
             param.Album = string.IsNullOrWhiteSpace(param.Album) ? null : param.Album;
             param.Artist = string.IsNullOrWhiteSpace(param.Artist) ? null : param.Artist;
 
-            DateTime? from = param.From is string f && DateTime.TryParse(f, out var fromDate) ? fromDate.ToUniversalTime() : null;
-            DateTime? to = param.To is string t && DateTime.TryParse(t, out var toDate) ? toDate.ToUniversalTime() : null;
+            DateTime? from = param.From is string f && DateTime.TryParse(f, out var fromDate)
+                ? fromDate.ToUniversalTime()
+                : null;
+            DateTime? to = param.To is string t && DateTime.TryParse(t, out var toDate)
+                ? toDate.ToUniversalTime()
+                : null;
 
             var listenQuery = ListenRepository.GetAll(
                 userId: Context.UserIdentifier,

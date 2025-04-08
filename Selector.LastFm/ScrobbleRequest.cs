@@ -9,67 +9,68 @@ namespace Selector
 {
     public class ScrobbleRequest : IOperation
     {
-        private readonly ILogger<ScrobbleRequest> logger;
-        private readonly IUserApi userClient;
+        private readonly ILogger<ScrobbleRequest> _logger;
+        private readonly IUserApi _userClient;
 
-        public event EventHandler Success;
+        public event EventHandler? Success;
 
         public int MaxAttempts { get; private set; }
         public int Attempts { get; private set; }
-        public IEnumerable<LastTrack> Scrobbles { get; private set; }
+        public IEnumerable<LastTrack> Scrobbles { get; private set; } = [];
         public int TotalPages { get; private set; }
-        private Task<PageResponse<LastTrack>> currentTask { get; set; }
+        private Task<PageResponse<LastTrack>>? CurrentTask { get; set; }
         public bool Succeeded { get; private set; } = false;
 
-        private string username { get; set; }
-        private int pageNumber { get; set; }
-        int pageSize { get; set; }
-        DateTime? from { get; set; }
-        DateTime? to { get; set; }
+        private string Username { get; set; }
+        private int PageNumber { get; set; }
+        private int PageSize { get; set; }
+        private DateTime? From { get; set; }
+        private DateTime? To { get; set; }
 
         private TaskCompletionSource AggregateTaskSource { get; set; } = new();
         public Task Task => AggregateTaskSource.Task;
 
-        public ScrobbleRequest(IUserApi _userClient, ILogger<ScrobbleRequest> _logger, string _username,
-            int _pageNumber, int _pageSize, DateTime? _from, DateTime? _to, int maxRetries = 5)
+        public ScrobbleRequest(IUserApi userClient, ILogger<ScrobbleRequest> logger, string username,
+            int pageNumber, int pageSize, DateTime? from, DateTime? to, int maxRetries = 5)
         {
-            userClient = _userClient;
-            logger = _logger;
+            _userClient = userClient;
+            _logger = logger;
 
-            username = _username;
-            pageNumber = _pageNumber;
-            pageSize = _pageSize;
-            from = _from;
-            to = _to;
+            Username = username;
+            PageNumber = pageNumber;
+            PageSize = pageSize;
+            From = from;
+            To = to;
 
             MaxAttempts = maxRetries;
         }
 
         public Task Execute()
         {
-            using var scope = logger.BeginScope(new Dictionary<string, object>()
+            using var scope = _logger.BeginScope(new Dictionary<string, object>()
             {
-                { "username", username }, { "page_number", pageNumber }, { "page_size", pageSize }, { "from", from },
-                { "to", to }
+                { "username", Username }, { "page_number", PageNumber }, { "page_size", PageSize },
+                { "from", From ?? DateTime.MinValue },
+                { "to", To ?? DateTime.MinValue }
             });
 
-            logger.LogInformation("Starting request");
+            _logger.LogInformation("Starting request");
 
             var netTime = Stopwatch.StartNew();
-            currentTask =
-                userClient.GetRecentScrobbles(username, pagenumber: pageNumber, count: pageSize, from: from, to: to);
-            currentTask.ContinueWith(async t =>
+            CurrentTask =
+                _userClient.GetRecentScrobbles(Username, pagenumber: PageNumber, count: PageSize, from: From, to: To);
+            CurrentTask.ContinueWith(async t =>
             {
-                using var scope = logger.BeginScope(new Dictionary<string, object>()
+                using var scope = _logger.BeginScope(new Dictionary<string, object>()
                 {
-                    { "username", username }, { "page_number", pageNumber }, { "page_size", pageSize },
-                    { "from", from }, { "to", to }
+                    { "username", Username }, { "page_number", PageNumber }, { "page_size", PageSize },
+                    { "from", From ?? DateTime.MinValue }, { "to", To ?? DateTime.MinValue }
                 });
 
                 try
                 {
                     netTime.Stop();
-                    logger.LogTrace("Network request took {:n} ms", netTime.ElapsedMilliseconds);
+                    _logger.LogTrace("Network request took {:n} ms", netTime.ElapsedMilliseconds);
 
                     if (t.IsCompletedSuccessfully)
                     {
@@ -87,13 +88,13 @@ namespace Selector
                         {
                             if (Attempts < MaxAttempts)
                             {
-                                logger.LogDebug("Request failed: {}, retrying ({} of {})", result.Status, Attempts + 1,
+                                _logger.LogDebug("Request failed: {}, retrying ({} of {})", result.Status, Attempts + 1,
                                     MaxAttempts);
                                 await Execute();
                             }
                             else
                             {
-                                logger.LogDebug("Request failed: {}, max retries exceeded {}, not retrying",
+                                _logger.LogDebug("Request failed: {}, max retries exceeded {}, not retrying",
                                     result.Status, MaxAttempts);
                                 AggregateTaskSource.SetCanceled();
                             }
@@ -101,13 +102,13 @@ namespace Selector
                     }
                     else
                     {
-                        logger.LogError("Scrobble request task faulted, {}", t.Exception);
-                        AggregateTaskSource.SetException(t.Exception);
+                        _logger.LogError("Scrobble request task faulted, {}", t.Exception);
+                        if (t.Exception != null) AggregateTaskSource.SetException(t.Exception);
                     }
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, "Error while making scrobble request on attempt {}", Attempts);
+                    _logger.LogError(e, "Error while making scrobble request on attempt {}", Attempts);
                     Succeeded = false;
                 }
             });
@@ -118,7 +119,7 @@ namespace Selector
 
         protected virtual void OnSuccess()
         {
-            Success?.Invoke(this, new EventArgs());
+            Success?.Invoke(this, EventArgs.Empty);
         }
     }
 }

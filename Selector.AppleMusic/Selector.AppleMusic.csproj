@@ -4,9 +4,11 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Inflatable.Lastfm" Version="1.2.0"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.3"/>
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.7.0"/>
     </ItemGroup>

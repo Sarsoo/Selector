@@ -1,9 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -15,7 +10,7 @@ namespace Selector
         public bool IsRunning { get; private set; } = false;
         private List<WatcherContext> Watchers { get; set; } = new();
 
-        public WatcherCollection(ILogger<WatcherCollection> logger = null)
+        public WatcherCollection(ILogger<WatcherCollection>? logger = null)
         {
             Logger = logger ?? NullLogger<WatcherCollection>.Instance;
         }
@@ -30,9 +25,10 @@ namespace Selector
         public IEnumerable<Task> Tasks
             => Watchers
                 .Select(w => w.Task)
-                .Where(t => t is not null);
+                .Where(t => t is not null)
+                .Select(t => t!);
 
-        public IEnumerable<CancellationTokenSource> TokenSources
+        public IEnumerable<CancellationTokenSource?> TokenSources
             => Watchers
                 .Select(w => w.TokenSource)
                 .Where(t => t is not null);

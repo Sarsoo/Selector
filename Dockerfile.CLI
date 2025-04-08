@@ -3,6 +3,8 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS base
 COPY *.sln .
 COPY Selector/*.csproj ./Selector/
 COPY Selector.AppleMusic/*.csproj ./Selector.AppleMusic/
+COPY Selector.Spotify/*.csproj ./Selector.Spotify/
+COPY Selector.LastFm/*.csproj ./Selector.LastFm/
 COPY Selector.Cache/*.csproj ./Selector.Cache/
 COPY Selector.Data/*.csproj ./Selector.Data/
 COPY Selector.Event/*.csproj ./Selector.Event/

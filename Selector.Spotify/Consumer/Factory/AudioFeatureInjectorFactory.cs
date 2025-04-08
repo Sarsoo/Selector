@@ -8,7 +8,7 @@ namespace Selector.Spotify.Consumer.Factory
     public interface IAudioFeatureInjectorFactory
     {
         public Task<ISpotifyPlayerConsumer> Get(ISpotifyConfigFactory spotifyFactory,
-            ISpotifyPlayerWatcher watcher = null);
+            ISpotifyPlayerWatcher? watcher = null);
     }
 
     [Obsolete]
@@ -22,7 +22,7 @@ namespace Selector.Spotify.Consumer.Factory
         }
 
         public async Task<ISpotifyPlayerConsumer> Get(ISpotifyConfigFactory spotifyFactory,
-            ISpotifyPlayerWatcher watcher = null)
+            ISpotifyPlayerWatcher? watcher = null)
         {
             if (!Magic.Dummy)
             {

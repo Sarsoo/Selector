@@ -10,10 +10,10 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
     private new readonly ILogger<AppleMusicPlayerWatcher> Logger;
     private readonly AppleMusicApi _appleMusicApi;
 
-    public event EventHandler<AppleListeningChangeEventArgs> NetworkPoll;
-    public event EventHandler<AppleListeningChangeEventArgs> ItemChange;
-    public event EventHandler<AppleListeningChangeEventArgs> AlbumChange;
-    public event EventHandler<AppleListeningChangeEventArgs> ArtistChange;
+    public event EventHandler<AppleListeningChangeEventArgs>? NetworkPoll;
+    public event EventHandler<AppleListeningChangeEventArgs>? ItemChange;
+    public event EventHandler<AppleListeningChangeEventArgs>? AlbumChange;
+    public event EventHandler<AppleListeningChangeEventArgs>? ArtistChange;
 
     public AppleMusicCurrentlyPlayingContext? Live { get; private set; }
     private AppleMusicCurrentlyPlayingContext? Previous { get; set; }
@@ -70,7 +70,7 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
                 addedItems.Insert(0, currentPrevious);
                 foreach (var (first, second) in addedItems.Zip(addedItems.Skip(1)))
                 {
-                    Logger.LogDebug("Track changed: {prevTrack} -> {currentTrack}", first.Track, second.Track);
+                    Logger.LogInformation("Track changed: {prevTrack} -> {currentTrack}", first.Track, second.Track);
                     OnItemChange(AppleListeningChangeEventArgs.From(first, second, Past, id: Id));
                 }
             }
@@ -85,7 +85,7 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
             Logger.LogError(e, "Forbidden exception");
             // throw;
         }
-        catch (ServiceException e)
+        catch (ServiceException)
         {
             Logger.LogInformation("Apple Music internal error");
             // throw;
@@ -112,15 +112,20 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
             {
                 Track = Live.Track,
                 FirstSeen = Live.FirstSeen,
+                Scrobbled = Live.Scrobbled,
             };
         }
         else
         {
-            Live = new()
+            if (recentlyPlayedTracks.Data is not null && recentlyPlayedTracks.Data.Any())
             {
-                Track = recentlyPlayedTracks.Data?.FirstOrDefault(),
-                FirstSeen = DateTime.UtcNow,
-            };
+                Live = new()
+                {
+                    Track = recentlyPlayedTracks.Data.First(),
+                    FirstSeen = DateTime.UtcNow,
+                    Scrobbled = false,
+                };
+            }
         }
     }
 

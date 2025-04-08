@@ -13,8 +13,8 @@ namespace Selector.Spotify.Consumer
         IAlbumApi albumClient,
         IArtistApi artistClient,
         IUserApi userClient,
-        LastFmCredentials credentials = null,
-        ILogger<PlayCounter> logger = null,
+        LastFmCredentials? credentials = null,
+        ILogger<PlayCounter>? logger = null,
         CancellationToken token = default)
         : BaseParallelPlayerConsumer<ISpotifyPlayerWatcher, SpotifyListeningChangeEventArgs>(watcher, logger),
             ISpotifyPlayerConsumer
@@ -24,10 +24,10 @@ namespace Selector.Spotify.Consumer
         protected readonly IAlbumApi AlbumClient = albumClient;
         protected readonly IArtistApi ArtistClient = artistClient;
         protected readonly IUserApi UserClient = userClient;
-        public readonly LastFmCredentials Credentials = credentials;
-        protected readonly ILogger<PlayCounter> Logger = logger ?? NullLogger<PlayCounter>.Instance;
+        public readonly LastFmCredentials? Credentials = credentials;
+        protected new readonly ILogger<PlayCounter> Logger = logger ?? NullLogger<PlayCounter>.Instance;
 
-        protected event EventHandler<PlayCount> NewPlayCount;
+        protected event EventHandler<PlayCount>? NewPlayCount;
 
         public CancellationToken CancelToken { get; set; } = token;
 

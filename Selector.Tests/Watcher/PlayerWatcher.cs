@@ -38,7 +38,7 @@ namespace Selector.Tests
             spotMock.Setup(s => s.GetCurrentPlayback(It.IsAny<CancellationToken>()).Result)
                 .Returns(playingQueue.Dequeue);
 
-            var watcher = new SpotifyPlayerWatcher(spotMock.Object, eq);
+            var watcher = new SpotifyPlayerWatcher(spotMock.Object, eq) { Id = "test", SpotifyUsername = "test" };
 
             for (var i = 0; i < playing.Count; i++)
             {
@@ -265,7 +265,7 @@ namespace Selector.Tests
                 s => s.GetCurrentPlayback(It.IsAny<CancellationToken>()).Result
             ).Returns(playingQueue.Dequeue);
 
-            var watcher = new SpotifyPlayerWatcher(spotMock.Object, eq);
+            var watcher = new SpotifyPlayerWatcher(spotMock.Object, eq) { Id = "test", SpotifyUsername = "test" };
             using var monitoredWatcher = watcher.Monitor();
 
             for (var i = 0; i < playing.Count; i++)
@@ -287,7 +287,9 @@ namespace Selector.Tests
             var eq = new UriEqual();
             var watch = new SpotifyPlayerWatcher(spotMock.Object, eq)
             {
-                PollPeriod = pollPeriod
+                PollPeriod = pollPeriod,
+                Id = "test",
+                SpotifyUsername = "test"
             };
 
             var tokenSource = new CancellationTokenSource();

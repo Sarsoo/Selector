@@ -1,21 +1,19 @@
-using System;
-using System.Threading;
 using System.Threading.Channels;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace Selector;
 
 public abstract class BaseSequentialPlayerConsumer<TWatcher, TArgs>(
-    TWatcher watcher,
-    ILogger<BaseSequentialPlayerConsumer<TWatcher, TArgs>> logger) : IProcessingConsumer<TArgs>
+    TWatcher? watcher,
+    ILogger<BaseSequentialPlayerConsumer<TWatcher, TArgs>> logger)
+    : BasePlayerConsumer<TWatcher, TArgs>(watcher, logger), IProcessingConsumer<TArgs>
     where TWatcher : IWatcher<TArgs>
 {
-    protected readonly ILogger<BaseSequentialPlayerConsumer<TWatcher, TArgs>> Logger = logger;
+    protected new readonly ILogger<BaseSequentialPlayerConsumer<TWatcher, TArgs>> Logger = logger;
 
     private readonly Channel<TArgs> _events = Channel.CreateUnbounded<TArgs>();
 
-    public void Callback(object sender, TArgs e)
+    public override void Callback(object? sender, TArgs e)
     {
         if (!_events.Writer.TryWrite(e))
         {
@@ -40,35 +38,5 @@ public abstract class BaseSequentialPlayerConsumer<TWatcher, TArgs>(
                 }
             }
         }, cancellationToken: token);
-    }
-
-    protected abstract Task ProcessEvent(TArgs e);
-
-    public void Subscribe(IWatcher? watch = null)
-    {
-        var watcher1 = watch ?? watcher ?? throw new ArgumentNullException("No watcher provided");
-
-        if (watcher1 is TWatcher watcherCast)
-        {
-            watcherCast.ItemChange += Callback;
-        }
-        else
-        {
-            throw new ArgumentException("Provided watcher is not a PlayerWatcher");
-        }
-    }
-
-    public void Unsubscribe(IWatcher? watch = null)
-    {
-        var watcher1 = watch ?? watcher ?? throw new ArgumentNullException("No watcher provided");
-
-        if (watcher1 is TWatcher watcherCast)
-        {
-            watcherCast.ItemChange -= Callback;
-        }
-        else
-        {
-            throw new ArgumentException("Provided watcher is not a PlayerWatcher");
-        }
     }
 }

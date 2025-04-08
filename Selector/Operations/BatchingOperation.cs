@@ -1,20 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Collections.Concurrent;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Selector.Operations
-{ 
+{
     public class BatchingOperation<T> where T : IOperation
     {
         protected ILogger<BatchingOperation<T>> logger;
         protected CancellationToken _token;
-        protected Task aggregateNetworkTask;
 
         public ConcurrentQueue<T> WaitingRequests { get; private set; } = new();
         public ConcurrentQueue<T> DoneRequests { get; private set; } = new();
@@ -23,14 +16,15 @@ namespace Selector.Operations
         private TimeSpan timeout;
         private int simultaneousRequests;
 
-        public BatchingOperation(TimeSpan _interRequestDelay, TimeSpan _timeout, int _simultaneous, IEnumerable<T> requests, ILogger<BatchingOperation<T>> _logger = null)
+        public BatchingOperation(TimeSpan _interRequestDelay, TimeSpan _timeout, int _simultaneous,
+            IEnumerable<T> requests, ILogger<BatchingOperation<T>>? _logger = null)
         {
             interRequestDelay = _interRequestDelay;
             timeout = _timeout;
             simultaneousRequests = _simultaneous;
             logger = _logger ?? NullLogger<BatchingOperation<T>>.Instance;
 
-            foreach(var request in requests)
+            foreach (var request in requests)
             {
                 WaitingRequests.Enqueue(request);
             }
@@ -38,7 +32,7 @@ namespace Selector.Operations
 
         public bool TimedOut { get; private set; } = false;
 
-        private async void HandleSuccessfulRequest(object o, EventArgs e)
+        private async void HandleSuccessfulRequest(object? o, EventArgs e)
         {
             await Task.Delay(interRequestDelay, _token);
             TransitionRequest();
@@ -52,7 +46,8 @@ namespace Selector.Operations
                 _ = request.Execute();
                 DoneRequests.Enqueue(request);
 
-                logger.LogInformation("Executing request {} of {}", DoneRequests.Count, WaitingRequests.Count + DoneRequests.Count);
+                logger.LogInformation("Executing request {} of {}", DoneRequests.Count,
+                    WaitingRequests.Count + DoneRequests.Count);
             }
         }
 

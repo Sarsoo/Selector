@@ -8,15 +8,15 @@ namespace Selector.Mapping
     {
         public string ArtistName { get; set; }
 
-        public ScrobbleArtistMapping(ISearchClient _searchClient, ILogger<ScrobbleArtistMapping> _logger,
-            string artistName) : base(_searchClient, _logger)
+        public ScrobbleArtistMapping(ISearchClient searchClient, ILogger<ScrobbleArtistMapping> logger,
+            string artistName) : base(searchClient, logger)
         {
             ArtistName = artistName;
         }
 
-        private FullArtist result;
-        public FullArtist Artist => result;
-        public override object Result => result;
+        private FullArtist? _result;
+        public FullArtist? Artist => _result;
+        public override object? Result => _result;
 
         public override string Query => ArtistName;
 
@@ -24,12 +24,12 @@ namespace Selector.Mapping
 
         public override void HandleResponse(Task<SearchResponse> response)
         {
-            var topResult = response.Result.Artists.Items.FirstOrDefault();
+            var topResult = response.Result.Artists.Items?.FirstOrDefault();
 
             if (topResult is not null
                 && topResult.Name.Equals(ArtistName, StringComparison.InvariantCultureIgnoreCase))
             {
-                result = topResult;
+                _result = topResult;
             }
         }
     }

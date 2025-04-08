@@ -9,41 +9,42 @@ namespace Selector.Spotify.Watcher
     public class SpotifyPlayerWatcher : BaseSpotifyWatcher, ISpotifyPlayerWatcher
     {
         new protected readonly ILogger<SpotifyPlayerWatcher> Logger;
-        private readonly IPlayerClient spotifyClient;
-        private readonly IEqual eq;
+        private readonly IPlayerClient _spotifyClient;
+        private readonly IEqual _eq;
 
-        public event EventHandler<SpotifyListeningChangeEventArgs> NetworkPoll;
-        public event EventHandler<SpotifyListeningChangeEventArgs> ItemChange;
-        public event EventHandler<SpotifyListeningChangeEventArgs> AlbumChange;
-        public event EventHandler<SpotifyListeningChangeEventArgs> ArtistChange;
-        public event EventHandler<SpotifyListeningChangeEventArgs> ContextChange;
-        public event EventHandler<SpotifyListeningChangeEventArgs> ContentChange;
+        public event EventHandler<SpotifyListeningChangeEventArgs>? NetworkPoll;
+        public event EventHandler<SpotifyListeningChangeEventArgs>? ItemChange;
+        public event EventHandler<SpotifyListeningChangeEventArgs>? AlbumChange;
+        public event EventHandler<SpotifyListeningChangeEventArgs>? ArtistChange;
+        public event EventHandler<SpotifyListeningChangeEventArgs>? ContextChange;
+        public event EventHandler<SpotifyListeningChangeEventArgs>? ContentChange;
 
-        public event EventHandler<SpotifyListeningChangeEventArgs> VolumeChange;
-        public event EventHandler<SpotifyListeningChangeEventArgs> DeviceChange;
-        public event EventHandler<SpotifyListeningChangeEventArgs> PlayingChange;
+        public event EventHandler<SpotifyListeningChangeEventArgs>? VolumeChange;
+        public event EventHandler<SpotifyListeningChangeEventArgs>? DeviceChange;
+        public event EventHandler<SpotifyListeningChangeEventArgs>? PlayingChange;
 
-        public CurrentlyPlayingContext Live { get; protected set; }
-        protected CurrentlyPlayingContext Previous { get; set; }
-        public PlayerTimeline Past { get; set; } = new();
+        public CurrentlyPlayingContext? Live { get; protected set; }
+        protected CurrentlyPlayingContext? Previous { get; set; }
+        public PlayerTimeline Past { get; set; }
 
         public SpotifyPlayerWatcher(IPlayerClient spotifyClient,
             IEqual equalityChecker,
-            ILogger<SpotifyPlayerWatcher> logger = null,
+            ILogger<SpotifyPlayerWatcher>? logger = null,
             int pollPeriod = 3000
         ) : base(logger)
         {
-            this.spotifyClient = spotifyClient;
-            eq = equalityChecker;
+            _spotifyClient = spotifyClient;
+            _eq = equalityChecker;
             Logger = logger ?? NullLogger<SpotifyPlayerWatcher>.Instance;
             PollPeriod = pollPeriod;
+            Past = new() { EqualityChecker = equalityChecker };
         }
 
         public override Task Reset()
         {
             Previous = null;
             Live = null;
-            Past = new();
+            Past = new() { EqualityChecker = _eq };
 
             return Task.CompletedTask;
         }
@@ -55,7 +56,7 @@ namespace Selector.Spotify.Watcher
             try
             {
                 Logger.LogTrace("Making Spotify call");
-                var polledCurrent = await spotifyClient.GetCurrentPlayback();
+                var polledCurrent = await _spotifyClient.GetCurrentPlayback();
 
                 using var polledLogScope = Logger.BeginScope(new Dictionary<string, object>()
                     { { "context", polledCurrent?.DisplayString() } });
@@ -122,7 +123,7 @@ namespace Selector.Spotify.Watcher
             switch (Previous, Live)
             {
                 case ({ Item: FullTrack previousTrack }, { Item: FullTrack currentTrack }):
-                    if (!eq.IsEqual(previousTrack, currentTrack))
+                    if (!_eq.IsEqual(previousTrack, currentTrack))
                     {
                         Logger.LogInformation("Track changed: {prevTrack} -> {currentTrack}",
                             previousTrack.DisplayString(),
@@ -130,14 +131,14 @@ namespace Selector.Spotify.Watcher
                         OnItemChange(GetEvent());
                     }
 
-                    if (!eq.IsEqual(previousTrack.Album, currentTrack.Album))
+                    if (!_eq.IsEqual(previousTrack.Album, currentTrack.Album))
                     {
                         Logger.LogDebug("Album changed: {previous} -> {current}", previousTrack.Album.DisplayString(),
                             currentTrack.Album.DisplayString());
                         OnAlbumChange(GetEvent());
                     }
 
-                    if (!eq.IsEqual(previousTrack.Artists[0], currentTrack.Artists[0]))
+                    if (!_eq.IsEqual(previousTrack.Artists[0], currentTrack.Artists[0]))
                     {
                         Logger.LogDebug("Artist changed: {previous} -> {current}",
                             previousTrack.Artists.DisplayString(), currentTrack.Artists.DisplayString());
@@ -158,7 +159,7 @@ namespace Selector.Spotify.Watcher
                     OnItemChange(GetEvent());
                     break;
                 case ({ Item: FullEpisode previousEp }, { Item: FullEpisode currentEp }):
-                    if (!eq.IsEqual(previousEp, currentEp))
+                    if (!_eq.IsEqual(previousEp, currentEp))
                     {
                         Logger.LogDebug("Podcast changed: {previous_ep} -> {current_ep}", previousEp.DisplayString(),
                             currentEp.DisplayString());
@@ -177,7 +178,7 @@ namespace Selector.Spotify.Watcher
                 Logger.LogDebug("Context started: {context}", Live?.Context.DisplayString());
                 OnContextChange(GetEvent());
             }
-            else if (!eq.IsEqual(Previous?.Context, Live?.Context))
+            else if (!_eq.IsEqual(Previous?.Context, Live?.Context))
             {
                 Logger.LogDebug("Context changed: {previous_context} -> {live_context}",
                     Previous?.Context?.DisplayString() ?? "none", Live?.Context?.DisplayString() ?? "none");
@@ -212,7 +213,7 @@ namespace Selector.Spotify.Watcher
         protected void CheckDevice()
         {
             // DEVICE
-            if (!eq.IsEqual(Previous?.Device, Live?.Device))
+            if (!_eq.IsEqual(Previous?.Device, Live?.Device))
             {
                 Logger.LogDebug("Device changed: {previous_device} -> {live_device}",
                     Previous?.Device?.DisplayString() ?? "none", Live?.Device?.DisplayString() ?? "none");

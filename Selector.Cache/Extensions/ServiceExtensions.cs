@@ -20,17 +20,17 @@ namespace Selector.Cache.Extensions
             var connMulti = ConnectionMultiplexer.Connect(connectionStr);
             services.AddSingleton(connMulti);
             services.AddTransient<IDatabaseAsync>(
-                services => services.GetService<ConnectionMultiplexer>().GetDatabase());
-            services.AddTransient<ISubscriber>(services =>
-                services.GetService<ConnectionMultiplexer>().GetSubscriber());
+                s => s.GetService<ConnectionMultiplexer>().GetDatabase());
+            services.AddTransient<ISubscriber>(s =>
+                s.GetService<ConnectionMultiplexer>().GetSubscriber());
 
             return services;
         }
 
         public static IServiceCollection AddCachingConsumerFactories(this IServiceCollection services)
         {
-            services.AddTransient<IAudioFeatureInjectorFactory, CachingAudioFeatureInjectorFactory>();
-            services.AddTransient<CachingAudioFeatureInjectorFactory>();
+            // services.AddTransient<IAudioFeatureInjectorFactory, CachingAudioFeatureInjectorFactory>();
+            // services.AddTransient<CachingAudioFeatureInjectorFactory>();
             services.AddTransient<IPlayCounterFactory, PlayCounterCachingFactory>();
             services.AddTransient<PlayCounterCachingFactory>();
 

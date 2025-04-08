@@ -5,32 +5,32 @@ namespace Selector.Spotify.Consumer.Factory
 {
     public interface IPlayCounterFactory
     {
-        public Task<ISpotifyPlayerConsumer> Get(LastfmClient fmClient = null, LastFmCredentials creds = null,
-            ISpotifyPlayerWatcher watcher = null);
+        public Task<ISpotifyPlayerConsumer> Get(LastfmClient? fmClient = null, LastFmCredentials? creds = null,
+            ISpotifyPlayerWatcher? watcher = null);
     }
 
     public class PlayCounterFactory : IPlayCounterFactory
     {
-        private readonly ILoggerFactory LoggerFactory;
-        private readonly LastfmClient Client;
-        private readonly LastFmCredentials Creds;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly LastfmClient? _client;
+        private readonly LastFmCredentials? _creds;
 
-        public PlayCounterFactory(ILoggerFactory loggerFactory, LastfmClient client = null,
-            LastFmCredentials creds = null)
+        public PlayCounterFactory(ILoggerFactory loggerFactory, LastfmClient? client = null,
+            LastFmCredentials? creds = null)
         {
-            LoggerFactory = loggerFactory;
-            Client = client;
-            Creds = creds;
+            _loggerFactory = loggerFactory;
+            _client = client;
+            _creds = creds;
         }
 
-        public Task<ISpotifyPlayerConsumer> Get(LastfmClient fmClient = null, LastFmCredentials creds = null,
-            ISpotifyPlayerWatcher watcher = null)
+        public Task<ISpotifyPlayerConsumer> Get(LastfmClient? fmClient = null, LastFmCredentials? creds = null,
+            ISpotifyPlayerWatcher? watcher = null)
         {
-            var client = fmClient ?? Client;
+            var client = fmClient ?? _client;
 
             if (client is null)
             {
-                throw new ArgumentNullException("No Last.fm client provided");
+                throw new ArgumentNullException(nameof(client));
             }
 
             return Task.FromResult<ISpotifyPlayerConsumer>(new PlayCounter(
@@ -39,8 +39,8 @@ namespace Selector.Spotify.Consumer.Factory
                 client.Album,
                 client.Artist,
                 client.User,
-                credentials: creds ?? Creds,
-                LoggerFactory.CreateLogger<PlayCounter>()
+                credentials: creds ?? _creds,
+                _loggerFactory.CreateLogger<PlayCounter>()
             ));
         }
     }

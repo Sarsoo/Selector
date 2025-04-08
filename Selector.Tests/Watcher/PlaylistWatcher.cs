@@ -38,7 +38,7 @@ namespace Selector.Tests
                 .Returns(playlistDequeue.Dequeue);
 
             var config = new PlaylistWatcherConfig() { PlaylistId = "spotify:playlist:test" };
-            var watcher = new PlaylistWatcher(config, spotMock.Object);
+            var watcher = new PlaylistWatcher(config, spotMock.Object) { Id = "test", SpotifyUsername = "test" };
 
             for (var i = 0; i < playing.Count; i++)
             {
@@ -92,7 +92,7 @@ namespace Selector.Tests
                 .Returns(playlistDequeue.Dequeue);
 
             var config = new PlaylistWatcherConfig() { PlaylistId = "spotify:playlist:test" };
-            var watcher = new PlaylistWatcher(config, spotMock.Object);
+            var watcher = new PlaylistWatcher(config, spotMock.Object) { Id = "test", SpotifyUsername = "test" };
 
             using var monitoredWatcher = watcher.Monitor();
 

@@ -5,14 +5,14 @@ namespace Selector.Spotify.Consumer
 {
     public class WebHookConfig
     {
-        public string Name { get; set; }
-        public IEnumerable<Predicate<SpotifyListeningChangeEventArgs>> Predicates { get; set; }
-        public string Url { get; set; }
-        public HttpContent Content { get; set; }
+        public required string Name { get; set; }
+        public IEnumerable<Predicate<SpotifyListeningChangeEventArgs>> Predicates { get; set; } = [];
+        public required string Url { get; set; }
+        public HttpContent? Content { get; set; }
 
         public bool ShouldRequest(SpotifyListeningChangeEventArgs e)
         {
-            if (Predicates is not null)
+            if (Predicates.Any())
             {
                 return Predicates.Select(p => p(e)).Aggregate((a, b) => a && b);
             }
@@ -24,10 +24,10 @@ namespace Selector.Spotify.Consumer
     }
 
     public class WebHook(
-        ISpotifyPlayerWatcher watcher,
+        ISpotifyPlayerWatcher? watcher,
         HttpClient httpClient,
         WebHookConfig config,
-        ILogger<WebHook> logger = null,
+        ILogger<WebHook> logger,
         CancellationToken token = default)
         : BaseParallelPlayerConsumer<ISpotifyPlayerWatcher, SpotifyListeningChangeEventArgs>(watcher, logger),
             ISpotifyPlayerConsumer
@@ -36,9 +36,9 @@ namespace Selector.Spotify.Consumer
 
         protected readonly WebHookConfig Config = config;
 
-        public event EventHandler PredicatePass;
-        public event EventHandler SuccessfulRequest;
-        public event EventHandler FailedRequest;
+        public event EventHandler? PredicatePass;
+        public event EventHandler? SuccessfulRequest;
+        public event EventHandler? FailedRequest;
 
         public CancellationToken CancelToken { get; set; } = token;
 
@@ -59,19 +59,19 @@ namespace Selector.Spotify.Consumer
                 try
                 {
                     Logger.LogDebug("Predicate passed, making request");
-                    OnPredicatePass(new EventArgs());
+                    OnPredicatePass(EventArgs.Empty);
 
                     var response = await HttpClient.PostAsync(Config.Url, Config.Content, CancelToken);
 
                     if (response.IsSuccessStatusCode)
                     {
                         Logger.LogDebug("Request success");
-                        OnSuccessfulRequest(new EventArgs());
+                        OnSuccessfulRequest(EventArgs.Empty);
                     }
                     else
                     {
                         Logger.LogDebug("Request failed [{error}] [{content}]", response.StatusCode, response.Content);
-                        OnFailedRequest(new EventArgs());
+                        OnFailedRequest(EventArgs.Empty);
                     }
                 }
                 catch (HttpRequestException ex)

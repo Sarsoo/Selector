@@ -2,18 +2,18 @@
 
 namespace Selector.SignalR;
 
-public class PastHubClient: BaseSignalRClient, IPastHub, IDisposable
+public class PastHubClient : BaseSignalRClient, IPastHub, IDisposable
 {
-    private List<IDisposable> SearchResultCallbacks = new();
-    private bool disposedValue;
+    private List<IDisposable> _searchResultCallbacks = new();
+    private bool _disposedValue;
 
-    public PastHubClient(string token = null): base("nowhub", token)
-	{
-	}
+    public PastHubClient(string? token = null) : base("nowhub", token)
+    {
+    }
 
     public void OnRankResult(Action<IRankResult> action)
     {
-        SearchResultCallbacks.Add(hubConnection.On(nameof(OnRankResult), action));
+        _searchResultCallbacks.Add(hubConnection.On(nameof(OnRankResult), action));
     }
 
     public Task OnConnected()
@@ -28,11 +28,11 @@ public class PastHubClient: BaseSignalRClient, IPastHub, IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_disposedValue)
         {
             if (disposing)
             {
-                foreach(var callback in SearchResultCallbacks)
+                foreach (var callback in _searchResultCallbacks)
                 {
                     callback.Dispose();
                 }
@@ -40,7 +40,7 @@ public class PastHubClient: BaseSignalRClient, IPastHub, IDisposable
                 base.DisposeAsync();
             }
 
-            disposedValue = true;
+            _disposedValue = true;
         }
     }
 
@@ -51,4 +51,3 @@ public class PastHubClient: BaseSignalRClient, IPastHub, IDisposable
         GC.SuppressFinalize(this);
     }
 }
-

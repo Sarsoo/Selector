@@ -5,11 +5,11 @@ namespace Selector.Spotify.Timeline
     public class PlayerTimeline
         : Timeline<CurrentlyPlayingContext>, ITrackTimeline<CurrentlyPlayingContext>
     {
-        public IEqual EqualityChecker { get; set; }
+        public required IEqual EqualityChecker { get; set; }
 
         public override void Add(CurrentlyPlayingContext item) => Add(item, DateHelper.FromUnixMilli(item.Timestamp));
 
-        public CurrentlyPlayingContext Get(FullTrack track)
+        public CurrentlyPlayingContext? Get(FullTrack track)
             => GetAll(track)
                 .LastOrDefault();
 
@@ -22,7 +22,7 @@ namespace Selector.Spotify.Timeline
                 .Where(i => i.Item.Item is FullTrack iterTrack
                             && EqualityChecker.IsEqual(iterTrack, track));
 
-        public CurrentlyPlayingContext Get(FullEpisode ep)
+        public CurrentlyPlayingContext? Get(FullEpisode ep)
             => GetAll(ep)
                 .LastOrDefault();
 
@@ -35,7 +35,7 @@ namespace Selector.Spotify.Timeline
                 .Where(i => i.Item.Item is FullEpisode iterEp
                             && EqualityChecker.IsEqual(iterEp, ep));
 
-        public CurrentlyPlayingContext Get(SimpleAlbum album)
+        public CurrentlyPlayingContext? Get(SimpleAlbum album)
             => GetAll(album)
                 .LastOrDefault();
 
@@ -48,7 +48,7 @@ namespace Selector.Spotify.Timeline
                 .Where(i => i.Item.Item is FullTrack iterTrack
                             && EqualityChecker.IsEqual(iterTrack.Album, album));
 
-        public CurrentlyPlayingContext Get(SimpleArtist artist)
+        public CurrentlyPlayingContext? Get(SimpleArtist artist)
             => GetAll(artist)
                 .LastOrDefault();
 
@@ -61,7 +61,7 @@ namespace Selector.Spotify.Timeline
                 .Where(i => i.Item.Item is FullTrack iterTrack
                             && EqualityChecker.IsEqual(iterTrack.Artists[0], artist));
 
-        public CurrentlyPlayingContext Get(Device device)
+        public CurrentlyPlayingContext? Get(Device device)
             => GetAll(device)
                 .LastOrDefault();
 
@@ -73,7 +73,7 @@ namespace Selector.Spotify.Timeline
             => Recent
                 .Where(i => EqualityChecker.IsEqual(i.Item.Device, device));
 
-        public CurrentlyPlayingContext Get(Context context)
+        public CurrentlyPlayingContext? Get(Context context)
             => GetAll(context)
                 .LastOrDefault();
 

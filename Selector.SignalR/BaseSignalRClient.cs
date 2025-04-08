@@ -1,16 +1,15 @@
-﻿using System;
-using Microsoft.AspNetCore.SignalR.Client;
+﻿using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Selector.SignalR;
 
-public abstract class BaseSignalRClient: IAsyncDisposable
+public abstract class BaseSignalRClient : IAsyncDisposable
 {
     private readonly string _baseUrl;
     protected HubConnection hubConnection;
-    public string Token { get; set; }
+    public string? Token { get; set; }
 
-	public BaseSignalRClient(string path, string token)
-	{
+    public BaseSignalRClient(string path, string? token)
+    {
         //var baseOverride = Environment.GetEnvironmentVariable("SELECTOR_BASE_URL");
 
         //if (!string.IsNullOrWhiteSpace(baseOverride))
@@ -26,13 +25,8 @@ public abstract class BaseSignalRClient: IAsyncDisposable
         _baseUrl = "https://selector.sarsoo.xyz";
 
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(_baseUrl + "/" + path, options =>
-            {
-                options.AccessTokenProvider = () =>
-                {
-                    return Task.FromResult(Token);
-                };
-            })
+            .WithUrl(_baseUrl + "/" + path,
+                options => { options.AccessTokenProvider = () => { return Task.FromResult(Token); }; })
             .WithAutomaticReconnect()
             .Build();
     }
@@ -49,4 +43,3 @@ public abstract class BaseSignalRClient: IAsyncDisposable
         await hubConnection.StartAsync();
     }
 }
-

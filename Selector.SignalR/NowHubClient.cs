@@ -8,65 +8,65 @@ namespace Selector.SignalR;
 
 public class NowHubClient : BaseSignalRClient, INowPlayingHub, IDisposable
 {
-    private List<IDisposable> NewPlayingSpotifyCallbacks = new();
-    private List<IDisposable> NewPlayingAppleCallbacks = new();
-    private List<IDisposable> NewAudioFeatureCallbacks = new();
-    private List<IDisposable> NewPlayCountCallbacks = new();
-    private List<IDisposable> NewCardCallbacks = new();
-    private bool disposedValue;
+    private readonly List<IDisposable> _newPlayingSpotifyCallbacks = new();
+    private readonly List<IDisposable> _newPlayingAppleCallbacks = new();
+    private readonly List<IDisposable> _newAudioFeatureCallbacks = new();
+    private readonly List<IDisposable> _newPlayCountCallbacks = new();
+    private readonly List<IDisposable> _newCardCallbacks = new();
+    private bool _disposedValue;
 
-    public NowHubClient(string token = null) : base("nowhub", token)
+    public NowHubClient(string? token = null) : base("nowhub", token)
     {
     }
 
     public void OnNewPlayingSpotify(Action<SpotifyCurrentlyPlayingDTO> action)
     {
-        NewPlayingSpotifyCallbacks.Add(hubConnection.On(nameof(OnNewPlayingSpotify), action));
+        _newPlayingSpotifyCallbacks.Add(hubConnection.On(nameof(OnNewPlayingSpotify), action));
     }
 
     public void OnNewPlayingApple(Action<AppleCurrentlyPlayingDTO> action)
     {
-        NewPlayingAppleCallbacks.Add(hubConnection.On(nameof(OnNewPlayingApple), action));
+        _newPlayingAppleCallbacks.Add(hubConnection.On(nameof(OnNewPlayingApple), action));
     }
 
     public void OnNewAudioFeature(Action<TrackAudioFeatures> action)
     {
-        NewAudioFeatureCallbacks.Add(hubConnection.On(nameof(OnNewAudioFeature), action));
+        _newAudioFeatureCallbacks.Add(hubConnection.On(nameof(OnNewAudioFeature), action));
     }
 
     public void OnNewPlayCount(Action<PlayCount> action)
     {
-        NewPlayCountCallbacks.Add(hubConnection.On(nameof(OnNewPlayCount), action));
+        _newPlayCountCallbacks.Add(hubConnection.On(nameof(OnNewPlayCount), action));
     }
 
     public void OnNewCard(Action<Card> action)
     {
-        NewCardCallbacks.Add(hubConnection.On(nameof(OnNewCard), action));
+        _newCardCallbacks.Add(hubConnection.On(nameof(OnNewCard), action));
     }
 
     public void OnNewPlayingSpotify(Func<SpotifyCurrentlyPlayingDTO, Task> action)
     {
-        NewPlayingSpotifyCallbacks.Add(hubConnection.On(nameof(OnNewPlayingSpotify), action));
+        _newPlayingSpotifyCallbacks.Add(hubConnection.On(nameof(OnNewPlayingSpotify), action));
     }
 
     public void OnNewPlayingApple(Func<AppleCurrentlyPlayingDTO, Task> action)
     {
-        NewPlayingAppleCallbacks.Add(hubConnection.On(nameof(OnNewPlayingApple), action));
+        _newPlayingAppleCallbacks.Add(hubConnection.On(nameof(OnNewPlayingApple), action));
     }
 
     public void OnNewAudioFeature(Func<TrackAudioFeatures, Task> action)
     {
-        NewAudioFeatureCallbacks.Add(hubConnection.On(nameof(OnNewAudioFeature), action));
+        _newAudioFeatureCallbacks.Add(hubConnection.On(nameof(OnNewAudioFeature), action));
     }
 
     public void OnNewPlayCount(Func<PlayCount, Task> action)
     {
-        NewPlayCountCallbacks.Add(hubConnection.On(nameof(OnNewPlayCount), action));
+        _newPlayCountCallbacks.Add(hubConnection.On(nameof(OnNewPlayCount), action));
     }
 
     public void OnNewCard(Func<Card, Task> action)
     {
-        NewCardCallbacks.Add(hubConnection.On(nameof(OnNewCard), action));
+        _newCardCallbacks.Add(hubConnection.On(nameof(OnNewCard), action));
     }
 
     public Task OnConnected()
@@ -102,14 +102,14 @@ public class NowHubClient : BaseSignalRClient, INowPlayingHub, IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_disposedValue)
         {
             if (disposing)
             {
-                foreach (var callback in NewPlayingSpotifyCallbacks
-                             .Concat(NewAudioFeatureCallbacks)
-                             .Concat(NewPlayCountCallbacks)
-                             .Concat(NewCardCallbacks))
+                foreach (var callback in _newPlayingSpotifyCallbacks
+                             .Concat(_newAudioFeatureCallbacks)
+                             .Concat(_newPlayCountCallbacks)
+                             .Concat(_newCardCallbacks))
                 {
                     callback.Dispose();
                 }
@@ -117,7 +117,7 @@ public class NowHubClient : BaseSignalRClient, INowPlayingHub, IDisposable
                 base.DisposeAsync();
             }
 
-            disposedValue = true;
+            _disposedValue = true;
         }
     }
 

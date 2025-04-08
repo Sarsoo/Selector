@@ -6,9 +6,17 @@ namespace Selector.Spotify.Equality
 {
     public class PlayableItemEqualityComparer : IEqualityComparer<PlaylistTrack<IPlayableItem>>
     {
-        public bool Equals(PlaylistTrack<IPlayableItem> x, PlaylistTrack<IPlayableItem> y)
+        public bool Equals(PlaylistTrack<IPlayableItem>? x, PlaylistTrack<IPlayableItem>? y)
         {
-            return x.GetUri().Equals(y.GetUri());
+            switch (x, y)
+            {
+                case (null, null):
+                case (null, not null):
+                case (not null, null):
+                    return false;
+                case var (left, right):
+                    return left.GetUri().Equals(right.GetUri());
+            }
         }
 
         public int GetHashCode([DisallowNull] PlaylistTrack<IPlayableItem> obj)

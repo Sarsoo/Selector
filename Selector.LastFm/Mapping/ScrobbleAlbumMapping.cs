@@ -16,9 +16,9 @@ namespace Selector.Mapping
             ArtistName = artistName;
         }
 
-        private SimpleAlbum result;
-        public SimpleAlbum Album => result;
-        public override object Result => result;
+        private SimpleAlbum? _result;
+        public SimpleAlbum? Album => _result;
+        public override object? Result => _result;
 
         public override string Query => $"{AlbumName} {ArtistName}";
 
@@ -26,13 +26,13 @@ namespace Selector.Mapping
 
         public override void HandleResponse(Task<SearchResponse> response)
         {
-            var topResult = response.Result.Albums.Items.FirstOrDefault();
+            var topResult = response.Result.Albums.Items?.FirstOrDefault();
 
             if (topResult is not null
                 && topResult.Name.Equals(AlbumName, StringComparison.InvariantCultureIgnoreCase)
                 && topResult.Artists.First().Name.Equals(ArtistName, StringComparison.InvariantCultureIgnoreCase))
             {
-                result = topResult;
+                _result = topResult;
             }
         }
     }

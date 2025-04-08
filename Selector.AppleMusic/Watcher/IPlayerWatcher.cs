@@ -12,7 +12,7 @@ namespace Selector
         /// <summary>
         /// Last retrieved currently playing
         /// </summary>
-        public AppleMusicCurrentlyPlayingContext Live { get; }
+        public AppleMusicCurrentlyPlayingContext? Live { get; }
 
         public AppleTimeline Past { get; }
     }

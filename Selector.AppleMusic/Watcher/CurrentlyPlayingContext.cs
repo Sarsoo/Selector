@@ -5,7 +5,8 @@ namespace Selector.AppleMusic.Watcher;
 public class AppleMusicCurrentlyPlayingContext
 {
     public DateTime FirstSeen { get; set; }
-    public Track Track { get; set; }
+    public required Track Track { get; set; }
+    public bool Scrobbled { get; set; }
 }
 
 public class AppleMusicCurrentlyPlayingContextComparer : IEqualityComparer<AppleMusicCurrentlyPlayingContext>

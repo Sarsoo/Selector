@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Selector.Spotify;
@@ -9,18 +10,19 @@ using StackExchange.Redis;
 
 namespace Selector.Cache
 {
+    [Obsolete]
     public class CachingAudioFeatureInjectorFactory : IAudioFeatureInjectorFactory
     {
-        private readonly ILoggerFactory LoggerFactory;
-        private readonly IDatabaseAsync Db;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly IDatabaseAsync _db;
 
         public CachingAudioFeatureInjectorFactory(
             ILoggerFactory loggerFactory,
             IDatabaseAsync db
         )
         {
-            LoggerFactory = loggerFactory;
-            Db = db;
+            _loggerFactory = loggerFactory;
+            _db = db;
         }
 
         public async Task<ISpotifyPlayerConsumer> Get(ISpotifyConfigFactory spotifyFactory,
@@ -33,16 +35,16 @@ namespace Selector.Cache
 
                 return new CachingAudioFeatureInjector(
                     watcher,
-                    Db,
+                    _db,
                     client.Tracks,
-                    LoggerFactory.CreateLogger<CachingAudioFeatureInjector>()
+                    _loggerFactory.CreateLogger<CachingAudioFeatureInjector>()
                 );
             }
             else
             {
                 return new DummyAudioFeatureInjector(
                     watcher,
-                    LoggerFactory.CreateLogger<DummyAudioFeatureInjector>()
+                    _loggerFactory.CreateLogger<DummyAudioFeatureInjector>()
                 );
             }
         }

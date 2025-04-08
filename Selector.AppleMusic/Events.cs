@@ -4,13 +4,13 @@ namespace Selector.AppleMusic;
 
 public class AppleListeningChangeEventArgs : ListeningChangeEventArgs
 {
-    public AppleMusicCurrentlyPlayingContext Previous { get; set; }
-    public AppleMusicCurrentlyPlayingContext Current { get; set; }
+    public required AppleMusicCurrentlyPlayingContext? Previous { get; set; }
+    public required AppleMusicCurrentlyPlayingContext? Current { get; set; }
 
-    AppleTimeline Timeline { get; set; }
+    public required AppleTimeline Timeline { get; set; }
 
-    public static AppleListeningChangeEventArgs From(AppleMusicCurrentlyPlayingContext previous,
-        AppleMusicCurrentlyPlayingContext current, AppleTimeline timeline, string id = null, string username = null)
+    public static AppleListeningChangeEventArgs From(AppleMusicCurrentlyPlayingContext? previous,
+        AppleMusicCurrentlyPlayingContext? current, AppleTimeline timeline, string id, string? username = null)
     {
         return new AppleListeningChangeEventArgs()
         {

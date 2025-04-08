@@ -1,12 +1,9 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace Selector
+﻿namespace Selector
 {
     public interface IConsumer
     {
-        public void Subscribe(IWatcher watch = null);
-        public void Unsubscribe(IWatcher watch = null);
+        public void Subscribe(IWatcher? watch = null);
+        public void Unsubscribe(IWatcher? watch = null);
     }
 
     public interface IProcessingConsumer

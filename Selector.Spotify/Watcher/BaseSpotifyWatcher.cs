@@ -2,9 +2,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Selector.Spotify.Watcher;
 
-public abstract class BaseSpotifyWatcher(ILogger<BaseWatcher> logger = null) : BaseWatcher(logger)
+public abstract class BaseSpotifyWatcher(ILogger<BaseWatcher>? logger) : BaseWatcher(logger)
 {
-    public string SpotifyUsername { get; set; }
+    public required string SpotifyUsername { get; set; }
 
     protected override Dictionary<string, object> LogScopeContext =>
         new[]

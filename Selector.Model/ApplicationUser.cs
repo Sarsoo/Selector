@@ -1,31 +1,24 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace Selector.Model
 {
     public class ApplicationUser : IdentityUser
     {
-        [PersonalData]
-        public bool SpotifyIsLinked { get; set; }
-        [PersonalData]
-        public DateTime SpotifyLastRefresh { get; set; }
+        [PersonalData] public bool SpotifyIsLinked { get; set; }
+        [PersonalData] public DateTime SpotifyLastRefresh { get; set; }
         public int SpotifyTokenExpiry { get; set; }
         public string SpotifyAccessToken { get; set; }
         public string SpotifyRefreshToken { get; set; }
 
-        [PersonalData]
-        public bool AppleMusicLinked { get; set; }
+        [PersonalData] public bool AppleMusicLinked { get; set; }
         public string AppleMusicKey { get; set; }
-        [PersonalData]
-        public DateTime AppleMusicLastRefresh { get; set; }
+        [PersonalData] public DateTime AppleMusicLastRefresh { get; set; }
 
-        [PersonalData]
-        public string LastFmUsername { get; set; }
-        [PersonalData]
-        public bool SaveScrobbles { get; set; }
+        [PersonalData] public string LastFmUsername { get; set; }
+        [PersonalData] public string LastFmPassword { get; set; }
+        [PersonalData] public bool SaveScrobbles { get; set; }
 
         public List<Watcher> Watchers { get; set; }
         public List<UserScrobble> Scrobbles { get; set; }
@@ -51,7 +44,8 @@ namespace Selector.Model
 
         public string LastFmUsername { get; set; }
 
-        public static explicit operator ApplicationUserDTO(ApplicationUser user) => new() {
+        public static explicit operator ApplicationUserDTO(ApplicationUser user) => new()
+        {
             Id = user.Id,
             UserName = user.UserName,
             Email = user.Email,

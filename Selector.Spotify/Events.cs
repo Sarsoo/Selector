@@ -5,18 +5,18 @@ namespace Selector.Spotify
 {
     public class SpotifyListeningChangeEventArgs : ListeningChangeEventArgs
     {
-        public CurrentlyPlayingContext Previous { get; set; }
-        public CurrentlyPlayingContext Current { get; set; }
+        public CurrentlyPlayingContext? Previous { get; set; }
+        public required CurrentlyPlayingContext Current { get; set; }
 
         /// <summary>
         /// Spotify Username
         /// </summary>
-        public string SpotifyUsername { get; set; }
+        public required string SpotifyUsername { get; set; }
 
-        PlayerTimeline Timeline { get; set; }
+        public required PlayerTimeline Timeline { get; set; }
 
-        public static SpotifyListeningChangeEventArgs From(CurrentlyPlayingContext previous,
-            CurrentlyPlayingContext current, PlayerTimeline timeline, string id = null, string username = null)
+        public static SpotifyListeningChangeEventArgs From(CurrentlyPlayingContext? previous,
+            CurrentlyPlayingContext current, PlayerTimeline timeline, string id, string username)
         {
             return new SpotifyListeningChangeEventArgs()
             {
@@ -31,29 +31,30 @@ namespace Selector.Spotify
 
     public class PlaylistChangeEventArgs : EventArgs
     {
-        public FullPlaylist Previous { get; set; }
-        public FullPlaylist Current { get; set; }
+        public FullPlaylist? Previous { get; set; }
+        public required FullPlaylist Current { get; set; }
 
         /// <summary>
         /// Spotify Username
         /// </summary>
-        public string SpotifyUsername { get; set; }
+        public required string SpotifyUsername { get; set; }
 
         /// <summary>
         /// String Id for watcher, used to hold user Db Id
         /// </summary>
         /// <value></value>
-        public string Id { get; set; }
+        public required string Id { get; set; }
 
-        Timeline<FullPlaylist> Timeline { get; set; }
-        ICollection<PlaylistTrack<IPlayableItem>> CurrentTracks { get; set; }
-        ICollection<PlaylistTrack<IPlayableItem>> AddedTracks { get; set; }
-        ICollection<PlaylistTrack<IPlayableItem>> RemovedTracks { get; set; }
+        public required Timeline<FullPlaylist> Timeline { get; set; }
+        private ICollection<PlaylistTrack<IPlayableItem>>? CurrentTracks { get; set; }
+        private ICollection<PlaylistTrack<IPlayableItem>>? AddedTracks { get; set; }
+        private ICollection<PlaylistTrack<IPlayableItem>>? RemovedTracks { get; set; }
 
         public static PlaylistChangeEventArgs From(FullPlaylist previous, FullPlaylist current,
-            Timeline<FullPlaylist> timeline, ICollection<PlaylistTrack<IPlayableItem>> tracks = null,
-            ICollection<PlaylistTrack<IPlayableItem>> addedTracks = null,
-            ICollection<PlaylistTrack<IPlayableItem>> removedTracks = null, string id = null, string username = null)
+            Timeline<FullPlaylist> timeline, string id, string username,
+            ICollection<PlaylistTrack<IPlayableItem>>? tracks = null,
+            ICollection<PlaylistTrack<IPlayableItem>>? addedTracks = null,
+            ICollection<PlaylistTrack<IPlayableItem>>? removedTracks = null)
         {
             return new PlaylistChangeEventArgs()
             {

@@ -37,14 +37,17 @@ namespace Selector.Tests
             {
                 Url = link,
                 Content = content,
+                Name = "test"
             };
 
             var http = new HttpClient(httpHandlerMock.Object);
 
-            var webHook = new WebHook(watcherMock.Object, http, config);
+            var webHook = new WebHook(watcherMock.Object, http, config, logger: NullLogger<WebHook>.Instance);
 
             webHook.Subscribe();
-            watcherMock.Raise(w => w.ItemChange += null, this, new SpotifyListeningChangeEventArgs());
+            watcherMock.Raise(w => w.ItemChange += null, this,
+                new SpotifyListeningChangeEventArgs()
+                    { Id = "test", SpotifyUsername = "test", Current = null, Timeline = null });
 
             await Task.Delay(100);
 
@@ -74,6 +77,7 @@ namespace Selector.Tests
             {
                 Url = link,
                 Content = content,
+                Name = "test"
             };
 
             var http = new HttpClient(httpHandlerMock.Object);
@@ -89,7 +93,12 @@ namespace Selector.Tests
             webHook.FailedRequest += (o, e) => { failedEvent = !successful; };
 
             await (Task)typeof(WebHook).GetMethod("ProcessEvent", BindingFlags.NonPublic | BindingFlags.Instance)
-                .Invoke(webHook, new object[] { SpotifyListeningChangeEventArgs.From(new(), new(), new()) });
+                .Invoke(webHook,
+                    new object[]
+                    {
+                        SpotifyListeningChangeEventArgs.From(new(), new(), new() { EqualityChecker = null }, null,
+                            "test")
+                    });
 
             predicateEvent.Should().Be(predicate);
             successfulEvent.Should().Be(successful);

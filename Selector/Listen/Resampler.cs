@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Selector
+﻿namespace Selector
 {
     public record struct CountSample
     {
@@ -98,8 +94,8 @@ namespace Selector
                 }
 
                 while (sortedScrobblesIter.MoveNext()
-                       && sortedScrobblesIter.Current.Timestamp.Year == counter.Year
-                       && sortedScrobblesIter.Current.Timestamp.Month == counter.Month)
+                       && sortedScrobblesIter.Current?.Timestamp.Year == counter.Year
+                       && sortedScrobblesIter.Current?.Timestamp.Month == counter.Month)
                 {
                     count++;
                 }

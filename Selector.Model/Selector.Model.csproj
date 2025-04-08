@@ -4,6 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
     <LangVersion>latest</LangVersion>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 
   <ItemGroup>

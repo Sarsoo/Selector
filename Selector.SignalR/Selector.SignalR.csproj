@@ -2,20 +2,16 @@
 
   <PropertyGroup>
     <TargetFrameworks>net9.0</TargetFrameworks>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('OSX'))">$(TargetFrameworks);net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Selector.AppleMusic\Selector.AppleMusic.csproj"/>
     <ProjectReference Include="..\Selector.Spotify\Selector.Spotify.csproj"/>
     <ProjectReference Include="..\Selector\Selector.csproj" />
-    <!-- <ProjectReference Include="..\Selector.Model\Selector.Model.csproj" /> -->
   </ItemGroup>
-  <!-- <ItemGroup>
-    <None Remove="Microsoft.AspNetCore.SignalR.Client" />
-  </ItemGroup> -->
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.3"/>
   </ItemGroup>

@@ -17,42 +17,42 @@ namespace Selector.Mapping
     /// </summary>
     public abstract class ScrobbleMapping : IOperation
     {
-        private readonly ILogger<ScrobbleMapping> logger;
-        private readonly ISearchClient searchClient;
+        private readonly ILogger<ScrobbleMapping> _logger;
+        private readonly ISearchClient _searchClient;
 
-        public event EventHandler Success;
+        public event EventHandler? Success;
 
         public int MaxAttempts { get; private set; } = 5;
         public int Attempts { get; private set; }
 
-        private Task<SearchResponse> currentTask { get; set; }
+        private Task<SearchResponse>? CurrentTask { get; set; }
         public bool Succeeded { get; private set; } = false;
 
-        public abstract object Result { get; }
+        public abstract object? Result { get; }
         public abstract string Query { get; }
         public abstract SearchRequest.Types QueryType { get; }
 
         private TaskCompletionSource AggregateTaskSource { get; set; } = new();
         public Task Task => AggregateTaskSource.Task;
 
-        public ScrobbleMapping(ISearchClient _searchClient, ILogger<ScrobbleMapping> _logger)
+        public ScrobbleMapping(ISearchClient searchClient, ILogger<ScrobbleMapping> logger)
         {
-            logger = _logger;
-            searchClient = _searchClient;
+            _logger = logger;
+            _searchClient = searchClient;
         }
 
         public Task Execute()
         {
-            logger.LogInformation("Mapping Last.fm {} ({}) to Spotify", Query, QueryType);
+            _logger.LogInformation("Mapping Last.fm {} ({}) to Spotify", Query, QueryType);
 
             var netTime = Stopwatch.StartNew();
-            currentTask = searchClient.Item(new(QueryType, Query));
-            currentTask.ContinueWith(async t =>
+            CurrentTask = _searchClient.Item(new(QueryType, Query));
+            CurrentTask.ContinueWith(async t =>
             {
                 try
                 {
                     netTime.Stop();
-                    logger.LogTrace("Network request took {:n} ms", netTime.ElapsedMilliseconds);
+                    _logger.LogTrace("Network request took {:n} ms", netTime.ElapsedMilliseconds);
 
                     if (t.IsCompletedSuccessfully)
                     {
@@ -62,22 +62,23 @@ namespace Selector.Mapping
                     }
                     else
                     {
-                        if (t.Exception.InnerException is APITooManyRequestsException ex)
+                        if (t.Exception?.InnerException is APITooManyRequestsException ex)
                         {
-                            logger.LogError("Spotify search request too many requests, waiting for {}", ex.RetryAfter);
+                            _logger.LogError("Spotify search request too many requests, waiting for {}", ex.RetryAfter);
                             await Task.Delay(ex.RetryAfter.Add(TimeSpan.FromSeconds(1)));
                             await Execute();
                         }
                         else
                         {
-                            logger.LogError("Spotify search request task faulted, {}", t.Exception);
-                            AggregateTaskSource.SetException(t.Exception);
+                            _logger.LogError("Spotify search request task faulted, {}", t.Exception);
+                            if (t.Exception != null) AggregateTaskSource.SetException(t.Exception);
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, "Error while mapping Last.fm {} ({}) to Spotify on attempt {}", Query, QueryType,
+                    _logger.LogError(e, "Error while mapping Last.fm {} ({}) to Spotify on attempt {}", Query,
+                        QueryType,
                         Attempts);
                     Succeeded = false;
                 }
@@ -92,7 +93,7 @@ namespace Selector.Mapping
         protected virtual void OnSuccess()
         {
             // Raise the event in a thread-safe manner using the ?. operator.
-            Success?.Invoke(this, new EventArgs());
+            Success?.Invoke(this, EventArgs.Empty);
         }
     }
 }

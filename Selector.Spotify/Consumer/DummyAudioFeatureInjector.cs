@@ -4,6 +4,7 @@ using SpotifyAPI.Web;
 
 namespace Selector.Spotify.Consumer
 {
+    [Obsolete]
     public class DummyAudioFeatureInjector : AudioFeatureInjector
     {
         private TrackAudioFeatures[] _features = new[]
@@ -33,7 +34,7 @@ namespace Selector.Spotify.Consumer
 
         public DummyAudioFeatureInjector(
             ISpotifyPlayerWatcher watcher,
-            ILogger<DummyAudioFeatureInjector> logger = null,
+            ILogger<DummyAudioFeatureInjector> logger,
             CancellationToken token = default
         ) : base(watcher, null, logger, token)
         {

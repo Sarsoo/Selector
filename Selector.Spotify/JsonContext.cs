@@ -5,7 +5,7 @@ namespace Selector.Spotify
 {
     [JsonSerializable(typeof(SpotifyCurrentlyPlayingDTO))]
     [JsonSerializable(typeof(TrackAudioFeatures))]
-    [JsonSerializable(typeof(SpotifyListeningChangeEventArgs))]
+    // [JsonSerializable(typeof(SpotifyListeningChangeEventArgs))]
     public partial class SpotifyJsonContext : JsonSerializerContext
     {
     }

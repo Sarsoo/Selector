@@ -5,15 +5,15 @@ namespace Selector
     public class Scrobble : IListen
     {
         public DateTime Timestamp { get; set; }
-        public string? TrackName { get; set; }
-        public string? AlbumName { get; set; }
+        public required string TrackName { get; set; }
+        public required string AlbumName { get; set; }
 
         /// <summary>
         /// Not populated by default from the service, where not the same as <see cref="ArtistName"/> these have been manually entered
         /// </summary>
         public string? AlbumArtistName { get; set; }
 
-        public string? ArtistName { get; set; }
+        public required string ArtistName { get; set; }
 
         public static explicit operator Scrobble(LastTrack track) => new()
         {

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Selector.AppleMusic.Model;
 using Selector.AppleMusic.Watcher;
 
@@ -26,6 +27,7 @@ public class AppleTimeline : Timeline<AppleMusicCurrentlyPlayingContext>
         {
             Recent.AddRange(items.Select(x =>
                 TimelineItem<AppleMusicCurrentlyPlayingContext>.From(x, DateTime.UtcNow)));
+            Recent.ForEach(x => x.Item.Scrobbled = true);
             return newItems;
         }
 
@@ -37,21 +39,28 @@ public class AppleTimeline : Timeline<AppleMusicCurrentlyPlayingContext>
             return newItems;
         }
 
-        var (found, startIdx) = Loop(items, 0);
-
-        TimelineItem<AppleMusicCurrentlyPlayingContext>? popped = null;
-        if (found == 0)
+        var dict = new ConcurrentDictionary<int, (int, int)>();
+        Parallel.ForEach(Enumerable.Range(0, 3), idx =>
         {
-            var (foundOffseted, startIdxOffseted) = Loop(items, 1);
+            var (found, startIdx) = Loop(items, idx);
+            dict.TryAdd(idx, (found, startIdx));
+        });
 
-            if (foundOffseted > found)
+        int maxFound = dict[0].Item1;
+        int storedIdx = 0;
+        int startIdx = dict[0].Item2;
+        foreach (var item in dict)
+        {
+            if (item.Value.Item1 > maxFound)
             {
-                popped = Recent[^1];
-                Recent.RemoveAt(Recent.Count - 1);
-
-                startIdx = startIdxOffseted;
+                storedIdx = item.Key;
+                maxFound = item.Value.Item1;
+                startIdx = item.Value.Item2;
             }
         }
+
+        var popped = new List<AppleMusicCurrentlyPlayingContext>();
+        popped.AddRange(Recent.TakeLast(storedIdx).Select(x => x.Item));
 
         foreach (var item in items.TakeLast(startIdx))
         {
@@ -59,12 +68,15 @@ public class AppleTimeline : Timeline<AppleMusicCurrentlyPlayingContext>
             Recent.Add(TimelineItem<AppleMusicCurrentlyPlayingContext>.From(item, DateTime.UtcNow));
         }
 
-        if (popped is not null)
+        if (popped.Any())
         {
-            var idx = newItems.FindIndex(x => x.Track.Id == popped.Item.Track.Id);
-            if (idx >= 0)
+            foreach (var item in popped)
             {
-                newItems.RemoveAt(idx);
+                var idx = newItems.FindIndex(x => x.Track.Id == item.Track.Id);
+                if (idx >= 0)
+                {
+                    newItems.RemoveAt(idx);
+                }
             }
         }
 
@@ -116,7 +128,7 @@ public class AppleTimeline : Timeline<AppleMusicCurrentlyPlayingContext>
             {
                 // good, keep going
                 found++;
-                if (found >= 3)
+                if (found >= 4)
                 {
                     stop = true;
                     break;

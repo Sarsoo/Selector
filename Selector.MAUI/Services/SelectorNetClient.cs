@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Selector.SignalR;
@@ -45,11 +44,12 @@ public class SelectorNetClient : ISelectorNetClient
         ArgumentNullException.ThrowIfNullOrEmpty(username);
         ArgumentNullException.ThrowIfNullOrEmpty(password);
 
-        var result = await _client.PostAsync(_baseUrl + "/api/auth/token", new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "Username", username },
-            { "Password", password }
-        }));
+        var result = await _client.PostAsync(_baseUrl + "/api/auth/token", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                { "Username", username },
+                { "Password", password }
+            }));
 
         return FormTokenResponse(result);
     }
@@ -86,7 +86,7 @@ public class SelectorNetClient : ISelectorNetClient
                 break;
             case HttpStatusCode.OK:
                 ret.Status = TokenResponseStatus.OK;
-                ret.Token = result.Content.ReadFromJsonAsync<TokenNetworkResponse>().Result.Token;
+                ret.Token = result.Content.ReadFromJsonAsync(MauiJsonContext.Default.TokenNetworkResponse).Result.Token;
                 _nowClient.Token = ret.Token;
                 _pastClient.Token = ret.Token;
                 break;
@@ -110,7 +110,11 @@ public class SelectorNetClient : ISelectorNetClient
 
     public enum TokenResponseStatus
     {
-        Malformed, UserSearchFailed, BadCreds, ExpiredCreds, OK
+        Malformed,
+        UserSearchFailed,
+        BadCreds,
+        ExpiredCreds,
+        OK
     }
 
     private class TokenModel

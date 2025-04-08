@@ -8,8 +8,8 @@ public static class ServiceExtensions
 {
     public static IServiceCollection AddConsumerFactories(this IServiceCollection services)
     {
-        services.AddTransient<IAudioFeatureInjectorFactory, AudioFeatureInjectorFactory>();
-        services.AddTransient<AudioFeatureInjectorFactory>();
+        // services.AddTransient<IAudioFeatureInjectorFactory, AudioFeatureInjectorFactory>();
+        // services.AddTransient<AudioFeatureInjectorFactory>();
 
         services.AddTransient<IPlayCounterFactory, PlayCounterFactory>();
         services.AddTransient<PlayCounterFactory>();

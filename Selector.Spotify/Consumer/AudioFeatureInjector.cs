@@ -18,9 +18,9 @@ namespace Selector.Spotify.Consumer
         public AnalysedTrackTimeline Timeline { get; set; } = new();
 
         public AudioFeatureInjector(
-            ISpotifyPlayerWatcher watcher,
+            ISpotifyPlayerWatcher? watcher,
             ITracksClient trackClient,
-            ILogger<AudioFeatureInjector> logger = null,
+            ILogger<AudioFeatureInjector> logger,
             CancellationToken token = default
         ) : base(watcher, logger)
         {
@@ -58,12 +58,12 @@ namespace Selector.Spotify.Consumer
                 catch (APITooManyRequestsException ex)
                 {
                     Logger.LogDebug("Too many requests error: [{message}]", ex.Message);
-                    throw ex;
+                    throw;
                 }
                 catch (APIException ex)
                 {
                     Logger.LogDebug("API error: [{message}]", ex.Message);
-                    throw ex;
+                    throw;
                 }
             }
             else if (e.Current.Item is FullEpisode episode)

@@ -12,6 +12,7 @@ using Xunit;
 
 namespace Selector.Tests
 {
+    [Obsolete]
     public class AudioInjectorTests
     {
         [Fact]
@@ -20,7 +21,8 @@ namespace Selector.Tests
             var watcherMock = new Mock<ISpotifyPlayerWatcher>();
             var spotifyMock = new Mock<ITracksClient>();
 
-            var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object);
+            var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object,
+                NullLogger<AudioFeatureInjector>.Instance);
 
             featureInjector.Subscribe();
 
@@ -33,7 +35,8 @@ namespace Selector.Tests
             var watcherMock = new Mock<ISpotifyPlayerWatcher>();
             var spotifyMock = new Mock<ITracksClient>();
 
-            var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object);
+            var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object,
+                NullLogger<AudioFeatureInjector>.Instance);
 
             featureInjector.Unsubscribe();
 
@@ -47,7 +50,8 @@ namespace Selector.Tests
             var watcherFuncArgMock = new Mock<ISpotifyPlayerWatcher>();
             var spotifyMock = new Mock<ITracksClient>();
 
-            var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object);
+            var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object,
+                NullLogger<AudioFeatureInjector>.Instance);
 
             featureInjector.Subscribe(watcherFuncArgMock.Object);
 
@@ -63,7 +67,8 @@ namespace Selector.Tests
             var watcherFuncArgMock = new Mock<ISpotifyPlayerWatcher>();
             var spotifyMock = new Mock<ITracksClient>();
 
-            var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object);
+            var featureInjector = new AudioFeatureInjector(watcherMock.Object, spotifyMock.Object,
+                NullLogger<AudioFeatureInjector>.Instance);
 
             featureInjector.Unsubscribe(watcherFuncArgMock.Object);
 

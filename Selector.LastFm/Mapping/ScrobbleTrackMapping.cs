@@ -9,16 +9,16 @@ namespace Selector.Mapping
         public string TrackName { get; set; }
         public string ArtistName { get; set; }
 
-        public ScrobbleTrackMapping(ISearchClient _searchClient, ILogger<ScrobbleTrackMapping> _logger,
-            string trackName, string artistName) : base(_searchClient, _logger)
+        public ScrobbleTrackMapping(ISearchClient searchClient, ILogger<ScrobbleTrackMapping> logger,
+            string trackName, string artistName) : base(searchClient, logger)
         {
             TrackName = trackName;
             ArtistName = artistName;
         }
 
-        private FullTrack result;
-        public FullTrack Track => result;
-        public override object Result => result;
+        private FullTrack? _result;
+        public FullTrack? Track => _result;
+        public override object? Result => _result;
 
         public override string Query => $"{TrackName} {ArtistName}";
 
@@ -26,13 +26,13 @@ namespace Selector.Mapping
 
         public override void HandleResponse(Task<SearchResponse> response)
         {
-            var topResult = response.Result.Tracks.Items.FirstOrDefault();
+            var topResult = response.Result.Tracks.Items?.FirstOrDefault();
 
             if (topResult is not null
                 && topResult.Name.Equals(TrackName, StringComparison.InvariantCultureIgnoreCase)
                 && topResult.Artists.First().Name.Equals(ArtistName, StringComparison.InvariantCultureIgnoreCase))
             {
-                result = topResult;
+                _result = topResult;
             }
         }
     }

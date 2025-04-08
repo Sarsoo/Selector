@@ -12,15 +12,15 @@ public static class ServiceExtensions
         services.AddTransient<LastAuth>(sp => new LastAuth(client, secret));
         services.AddTransient(sp => new LastfmClient(sp.GetService<LastAuth>()));
 
-        services.AddTransient<ITrackApi>(sp => sp.GetService<LastfmClient>().Track);
-        services.AddTransient<IAlbumApi>(sp => sp.GetService<LastfmClient>().Album);
-        services.AddTransient<IArtistApi>(sp => sp.GetService<LastfmClient>().Artist);
+        services.AddTransient<ITrackApi>(sp => sp.GetRequiredService<LastfmClient>().Track);
+        services.AddTransient<IAlbumApi>(sp => sp.GetRequiredService<LastfmClient>().Album);
+        services.AddTransient<IArtistApi>(sp => sp.GetRequiredService<LastfmClient>().Artist);
 
-        services.AddTransient<IUserApi>(sp => sp.GetService<LastfmClient>().User);
+        services.AddTransient<IUserApi>(sp => sp.GetRequiredService<LastfmClient>().User);
 
-        services.AddTransient<IChartApi>(sp => sp.GetService<LastfmClient>().Chart);
-        services.AddTransient<ILibraryApi>(sp => sp.GetService<LastfmClient>().Library);
-        services.AddTransient<ITagApi>(sp => sp.GetService<LastfmClient>().Tag);
+        services.AddTransient<IChartApi>(sp => sp.GetRequiredService<LastfmClient>().Chart);
+        services.AddTransient<ILibraryApi>(sp => sp.GetRequiredService<LastfmClient>().Library);
+        services.AddTransient<ITagApi>(sp => sp.GetRequiredService<LastfmClient>().Tag);
 
         services.AddTransient<IScrobbler, MemoryScrobbler>();
 

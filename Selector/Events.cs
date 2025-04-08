@@ -1,5 +1,3 @@
-using System;
-
 namespace Selector;
 
 public class ListeningChangeEventArgs : EventArgs
@@ -8,5 +6,5 @@ public class ListeningChangeEventArgs : EventArgs
     /// String Id for watcher, used to hold user Db Id
     /// </summary>
     /// <value></value>
-    public string Id { get; set; }
+    public required string Id { get; set; }
 }

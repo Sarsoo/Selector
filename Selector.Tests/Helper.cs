@@ -154,9 +154,12 @@ namespace Selector.Tests
         {
             return new()
             {
-                Track = new Track()
+                Track = new Track
                 {
-                    Id = id
+                    Id = id,
+                    Type = "track",
+                    Href = null,
+                    Attributes = null,
                 }
             };
         }

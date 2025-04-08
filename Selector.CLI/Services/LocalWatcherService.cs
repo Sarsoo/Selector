@@ -134,15 +134,15 @@ namespace Selector.CLI
                     {
                         switch (consumer)
                         {
-                            case Consumers.AudioFeatures:
-                                consumers.Add(await ServiceProvider.GetService<AudioFeatureInjectorFactory>()
-                                    .Get(spotifyFactory));
-                                break;
+                            // case Consumers.AudioFeatures:
+                            //     consumers.Add(await ServiceProvider.GetService<AudioFeatureInjectorFactory>()
+                            //         .Get(spotifyFactory));
+                            //     break;
 
-                            case Consumers.AudioFeaturesCache:
-                                consumers.Add(await ServiceProvider.GetService<CachingAudioFeatureInjectorFactory>()
-                                    .Get(spotifyFactory));
-                                break;
+                            // case Consumers.AudioFeaturesCache:
+                            //     consumers.Add(await ServiceProvider.GetService<CachingAudioFeatureInjectorFactory>()
+                            //         .Get(spotifyFactory));
+                            //     break;
 
                             case Consumers.CacheWriter:
                                 if (watcher is ISpotifyPlayerWatcher or IPlaylistWatcher)
