@@ -141,28 +141,28 @@ jobs:
         uses: Noelware/docker-manifest-action@master # or use a pinned version in the Releases tab
         with:
             inputs: sarsoo/selector-cli:latest
-            images: sarsoo/selector-cli:latest-amd64,sarsoo/selector-cli:latest-arm64
+            tags: sarsoo/selector-cli:latest-amd64,sarsoo/selector-cli:latest-arm64
             push: true
 
       - name: Create and push manifest images
         uses: Noelware/docker-manifest-action@master # or use a pinned version in the Releases tab
         with:
             inputs: sarsoo/selector-cli:${{ github.ref_name }}
-            images: sarsoo/selector-cli:${{ github.ref_name }}-amd64,sarsoo/selector-cli:${{ github.ref_name }}-arm64
+            tags: sarsoo/selector-cli:${{ github.ref_name }}-amd64,sarsoo/selector-cli:${{ github.ref_name }}-arm64
             push: true
 
       - name: Create and push manifest images
         uses: Noelware/docker-manifest-action@master # or use a pinned version in the Releases tab
         with:
             inputs: sarsoo/selector-web:latest
-            images: sarsoo/selector-web:latest-amd64,sarsoo/selector-web:latest-arm64
+            tags: sarsoo/selector-web:latest-amd64,sarsoo/selector-web:latest-arm64
             push: true
 
       - name: Create and push manifest images
         uses: Noelware/docker-manifest-action@master # or use a pinned version in the Releases tab
         with:
             inputs: sarsoo/selector-web:${{ github.ref_name }}
-            images: sarsoo/selector-web:${{ github.ref_name }}-amd64,sarsoo/selector-web:${{ github.ref_name }}-arm64
+            tags: sarsoo/selector-web:${{ github.ref_name }}-amd64,sarsoo/selector-web:${{ github.ref_name }}-arm64
             push: true
 
   deploy:
