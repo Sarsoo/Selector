@@ -27,7 +27,7 @@ public class AppleTimeline : Timeline<AppleMusicCurrentlyPlayingContext>
         {
             Recent.AddRange(items.Select(x =>
                 TimelineItem<AppleMusicCurrentlyPlayingContext>.From(x, DateTime.UtcNow)));
-            Recent.ForEach(x => x.Item.Scrobbled = true);
+            Recent.ForEach(x => x.Item.ScrobbleIgnored = true);
             return newItems;
         }
 

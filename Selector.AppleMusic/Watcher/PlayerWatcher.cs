@@ -113,6 +113,7 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
                 Track = Live.Track,
                 FirstSeen = Live.FirstSeen,
                 Scrobbled = Live.Scrobbled,
+                ScrobbleIgnored = Live.ScrobbleIgnored,
             };
         }
         else
@@ -124,6 +125,7 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
                     Track = recentlyPlayedTracks.Data.First(),
                     FirstSeen = DateTime.UtcNow,
                     Scrobbled = false,
+                    ScrobbleIgnored = false,
                 };
             }
         }

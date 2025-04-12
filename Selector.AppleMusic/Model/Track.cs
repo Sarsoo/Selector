@@ -12,7 +12,7 @@ public class TrackAttributes
 
     //TODO: Artwork
     public required Artwork Artwork { get; set; }
-    public required string ComposerName { get; set; }
+    public string? ComposerName { get; set; }
     public required string Url { get; set; }
     public required PlayParams PlayParams { get; set; }
     public int DiscNumber { get; set; }

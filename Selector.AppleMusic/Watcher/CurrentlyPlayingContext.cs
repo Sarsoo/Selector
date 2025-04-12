@@ -7,6 +7,9 @@ public class AppleMusicCurrentlyPlayingContext
     public DateTime FirstSeen { get; set; }
     public required Track Track { get; set; }
     public bool Scrobbled { get; set; }
+    public bool ScrobbleIgnored { get; set; }
+
+    public bool ToScrobble => !Scrobbled && !ScrobbleIgnored;
 }
 
 public class AppleMusicCurrentlyPlayingContextComparer : IEqualityComparer<AppleMusicCurrentlyPlayingContext>

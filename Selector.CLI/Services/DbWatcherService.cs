@@ -71,8 +71,8 @@ namespace Selector.CLI
             foreach (var dbWatcher in db.Watcher
                          .Include(w => w.User)
                          .Where(w =>
-                             // ((w.Type == WatcherType.SpotifyPlayer || w.Type == WatcherType.SpotifyPlaylist) &&
-                             //  !string.IsNullOrWhiteSpace(w.User.SpotifyRefreshToken)) ||
+                             ((w.Type == WatcherType.SpotifyPlayer || w.Type == WatcherType.SpotifyPlaylist) &&
+                              !string.IsNullOrWhiteSpace(w.User.SpotifyRefreshToken)) ||
                              (w.Type == WatcherType.AppleMusicPlayer && w.User.AppleMusicLinked)
                          ))
             {
@@ -149,17 +149,17 @@ namespace Selector.CLI
 
                     if (userEventFirerFactory is not null) consumers.Add(await userEventFirerFactory.GetApple());
 
-                    // if (dbWatcher.User.LastFmConnected() && !string.IsNullOrWhiteSpace(dbWatcher.User.LastFmPassword))
-                    // {
-                    //     var scrobbler = await scrobblerFactory.Get();
-                    //     await scrobbler.Auth(dbWatcher.User.LastFmUsername, dbWatcher.User.LastFmPassword);
-                    //     consumers.Add(scrobbler);
-                    // }
-                    // else
-                    // {
-                    //     logger.LogDebug("[{username}] No Last.fm username/password, skipping scrobbler",
-                    //         dbWatcher.User.UserName);
-                    // }
+                    if (dbWatcher.User.LastFmConnected() && !string.IsNullOrWhiteSpace(dbWatcher.User.LastFmPassword))
+                    {
+                        var scrobbler = await scrobblerFactory.Get();
+                        await scrobbler.Auth(dbWatcher.User.LastFmUsername, dbWatcher.User.LastFmPassword);
+                        consumers.Add(scrobbler);
+                    }
+                    else
+                    {
+                        logger.LogDebug("[{username}] No Last.fm username/password, skipping scrobbler",
+                            dbWatcher.User.UserName);
+                    }
 
                     break;
             }

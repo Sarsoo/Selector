@@ -2,6 +2,7 @@ using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Objects;
 using IF.Lastfm.Core.Scrobblers;
 using Microsoft.Extensions.Logging;
+using Selector.AppleMusic.Watcher;
 
 namespace Selector.AppleMusic.Consumer;
 
@@ -41,24 +42,56 @@ public class AppleMusicScrobbler :
         }
     }
 
+    private async Task SendCached()
+    {
+        Logger.LogInformation("Sending any cached Apple Music scrobbles");
+        var response = await _scrobbler.SendCachedScrobblesAsync();
+        if (response.Success)
+        {
+            Logger.LogInformation("Sent [{}] cached Apple Music scrobbles", response.AcceptedCount);
+        }
+        else
+        {
+            Logger.LogError(response.Exception, "Failed to send cached Apple Music scrobbles");
+        }
+    }
+
     protected override async Task ProcessEvent(AppleListeningChangeEventArgs e)
     {
         await _lock.WaitAsync(CancelToken);
 
         try
         {
-            var lastScrobbled = e.Timeline.LastOrDefault(t => t.Item.Scrobbled);
-            var toScrobble = e.Timeline.Where(e => !e.Item.Scrobbled).ToList();
+            await SendCached();
 
-            Logger.LogInformation("Sending any cached Apple Music scrobbles");
-            var response = await _scrobbler.SendCachedScrobblesAsync();
-            if (response.Success)
+            var lastScrobbled = e.Timeline.LastOrDefault(t => !t.Item.ToScrobble);
+            var hourAgo = DateTimeOffset.UtcNow - TimeSpan.FromHours(1);
+            var unScrobbled = e.Timeline
+                .Where(i =>
+                    i.Item.ToScrobble
+                    && i.Item.FirstSeen < hourAgo)
+                .ToList();
+
+            var lastThreeHours = DateTimeOffset.UtcNow - TimeSpan.FromHours(4);
+            var alreadyProcessed = e.Timeline
+                .Where(x =>
+                    !x.Item.ToScrobble
+                    && x.Item.FirstSeen > lastThreeHours
+                    && x.Item.FirstSeen < hourAgo)
+                .Select(x => x.Item.Track.Id)
+                .ToArray();
+            var toScrobble = new List<TimelineItem<AppleMusicCurrentlyPlayingContext>>();
+            foreach (var u in unScrobbled)
             {
-                Logger.LogInformation("Sent [{}] cached Apple Music scrobbles", response.AcceptedCount);
-            }
-            else
-            {
-                Logger.LogError(response.Exception, "Failed to send cached Apple Music scrobbles");
+                if (!alreadyProcessed.Contains(u.Item.Track.Id))
+                {
+                    toScrobble.Add(u);
+                }
+                else
+                {
+                    u.Item.ScrobbleIgnored = true;
+                    Logger.LogInformation("Ignored [{}], been scrobbled in the last three hours", u.Item.Track);
+                }
             }
 
             if (!toScrobble.Any()) return;
@@ -103,11 +136,11 @@ public class AppleMusicScrobbler :
 
             if (scrobbleResponse.Success)
             {
-                Logger.LogInformation("Sent [{}] Apple Music scrobbles", response.AcceptedCount);
+                Logger.LogInformation("Sent [{}] Apple Music scrobbles", scrobbleResponse.AcceptedCount);
             }
             else
             {
-                Logger.LogError(response.Exception, "Failed to send Apple Music scrobbles, ignored [{}]",
+                Logger.LogError(scrobbleResponse.Exception, "Failed to send Apple Music scrobbles, ignored [{}]",
                     string.Join(", ", scrobbleResponse.Ignored));
             }
         }
