@@ -10,6 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Selector.Cache.Extensions;
 using Selector.Events;
 using Selector.Extensions;
@@ -38,6 +41,10 @@ namespace Selector.Web
             services.Configure<RedisOptions>(options =>
             {
                 Configuration.GetSection(string.Join(':', RootOptions.Key, RedisOptions.Key)).Bind(options);
+            });
+            services.Configure<TracingOptions>(options =>
+            {
+                Configuration.GetSection(string.Join(':', RootOptions.Key, TracingOptions.Key)).Bind(options);
             });
             services.Configure<NowPlayingOptions>(options =>
             {
@@ -75,6 +82,31 @@ namespace Selector.Web
             services.AddControllers();
             services.AddSignalR(o => o.EnableDetailedErrors = true);
             services.AddHttpClient();
+
+            var tracing = Configuration.GetSection(TracingOptions.Key).Get<TracingOptions>();
+            if (!string.IsNullOrWhiteSpace(tracing.Endpoint))
+            {
+                Console.WriteLine("> Adding OTel Tracing...");
+                services.AddOpenTelemetry()
+                    .ConfigureResource(resource => resource.AddService(tracing.ServiceName))
+                    .WithTracing(b =>
+                    {
+                        b.AddHttpClientInstrumentation()
+                            .AddEntityFrameworkCoreInstrumentation()
+                            .AddRedisInstrumentation()
+                            .AddAspNetCoreInstrumentation()
+                            .AddOtlpExporter(options =>
+                            {
+                                options.Endpoint = new Uri(tracing.Endpoint);
+                                options.Protocol = OtlpExportProtocol.HttpProtobuf;
+                            });
+
+                        foreach (var source in tracing.Sources)
+                        {
+                            b.AddSource(source);
+                        }
+                    });
+            }
 
             ConfigureDB(services, config);
             ConfigureIdentity(services, config);

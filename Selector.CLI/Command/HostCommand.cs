@@ -1,10 +1,14 @@
 ﻿using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Selector.AppleMusic.Extensions;
 using Selector.Cache.Extensions;
 using Selector.CLI.Extensions;
@@ -75,7 +79,7 @@ namespace Selector.CLI
                 OptionsHelper.ConfigureOptions(options, context.Configuration);
             });
 
-            var config = OptionsHelper.ConfigureOptions(context.Configuration);
+            var config = context.Configuration.ConfigureOptions();
 
             services.Configure<SpotifyAppCredentials>(options =>
             {
@@ -107,6 +111,31 @@ namespace Selector.CLI
             {
                 Console.WriteLine("> Adding caching consumers...");
                 services.AddCachingConsumerFactories();
+            }
+
+            var tracing = context.Configuration.GetSection(TracingOptions.Key).Get<TracingOptions>();
+            if (!string.IsNullOrWhiteSpace(tracing.Endpoint))
+            {
+                Console.WriteLine("> Adding OTel Tracing...");
+                services.AddOpenTelemetry()
+                    .ConfigureResource(resource => resource.AddService(tracing.ServiceName))
+                    .WithTracing(b =>
+                    {
+                        b.AddHttpClientInstrumentation()
+                            .AddEntityFrameworkCoreInstrumentation()
+                            .AddRedisInstrumentation()
+                            .AddQuartzInstrumentation()
+                            .AddOtlpExporter(options =>
+                            {
+                                options.Endpoint = new Uri(tracing.Endpoint);
+                                options.Protocol = OtlpExportProtocol.HttpProtobuf;
+                            });
+
+                        foreach (var source in tracing.Sources)
+                        {
+                            b.AddSource(source);
+                        }
+                    });
             }
 
             services.AddWatcher()

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Selector.Extensions;
 using Selector.Spotify.Timeline;
@@ -53,6 +54,10 @@ namespace Selector.Spotify.Watcher
         {
             token.ThrowIfCancellationRequested();
 
+            using var span = Trace.Tracer.StartActivity();
+            span?.AddTag("id", Id);
+            span?.AddTag("spotify_username", SpotifyUsername);
+
             try
             {
                 Logger.LogTrace("Making Spotify call");
@@ -63,32 +68,46 @@ namespace Selector.Spotify.Watcher
 
                 Logger.LogTrace("Received Spotify call");
 
-                if (polledCurrent != null) StoreCurrentPlaying(polledCurrent);
+                if (polledCurrent != null)
+                {
+                    span?.AddEvent(new ActivityEvent(nameof(StoreCurrentPlaying)));
+                    StoreCurrentPlaying(polledCurrent);
+                }
 
                 // swap new item into live and bump existing down to previous
                 Previous = Live;
                 Live = polledCurrent;
 
+                span?.AddEvent(new ActivityEvent(nameof(OnNetworkPoll)));
                 OnNetworkPoll(GetEvent());
 
+                span?.AddEvent(new ActivityEvent(nameof(CheckPlaying)));
                 CheckPlaying();
+                span?.AddEvent(new ActivityEvent(nameof(CheckContext)));
                 CheckContext();
+                span?.AddEvent(new ActivityEvent(nameof(CheckItem)));
                 CheckItem();
+                span?.AddEvent(new ActivityEvent(nameof(CheckDevice)));
                 CheckDevice();
+
+                span?.SetStatus(ActivityStatusCode.Ok);
             }
             catch (APIUnauthorizedException e)
             {
+                span?.SetStatus(ActivityStatusCode.Error, "Unauthorised error");
                 Logger.LogInformation("Unauthorised error: [{message}] (should be refreshed and retried?)", e.Message);
                 //throw e;
             }
             catch (APITooManyRequestsException e)
             {
+                span?.SetStatus(ActivityStatusCode.Error, "Too many requests");
                 Logger.LogInformation("Too many requests error: [{message}]", e.Message);
                 await Task.Delay(e.RetryAfter, token);
                 // throw e;
             }
             catch (APIException e)
             {
+                span?.SetStatus(ActivityStatusCode.Error, "API error");
                 Logger.LogInformation("API error: [{message}]", e.Message);
                 // throw e;
             }
@@ -96,6 +115,8 @@ namespace Selector.Spotify.Watcher
 
         protected void CheckItem()
         {
+            using var span = Trace.Tracer.StartActivity();
+
             switch (Previous, Live)
             {
                 case (null or { Item: null }, { Item: FullTrack track }):
@@ -172,6 +193,8 @@ namespace Selector.Spotify.Watcher
 
         protected void CheckContext()
         {
+            using var span = Trace.Tracer.StartActivity();
+
             if ((Previous, Live)
                 is (null or { Context: null }, { Context: not null }))
             {
@@ -188,6 +211,8 @@ namespace Selector.Spotify.Watcher
 
         protected void CheckPlaying()
         {
+            using var span = Trace.Tracer.StartActivity();
+
             switch (Previous, Live)
             {
                 case (null, not null):
@@ -212,6 +237,8 @@ namespace Selector.Spotify.Watcher
 
         protected void CheckDevice()
         {
+            using var span = Trace.Tracer.StartActivity();
+
             // DEVICE
             if (!_eq.IsEqual(Previous?.Device, Live?.Device))
             {
@@ -238,6 +265,7 @@ namespace Selector.Spotify.Watcher
         /// <param name="current">New currently playing to store</param>
         protected void StoreCurrentPlaying(CurrentlyPlayingContext current)
         {
+            using var span = Trace.Tracer.StartActivity();
             Past?.Add(current);
         }
 
@@ -245,46 +273,55 @@ namespace Selector.Spotify.Watcher
 
         protected virtual void OnNetworkPoll(SpotifyListeningChangeEventArgs args)
         {
+            using var span = Trace.Tracer.StartActivity();
             NetworkPoll?.Invoke(this, args);
         }
 
         protected virtual void OnItemChange(SpotifyListeningChangeEventArgs args)
         {
+            using var span = Trace.Tracer.StartActivity();
             ItemChange?.Invoke(this, args);
         }
 
         protected virtual void OnAlbumChange(SpotifyListeningChangeEventArgs args)
         {
+            using var span = Trace.Tracer.StartActivity();
             AlbumChange?.Invoke(this, args);
         }
 
         protected virtual void OnArtistChange(SpotifyListeningChangeEventArgs args)
         {
+            using var span = Trace.Tracer.StartActivity();
             ArtistChange?.Invoke(this, args);
         }
 
         protected virtual void OnContextChange(SpotifyListeningChangeEventArgs args)
         {
+            using var span = Trace.Tracer.StartActivity();
             ContextChange?.Invoke(this, args);
         }
 
         protected virtual void OnContentChange(SpotifyListeningChangeEventArgs args)
         {
+            using var span = Trace.Tracer.StartActivity();
             ContentChange?.Invoke(this, args);
         }
 
         protected virtual void OnVolumeChange(SpotifyListeningChangeEventArgs args)
         {
+            using var span = Trace.Tracer.StartActivity();
             VolumeChange?.Invoke(this, args);
         }
 
         protected virtual void OnDeviceChange(SpotifyListeningChangeEventArgs args)
         {
+            using var span = Trace.Tracer.StartActivity();
             DeviceChange?.Invoke(this, args);
         }
 
         protected virtual void OnPlayingChange(SpotifyListeningChangeEventArgs args)
         {
+            using var span = Trace.Tracer.StartActivity();
             PlayingChange?.Invoke(this, args);
         }
 

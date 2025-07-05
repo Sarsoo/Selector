@@ -1,5 +1,4 @@
-﻿using System;
-namespace Selector
+﻿namespace Selector
 {
     public class NowPlayingOptions
     {
@@ -26,5 +25,13 @@ namespace Selector
         public TimeSpan ResampleWindow { get; set; } = TimeSpan.FromDays(7);
         public int RankingCount { get; set; } = 20;
     }
-}
 
+    public class TracingOptions
+    {
+        public const string Key = "Tracing";
+
+        public string? Endpoint { get; set; } = null;
+        public string ServiceName { get; set; } = "Selector-NOENV";
+        public IEnumerable<string> Sources { get; set; } = [];
+    }
+}

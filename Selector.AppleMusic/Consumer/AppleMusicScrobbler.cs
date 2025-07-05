@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Objects;
 using IF.Lastfm.Core.Scrobblers;
@@ -28,15 +29,20 @@ public class AppleMusicScrobbler :
     public async Task Auth(string lastfmUsername,
         string lastfmPassword)
     {
+        using var span = Trace.Tracer.StartActivity();
+        span?.AddTag("username", lastfmUsername);
+
         var response = await _lastClient.Auth.GetSessionTokenAsync(lastfmUsername, lastfmPassword);
 
         if (response.Success)
         {
+            span?.SetStatus(ActivityStatusCode.Ok);
             Logger.LogInformation("[{username}] Successfully authenticated to Last.fm for Apple Music scrobbling",
                 lastfmUsername);
         }
         else
         {
+            span?.SetStatus(ActivityStatusCode.Error, "Failed to authenticate to Last.fm for Apple Music scrobbling");
             Logger.LogError("[{username}] Failed to authenticate to Last.fm for Apple Music scrobbling ({})",
                 lastfmUsername, response.Status);
         }
@@ -44,6 +50,7 @@ public class AppleMusicScrobbler :
 
     private async Task SendCached()
     {
+        using var span = Trace.Tracer.StartActivity();
         Logger.LogInformation("Sending any cached Apple Music scrobbles");
         var response = await _scrobbler.SendCachedScrobblesAsync();
         if (response.Success)
@@ -58,6 +65,7 @@ public class AppleMusicScrobbler :
 
     protected override async Task ProcessEvent(AppleListeningChangeEventArgs e)
     {
+        using var span = Trace.Tracer.StartActivity();
         await _lock.WaitAsync(CancelToken);
 
         try

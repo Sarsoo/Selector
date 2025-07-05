@@ -45,6 +45,7 @@ public class AppleMusicApi(HttpClient client, string developerToken, string user
 
     public async Task<RecentlyPlayedTracksResponse?> GetRecentlyPlayedTracks()
     {
+        using var span = Trace.Tracer.StartActivity();
         var response = await MakeRequest(HttpMethod.Get, "/me/recent/played/tracks");
 
         CheckResponse(response);

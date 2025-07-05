@@ -34,12 +34,14 @@ namespace Selector.Operations
 
         private async void HandleSuccessfulRequest(object? o, EventArgs e)
         {
+            using var span = Trace.Tracer.StartActivity();
             await Task.Delay(interRequestDelay, _token);
             TransitionRequest();
         }
 
         private void TransitionRequest()
         {
+            using var span = Trace.Tracer.StartActivity();
             if (WaitingRequests.TryDequeue(out var request))
             {
                 request.Success += HandleSuccessfulRequest;
@@ -53,6 +55,7 @@ namespace Selector.Operations
 
         public async Task TriggerRequests(CancellationToken token)
         {
+            using var span = Trace.Tracer.StartActivity();
             foreach (var _ in Enumerable.Range(1, simultaneousRequests))
             {
                 TransitionRequest();

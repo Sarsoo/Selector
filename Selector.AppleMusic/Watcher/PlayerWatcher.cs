@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Selector.AppleMusic.Exceptions;
@@ -7,6 +8,8 @@ namespace Selector.AppleMusic.Watcher;
 
 public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
 {
+    public static ActivitySource Tracer { get; } = new(nameof(AppleMusicPlayerWatcher));
+
     private new readonly ILogger<AppleMusicPlayerWatcher> Logger;
     private readonly AppleMusicApi _appleMusicApi;
 
@@ -32,6 +35,9 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
     public override async Task WatchOne(CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
+
+        using var span = Trace.Tracer.StartActivity();
+        span?.AddTag("id", Id);
 
         try
         {
@@ -59,10 +65,12 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
             reversedItems.Reverse();
             var addedItems = Past.Add(reversedItems);
 
+            span?.AddEvent(new ActivityEvent(nameof(SetLive)));
             // swap new item into live and bump existing down to previous
             Previous = Live;
             SetLive(polledCurrent);
 
+            span?.AddEvent(new ActivityEvent(nameof(OnNetworkPoll)));
             OnNetworkPoll(GetEvent());
 
             if (currentPrevious != null && addedItems.Any())
@@ -70,33 +78,41 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
                 addedItems.Insert(0, currentPrevious);
                 foreach (var (first, second) in addedItems.Zip(addedItems.Skip(1)))
                 {
+                    span?.AddEvent(new ActivityEvent(nameof(OnItemChange)));
                     Logger.LogInformation("Track changed: {prevTrack} -> {currentTrack}", first.Track, second.Track);
                     OnItemChange(AppleListeningChangeEventArgs.From(first, second, Past, id: Id));
                 }
             }
+
+            span?.SetStatus(ActivityStatusCode.Ok);
         }
         catch (RateLimitException e)
         {
+            span?.SetStatus(ActivityStatusCode.Error, "Rate Limit exception");
             Logger.LogError(e, "Rate Limit exception");
             // throw;
         }
         catch (ForbiddenException e)
         {
+            span?.SetStatus(ActivityStatusCode.Error, "Forbidden exception");
             Logger.LogError(e, "Forbidden exception");
             // throw;
         }
         catch (ServiceException)
         {
+            span?.SetStatus(ActivityStatusCode.Error, "Apple Music internal error");
             Logger.LogInformation("Apple Music internal error");
             // throw;
         }
         catch (UnauthorisedException e)
         {
+            span?.SetStatus(ActivityStatusCode.Error, "Unauthorised exception");
             Logger.LogError(e, "Unauthorised exception");
             // throw;
         }
         catch (AppleMusicException e)
         {
+            span?.SetStatus(ActivityStatusCode.Error, e.StatusCode.ToString());
             Logger.LogInformation("Apple Music exception ({})", e.StatusCode);
             // throw;
         }
@@ -104,6 +120,8 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
 
     private void SetLive(RecentlyPlayedTracksResponse recentlyPlayedTracks)
     {
+        using var span = Trace.Tracer.StartActivity();
+
         var lastTrack = recentlyPlayedTracks.Data?.FirstOrDefault();
 
         if (Live is { Track: not null } && Live.Track.Id == lastTrack?.Id)
@@ -133,6 +151,8 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
 
     public override Task Reset()
     {
+        using var span = Trace.Tracer.StartActivity();
+
         Previous = null;
         Live = null;
         Past = new();
@@ -147,21 +167,25 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
 
     private void OnNetworkPoll(AppleListeningChangeEventArgs args)
     {
+        using var span = Trace.Tracer.StartActivity();
         NetworkPoll?.Invoke(this, args);
     }
 
     private void OnItemChange(AppleListeningChangeEventArgs args)
     {
+        using var span = Trace.Tracer.StartActivity();
         ItemChange?.Invoke(this, args);
     }
 
     protected void OnAlbumChange(AppleListeningChangeEventArgs args)
     {
+        using var span = Trace.Tracer.StartActivity();
         AlbumChange?.Invoke(this, args);
     }
 
     protected void OnArtistChange(AppleListeningChangeEventArgs args)
     {
+        using var span = Trace.Tracer.StartActivity();
         ArtistChange?.Invoke(this, args);
     }
 

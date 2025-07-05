@@ -1,14 +1,13 @@
-﻿using IF.Lastfm.Core.Api;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using IF.Lastfm.Core.Api;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Quartz;
 using Selector.Model;
 using Selector.Model.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Selector.CLI.Jobs
 {
@@ -32,7 +31,7 @@ namespace Selector.CLI.Jobs
             IScrobbleRepository _scrobbleRepo,
             ApplicationDbContext _db,
             IOptions<ScrobbleWatcherJobOptions> _options,
-            ILogger<ScrobbleWatcherJob> _logger, 
+            ILogger<ScrobbleWatcherJob> _logger,
             ILoggerFactory _loggerFactory)
         {
             logger = _logger;
@@ -46,6 +45,7 @@ namespace Selector.CLI.Jobs
 
         public async Task Execute(IJobExecutionContext context)
         {
+            using var span = Trace.Tracer.StartActivity();
             try
             {
                 logger.LogInformation("Starting scrobble watching job");
@@ -57,6 +57,7 @@ namespace Selector.CLI.Jobs
 
                 foreach (var user in users)
                 {
+                    using var userSpan = Trace.Tracer.StartActivity(nameof(Execute) + $" - {user.UserName}");
                     logger.LogInformation("Saving scrobbles for {}/{}", user.UserName, user.LastFmUsername);
 
                     DateTime? from = null;
@@ -89,6 +90,7 @@ namespace Selector.CLI.Jobs
             }
             catch (Exception ex)
             {
+                span?.SetStatus(ActivityStatusCode.Error, "Error while saving");
                 logger.LogError(ex, "Error occured while saving scrobbles");
             }
         }

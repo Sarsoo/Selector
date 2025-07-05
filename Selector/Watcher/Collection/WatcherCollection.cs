@@ -35,11 +35,13 @@ namespace Selector
 
         public IWatcherContext Add(IWatcher watcher)
         {
+            using var span = Trace.Tracer.StartActivity();
             return Add(watcher, Enumerable.Empty<IConsumer>());
         }
 
         public IWatcherContext Add(IWatcher watcher, IEnumerable<IConsumer> consumers)
         {
+            using var span = Trace.Tracer.StartActivity();
             var context = WatcherContext.From(watcher, consumers);
             if (IsRunning) context.Start();
 
@@ -52,6 +54,7 @@ namespace Selector
 
         public void Start()
         {
+            using var span = Trace.Tracer.StartActivity();
             if (IsRunning) return;
 
             Logger.LogDebug("Starting {} watcher(s)", Count);
@@ -65,6 +68,7 @@ namespace Selector
 
         public void Stop()
         {
+            using var span = Trace.Tracer.StartActivity();
             if (!IsRunning) return;
 
             try
@@ -98,6 +102,7 @@ namespace Selector
 
         public void Dispose()
         {
+            using var span = Trace.Tracer.StartActivity();
             foreach (var watcher in Watchers)
             {
                 watcher.Dispose();

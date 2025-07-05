@@ -37,6 +37,7 @@ namespace Selector
 
         public void AddConsumer(IConsumer consumer)
         {
+            using var span = Trace.Tracer.StartActivity();
             if (IsRunning)
                 consumer.Subscribe(Watcher);
 
@@ -65,6 +66,7 @@ namespace Selector
 
         private void Reset()
         {
+            using var span = Trace.Tracer.StartActivity();
             if (Task is not null && !Task.IsCompleted)
             {
                 TokenSource?.Cancel();
@@ -83,6 +85,7 @@ namespace Selector
 
         public void Stop()
         {
+            using var span = Trace.Tracer.StartActivity();
             Consumers.ForEach(c => c.Unsubscribe(Watcher));
 
             TokenSource?.Cancel();
@@ -91,6 +94,7 @@ namespace Selector
 
         private void Clear()
         {
+            using var span = Trace.Tracer.StartActivity();
             if (IsRunning
                 || Task?.Status == TaskStatus.Running
                 || Task?.Status == TaskStatus.WaitingToRun)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,6 +36,9 @@ namespace Selector.CLI.Consumer
         protected override async Task ProcessEvent(SpotifyListeningChangeEventArgs e)
         {
             if (e.Current is null) return;
+            using var span = Trace.Tracer.StartActivity();
+            span?.AddTag("spotify_username", e.SpotifyUsername);
+            span?.AddTag("id", e.Id);
 
             using var serviceScope = ScopeFactory.CreateScope();
             using var scope = Logger.BeginScope(new Dictionary<string, object>()
@@ -42,10 +46,14 @@ namespace Selector.CLI.Consumer
 
             if (e.Current.Item is FullTrack track)
             {
+                span?.AddTag("track_name", track.Name);
+                span?.AddTag("artist_name", track.Artists.FirstOrDefault()?.Name);
+
                 var mappingRepo = serviceScope.ServiceProvider.GetRequiredService<IScrobbleMappingRepository>();
 
                 if (!mappingRepo.GetTracks().Select(t => t.SpotifyUri).Contains(track.Uri))
                 {
+                    span?.AddEvent(new ActivityEvent("Adding Track Mapping"));
                     mappingRepo.Add(new TrackLastfmSpotifyMapping()
                     {
                         SpotifyUri = track.Uri,
@@ -56,6 +64,7 @@ namespace Selector.CLI.Consumer
 
                 if (!mappingRepo.GetAlbums().Select(t => t.SpotifyUri).Contains(track.Album.Uri))
                 {
+                    span?.AddEvent(new ActivityEvent("Adding Album Mapping"));
                     mappingRepo.Add(new AlbumLastfmSpotifyMapping()
                     {
                         SpotifyUri = track.Album.Uri,
@@ -69,6 +78,7 @@ namespace Selector.CLI.Consumer
                 {
                     if (!artistUris.Contains(artist.Uri))
                     {
+                        span?.AddEvent(new ActivityEvent($"Adding Artist Mapping [{artist.Name}]"));
                         mappingRepo.Add(new ArtistLastfmSpotifyMapping()
                         {
                             SpotifyUri = artist.Uri,
@@ -91,6 +101,7 @@ namespace Selector.CLI.Consumer
             }
             else
             {
+                span?.SetStatus(ActivityStatusCode.Error, "Unknown item pulled from API");
                 Logger.LogError("Unknown item pulled from API [{item}]", e.Current.Item);
             }
         }
