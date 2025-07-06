@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Selector.CLI;
+namespace Selector.Data;
 
 internal static class Trace
 {

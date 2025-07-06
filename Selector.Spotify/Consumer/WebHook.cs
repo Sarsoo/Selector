@@ -50,7 +50,7 @@ namespace Selector.Spotify.Consumer
 
             using var scope = Logger.BeginScope(new Dictionary<string, object>()
             {
-                { "spotify_username", e.SpotifyUsername }, { "id", e.Id }, { "name", Config.Name },
+                { TraceConst.SpotifyUsername, e.SpotifyUsername }, { TraceConst.UserId, e.Id }, { "name", Config.Name },
                 { "url", Config.Url }
             });
 

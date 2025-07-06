@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Selector.Cache;
 using Selector.Model;
 using Selector.SignalR;
+using Selector.Web.Extensions;
 using StackExchange.Redis;
 
 namespace Selector.Web.Hubs
@@ -43,6 +45,8 @@ namespace Selector.Web.Hubs
 
         public Task OnConnected()
         {
+            Activity.Current?.Enrich(Context);
+
             return Task.CompletedTask;
         }
 
@@ -58,6 +62,8 @@ namespace Selector.Web.Hubs
 
         public async Task OnSubmitted(PastParams param)
         {
+            Activity.Current?.Enrich(Context);
+
             param.Track = string.IsNullOrWhiteSpace(param.Track) ? null : param.Track;
             param.Album = string.IsNullOrWhiteSpace(param.Album) ? null : param.Album;
             param.Artist = string.IsNullOrWhiteSpace(param.Artist) ? null : param.Artist;

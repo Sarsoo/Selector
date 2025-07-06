@@ -1,15 +1,13 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
-
 using Selector.Events;
 using Selector.Model;
+using Selector.Web.Extensions;
 
 namespace Selector.Web.Controller
 {
@@ -30,7 +28,7 @@ namespace Selector.Web.Controller
             UserManager<ApplicationUser> userManager,
             ILogger<UsersController> logger,
             UserEventBus userEvent
-        ) : base(context, auth, userManager, logger) 
+        ) : base(context, auth, userManager, logger)
         {
             UserEvent = userEvent;
         }
@@ -39,6 +37,8 @@ namespace Selector.Web.Controller
         [Route("token")]
         public async Task<ActionResult> Token(TokenPost request)
         {
+            Activity.Current?.Enrich(HttpContext);
+
             var user = await UserManager.GetUserAsync(User);
             if (user == null)
             {
@@ -53,7 +53,8 @@ namespace Selector.Web.Controller
 
             await UserManager.UpdateAsync(user);
 
-            UserEvent.OnAppleMusicLinkChange(this, new AppleMusicLinkChange { UserId = user.Id, PreviousLinkState = alreadyAuthed, NewLinkState = true });
+            UserEvent.OnAppleMusicLinkChange(this,
+                new AppleMusicLinkChange { UserId = user.Id, PreviousLinkState = alreadyAuthed, NewLinkState = true });
 
             return Ok();
         }
@@ -62,6 +63,8 @@ namespace Selector.Web.Controller
         [Route("unlink")]
         public async Task<ActionResult> Unlink()
         {
+            Activity.Current?.Enrich(HttpContext);
+
             var user = await UserManager.GetUserAsync(User);
             if (user == null)
             {
@@ -76,7 +79,8 @@ namespace Selector.Web.Controller
 
             await UserManager.UpdateAsync(user);
 
-            UserEvent.OnAppleMusicLinkChange(this, new AppleMusicLinkChange { UserId = user.Id, PreviousLinkState = alreadyAuthed, NewLinkState = false });
+            UserEvent.OnAppleMusicLinkChange(this,
+                new AppleMusicLinkChange { UserId = user.Id, PreviousLinkState = alreadyAuthed, NewLinkState = false });
 
             return Ok();
         }

@@ -1,9 +1,11 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Selector.AppleMusic;
 using Selector.Cache;
 using Selector.Spotify;
 using StackExchange.Redis;
+using Trace = Selector.Event.Trace;
 
 namespace Selector.Events
 {
@@ -28,12 +30,14 @@ namespace Selector.Events
             {
                 Logger.LogDebug("Forming now playing event mapping between cache and event bus");
 
-                (await Subscriber.SubscribeAsync(RedisChannel.Pattern(Key.AllCurrentlyPlayingSpotify))).OnMessage(
-                    message =>
+                (await Subscriber.SubscribeAsync(RedisChannel.Pattern(Key.AllCurrentlyPlayingSpotify)))
+                    .OnMessage(message =>
                     {
+                        using var span = Trace.Tracer.StartActivity();
                         try
                         {
                             var userId = Key.Param(message.Channel);
+                            span?.AddBaggage(TraceConst.Username, userId);
 
                             var deserialised =
                                 JsonSerializer.Deserialize(message.Message,
@@ -42,28 +46,34 @@ namespace Selector.Events
                                 deserialised.Username);
 
                             UserEvent.OnCurrentlyPlayingChangeSpotify(this, deserialised);
+                            span?.SetStatus(ActivityStatusCode.Ok);
                         }
                         catch (Exception e)
                         {
+                            span?.AddException(e);
                             Logger.LogError(e, "Error parsing new Spotify currently playing [{message}]", message);
                         }
                     });
 
-                (await Subscriber.SubscribeAsync(RedisChannel.Pattern(Key.AllCurrentlyPlayingApple))).OnMessage(
-                    message =>
+                (await Subscriber.SubscribeAsync(RedisChannel.Pattern(Key.AllCurrentlyPlayingApple)))
+                    .OnMessage(message =>
                     {
+                        using var span = Trace.Tracer.StartActivity();
                         try
                         {
                             var userId = Key.Param(message.Channel);
+                            span?.AddBaggage(TraceConst.Username, userId);
 
                             var deserialised = JsonSerializer.Deserialize(message.Message,
                                 AppleJsonContext.Default.AppleCurrentlyPlayingDTO);
                             Logger.LogDebug("Received new Apple Music currently playing");
 
                             UserEvent.OnCurrentlyPlayingChangeApple(this, deserialised);
+                            span?.SetStatus(ActivityStatusCode.Ok);
                         }
                         catch (Exception e)
                         {
+                            span?.AddException(e);
                             Logger.LogError(e, "Error parsing new Apple Music currently playing [{message}]", message);
                         }
                     });

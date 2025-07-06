@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Selector.Cache;
 using Selector.Model;
-using static SpotifyAPI.Web.PlaylistRemoveItemsRequest;
 
 namespace Selector.Data;
 
@@ -48,21 +47,24 @@ public class HistoryPersister
 
     public void Process(string input)
     {
+        using var span = Trace.Tracer.StartActivity();
         var parsed = JsonSerializer.Deserialize(input, Json.EndSongArray);
         Process(parsed).Wait();
     }
 
     public async Task Process(Stream input)
     {
+        using var span = Trace.Tracer.StartActivity();
         var parsed = await JsonSerializer.DeserializeAsync(input, Json.EndSongArray);
         await Process(parsed);
     }
 
     public async Task Process(IEnumerable<Stream> input)
     {
+        using var span = Trace.Tracer.StartActivity();
         var songs = Enumerable.Empty<EndSong>();
 
-        foreach(var singleInput in input)
+        foreach (var singleInput in input)
         {
             var parsed = await JsonSerializer.DeserializeAsync(singleInput, Json.EndSongArray);
             songs = songs.Concat(parsed);
@@ -75,6 +77,7 @@ public class HistoryPersister
 
     public async Task Process(IEnumerable<EndSong> input)
     {
+        using var span = Trace.Tracer.StartActivity();
         var user = Db.Users.Single(u => u.UserName == Config.Username);
 
         if (Config.InitialClear)
@@ -85,9 +88,9 @@ public class HistoryPersister
         }
 
         var filtered = input.Where(x => x.ms_played > 30000
-                                     && !string.IsNullOrWhiteSpace(x.master_metadata_track_name))
-                            .DistinctBy(x => (x.offline_timestamp, x.ts, x.spotify_track_uri))
-                            .ToArray();
+                                        && !string.IsNullOrWhiteSpace(x.master_metadata_track_name))
+            .DistinctBy(x => (x.offline_timestamp, x.ts, x.spotify_track_uri))
+            .ToArray();
 
         Logger.LogInformation("{:n0} items after filtering", filtered.Length);
 
@@ -130,13 +133,13 @@ public class HistoryPersister
 
     public async Task<bool> Passes50PcRule(EndSong song)
     {
+        using var span = Trace.Tracer.StartActivity();
         if (string.IsNullOrWhiteSpace(song.spotify_track_uri)) return true;
 
         int duration;
 
         if (Durations.TryGetValue(song.spotify_track_uri, out duration))
         {
-
         }
         else
         {
@@ -150,7 +153,8 @@ public class HistoryPersister
             }
             else
             {
-                Logger.LogDebug("No duration returned for {}/{}", song.master_metadata_track_name, song.master_metadata_album_artist_name);
+                Logger.LogDebug("No duration returned for {}/{}", song.master_metadata_track_name,
+                    song.master_metadata_album_artist_name);
                 return true; // if can't get duration, just pass
             }
         }
@@ -160,10 +164,11 @@ public class HistoryPersister
 
     public IEnumerable<EndSong> Passes50PcRule(IEnumerable<EndSong> inputTracks)
     {
+        using var span = Trace.Tracer.StartActivity();
         var toPullOverWire = new List<EndSong>();
 
         // quick return items from local cache
-        foreach(var track in inputTracks)
+        foreach (var track in inputTracks)
         {
             if (string.IsNullOrWhiteSpace(track.spotify_track_uri)) yield return track;
 
@@ -183,17 +188,17 @@ public class HistoryPersister
         var pulledDuration = DurationPuller.Get(toPullOverWire.Select(x => x.spotify_track_uri)).Result;
 
         // apply results to cache
-        foreach((var uri, var dur) in pulledDuration)
+        foreach ((var uri, var dur) in pulledDuration)
         {
             Durations[uri] = dur;
         }
 
         // check return acceptable tracks from pulled
-        foreach(var track in toPullOverWire)
+        foreach (var track in toPullOverWire)
         {
-            if(pulledDuration.TryGetValue(track.spotify_track_uri, out var duration))
+            if (pulledDuration.TryGetValue(track.spotify_track_uri, out var duration))
             {
-                if(CheckDuration(track, duration))
+                if (CheckDuration(track, duration))
                 {
                     yield return track;
                 }
@@ -205,6 +210,6 @@ public class HistoryPersister
         }
     }
 
-    public bool CheckDuration(EndSong song, int duration) => song.ms_played >= duration / 2 || song.ms_played >= FOUR_MINUTES;
+    public bool CheckDuration(EndSong song, int duration) =>
+        song.ms_played >= duration / 2 || song.ms_played >= FOUR_MINUTES;
 }
-

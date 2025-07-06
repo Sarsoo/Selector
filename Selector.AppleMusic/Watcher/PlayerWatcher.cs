@@ -37,11 +37,12 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
         token.ThrowIfCancellationRequested();
 
         using var span = Trace.Tracer.StartActivity();
-        span?.AddTag("id", Id);
+        span?.AddBaggage(TraceConst.UserId, Id);
 
         try
         {
-            using var polledLogScope = Logger.BeginScope(new Dictionary<string, object>() { { "user_id", Id } });
+            using var polledLogScope =
+                Logger.BeginScope(new Dictionary<string, object>() { { TraceConst.UserId, Id } });
 
             Logger.LogTrace("Making Apple Music call");
             var polledCurrent = await _appleMusicApi.GetRecentlyPlayedTracks();
@@ -88,31 +89,31 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
         }
         catch (RateLimitException e)
         {
-            span?.SetStatus(ActivityStatusCode.Error, "Rate Limit exception");
+            span?.AddException(e);
             Logger.LogError(e, "Rate Limit exception");
             // throw;
         }
         catch (ForbiddenException e)
         {
-            span?.SetStatus(ActivityStatusCode.Error, "Forbidden exception");
+            span?.AddException(e);
             Logger.LogError(e, "Forbidden exception");
             // throw;
         }
-        catch (ServiceException)
+        catch (ServiceException e)
         {
-            span?.SetStatus(ActivityStatusCode.Error, "Apple Music internal error");
+            span?.AddException(e);
             Logger.LogInformation("Apple Music internal error");
             // throw;
         }
         catch (UnauthorisedException e)
         {
-            span?.SetStatus(ActivityStatusCode.Error, "Unauthorised exception");
+            span?.AddException(e);
             Logger.LogError(e, "Unauthorised exception");
             // throw;
         }
         catch (AppleMusicException e)
         {
-            span?.SetStatus(ActivityStatusCode.Error, e.StatusCode.ToString());
+            span?.AddException(e);
             Logger.LogInformation("Apple Music exception ({})", e.StatusCode);
             // throw;
         }
@@ -123,6 +124,13 @@ public class AppleMusicPlayerWatcher : BaseWatcher, IAppleMusicPlayerWatcher
         using var span = Trace.Tracer.StartActivity();
 
         var lastTrack = recentlyPlayedTracks.Data?.FirstOrDefault();
+
+        if (lastTrack is not null)
+        {
+            span?.Parent?.AddBaggage(TraceConst.TrackName, lastTrack.Attributes.Name);
+            span?.Parent?.AddBaggage(TraceConst.AlbumName, lastTrack.Attributes.AlbumName);
+            span?.Parent?.AddBaggage(TraceConst.ArtistName, lastTrack.Attributes.ArtistName);
+        }
 
         if (Live is { Track: not null } && Live.Track.Id == lastTrack?.Id)
         {

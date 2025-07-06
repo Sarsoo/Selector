@@ -66,7 +66,6 @@ namespace Selector
 
         private void Reset()
         {
-            using var span = Trace.Tracer.StartActivity();
             if (Task is not null && !Task.IsCompleted)
             {
                 TokenSource?.Cancel();

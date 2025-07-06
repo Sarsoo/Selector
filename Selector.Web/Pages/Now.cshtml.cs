@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.Identity;
-
-using Selector.Web.Hubs;
-using Selector.Web.Service;
-using Selector.Model;
+using Selector.Web.Extensions;
 
 namespace Selector.Web.Pages
 {
@@ -26,7 +16,7 @@ namespace Selector.Web.Pages
 
         public void OnGet()
         {
-            
+            Activity.Current?.Enrich(HttpContext);
         }
     }
 }

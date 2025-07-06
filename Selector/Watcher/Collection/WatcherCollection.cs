@@ -54,7 +54,6 @@ namespace Selector
 
         public void Start()
         {
-            using var span = Trace.Tracer.StartActivity();
             if (IsRunning) return;
 
             Logger.LogDebug("Starting {} watcher(s)", Count);

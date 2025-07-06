@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Selector.Web.Extensions;
 
 namespace Selector.Web.Areas.Identity.Pages.Account
 {
@@ -12,7 +10,7 @@ namespace Selector.Web.Areas.Identity.Pages.Account
     {
         public void OnGet()
         {
-
+            Activity.Current?.Enrich(HttpContext);
         }
     }
 }

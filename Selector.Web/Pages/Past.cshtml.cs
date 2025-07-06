@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Selector.Web.Extensions;
 
 namespace Selector.Web.Pages
 {
@@ -14,7 +16,7 @@ namespace Selector.Web.Pages
 
         public void OnGet()
         {
-            
+            Activity.Current?.Enrich(HttpContext);
         }
     }
 }

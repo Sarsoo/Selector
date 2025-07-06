@@ -55,8 +55,8 @@ namespace Selector.Spotify.Watcher
             token.ThrowIfCancellationRequested();
 
             using var span = Trace.Tracer.StartActivity();
-            span?.AddTag("id", Id);
-            span?.AddTag("spotify_username", SpotifyUsername);
+            span?.AddBaggage(TraceConst.UserId, Id);
+            span?.AddBaggage(TraceConst.SpotifyUsername, SpotifyUsername);
 
             try
             {
@@ -70,9 +70,18 @@ namespace Selector.Spotify.Watcher
 
                 if (polledCurrent != null)
                 {
+                    if (polledCurrent.Item is FullTrack track)
+                    {
+                        span?.AddBaggage(TraceConst.TrackName, track.Name);
+                        span?.AddBaggage(TraceConst.AlbumName, track.Album.Name);
+                        span?.AddBaggage(TraceConst.ArtistName, track.Artists.FirstOrDefault()?.Name);
+                    }
+
                     span?.AddEvent(new ActivityEvent(nameof(StoreCurrentPlaying)));
                     StoreCurrentPlaying(polledCurrent);
                 }
+
+                ;
 
                 // swap new item into live and bump existing down to previous
                 Previous = Live;
@@ -94,20 +103,20 @@ namespace Selector.Spotify.Watcher
             }
             catch (APIUnauthorizedException e)
             {
-                span?.SetStatus(ActivityStatusCode.Error, "Unauthorised error");
+                span?.AddException(e);
                 Logger.LogInformation("Unauthorised error: [{message}] (should be refreshed and retried?)", e.Message);
                 //throw e;
             }
             catch (APITooManyRequestsException e)
             {
-                span?.SetStatus(ActivityStatusCode.Error, "Too many requests");
+                span?.AddException(e);
                 Logger.LogInformation("Too many requests error: [{message}]", e.Message);
                 await Task.Delay(e.RetryAfter, token);
                 // throw e;
             }
             catch (APIException e)
             {
-                span?.SetStatus(ActivityStatusCode.Error, "API error");
+                span?.AddException(e);
                 Logger.LogInformation("API error: [{message}]", e.Message);
                 // throw e;
             }

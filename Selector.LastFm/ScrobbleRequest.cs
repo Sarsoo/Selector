@@ -4,6 +4,7 @@ using IF.Lastfm.Core.Api.Helpers;
 using IF.Lastfm.Core.Objects;
 using Microsoft.Extensions.Logging;
 using Selector.Operations;
+using Trace = Selector.LastFm.Trace;
 
 namespace Selector
 {
@@ -47,9 +48,13 @@ namespace Selector
 
         public Task Execute()
         {
+            using var span = Trace.Tracer.StartActivity();
+            span?.AddBaggage(TraceConst.LastFmUsername, Username);
+            span?.AddTag("page_number", PageNumber.ToString());
+
             using var scope = _logger.BeginScope(new Dictionary<string, object>()
             {
-                { "username", Username }, { "page_number", PageNumber }, { "page_size", PageSize },
+                { TraceConst.LastFmUsername, Username }, { "page_number", PageNumber }, { "page_size", PageSize },
                 { "from", From ?? DateTime.MinValue },
                 { "to", To ?? DateTime.MinValue }
             });
@@ -61,9 +66,12 @@ namespace Selector
                 _userClient.GetRecentScrobbles(Username, pagenumber: PageNumber, count: PageSize, from: From, to: To);
             CurrentTask.ContinueWith(async t =>
             {
+                using var subspan = Trace.Tracer.StartActivity();
+                subspan?.AddTag("page_number", PageNumber.ToString());
+
                 using var scope = _logger.BeginScope(new Dictionary<string, object>()
                 {
-                    { "username", Username }, { "page_number", PageNumber }, { "page_size", PageSize },
+                    { TraceConst.LastFmUsername, Username }, { "page_number", PageNumber }, { "page_size", PageSize },
                     { "from", From ?? DateTime.MinValue }, { "to", To ?? DateTime.MinValue }
                 });
 

@@ -38,7 +38,10 @@ namespace Selector.Spotify.Consumer
             if (e.Current is null) return;
 
             using var scope = Logger.BeginScope(new Dictionary<string, object>()
-                { { "spotify_username", e.SpotifyUsername }, { "id", e.Id }, { "username", Credentials.Username } });
+            {
+                { TraceConst.SpotifyUsername, e.SpotifyUsername }, { TraceConst.UserId, e.Id },
+                { TraceConst.LastFmUsername, Credentials.Username }
+            });
 
             if (Credentials is null || string.IsNullOrWhiteSpace(Credentials.Username))
             {

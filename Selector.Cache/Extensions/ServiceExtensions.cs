@@ -18,11 +18,10 @@ namespace Selector.Cache.Extensions
             }
 
             var connMulti = ConnectionMultiplexer.Connect(connectionStr);
-            services.AddSingleton(connMulti);
-            services.AddTransient<IDatabaseAsync>(
-                s => s.GetService<ConnectionMultiplexer>().GetDatabase());
+            services.AddSingleton<IConnectionMultiplexer>(connMulti);
+            services.AddTransient<IDatabaseAsync>(s => s.GetService<IConnectionMultiplexer>().GetDatabase());
             services.AddTransient<ISubscriber>(s =>
-                s.GetService<ConnectionMultiplexer>().GetSubscriber());
+                s.GetService<IConnectionMultiplexer>().GetSubscriber());
 
             return services;
         }

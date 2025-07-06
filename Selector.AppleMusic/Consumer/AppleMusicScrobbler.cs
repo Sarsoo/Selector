@@ -30,7 +30,7 @@ public class AppleMusicScrobbler :
         string lastfmPassword)
     {
         using var span = Trace.Tracer.StartActivity();
-        span?.AddTag("username", lastfmUsername);
+        span?.AddBaggage(TraceConst.LastFmUsername, lastfmUsername);
 
         var response = await _lastClient.Auth.GetSessionTokenAsync(lastfmUsername, lastfmPassword);
 

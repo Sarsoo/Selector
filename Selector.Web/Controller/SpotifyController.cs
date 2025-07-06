@@ -1,21 +1,18 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
-
-using SpotifyAPI.Web;
-
+using Microsoft.Extensions.Options;
 using Selector.Events;
 using Selector.Model;
+using Selector.Web.Extensions;
+using SpotifyAPI.Web;
 
 namespace Selector.Web.Controller
 {
-
     [ApiController]
     [Route("api/[controller]/callback")]
     public class SpotifyController : BaseAuthController
@@ -31,7 +28,7 @@ namespace Selector.Web.Controller
             ILogger<UsersController> logger,
             IOptions<RootOptions> config,
             UserEventBus userEvent
-        ) : base(context, auth, userManager, logger) 
+        ) : base(context, auth, userManager, logger)
         {
             Config = config.Value;
             UserEvent = userEvent;
@@ -40,6 +37,8 @@ namespace Selector.Web.Controller
         [HttpGet]
         public async Task<RedirectResult> Callback(string code)
         {
+            Activity.Current?.Enrich(HttpContext);
+
             if (Config.ClientId is null)
             {
                 Logger.LogError("Cannot link user, no Spotify client ID");
@@ -64,9 +63,9 @@ namespace Selector.Web.Controller
             var response = await new OAuthClient()
                 .RequestToken(
                     new AuthorizationCodeTokenRequest(
-                        Config.ClientId, 
-                        Config.ClientSecret, 
-                        code, 
+                        Config.ClientId,
+                        Config.ClientSecret,
+                        code,
                         new Uri(Config.SpotifyCallback)
                     )
                 );
@@ -80,7 +79,8 @@ namespace Selector.Web.Controller
 
             await UserManager.UpdateAsync(user);
 
-            UserEvent.OnSpotifyLinkChange(this, new SpotifyLinkChange { UserId = user.Id, PreviousLinkState = false, NewLinkState = true });
+            UserEvent.OnSpotifyLinkChange(this,
+                new SpotifyLinkChange { UserId = user.Id, PreviousLinkState = false, NewLinkState = true });
 
             TempData["StatusMessage"] = "Spotify Linked";
             return Redirect(ManageSpotifyPath);

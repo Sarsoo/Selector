@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -99,6 +101,11 @@ namespace Selector.Web
                             {
                                 options.Endpoint = new Uri(tracing.Endpoint);
                                 options.Protocol = OtlpExportProtocol.HttpProtobuf;
+                                options.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>()
+                                {
+                                    MaxExportBatchSize = 256,
+                                    ScheduledDelayMilliseconds = 2500
+                                };
                             });
 
                         foreach (var source in tracing.Sources)
@@ -106,6 +113,18 @@ namespace Selector.Web
                             b.AddSource(source);
                         }
                     });
+
+                ActivitySource.AddActivityListener(new ActivityListener
+                {
+                    ShouldListenTo = _ => true,
+                    ActivityStopped = activity =>
+                    {
+                        foreach (var (key, value) in activity.Baggage)
+                        {
+                            activity.AddTag(key, value);
+                        }
+                    }
+                });
             }
 
             ConfigureDB(services, config);

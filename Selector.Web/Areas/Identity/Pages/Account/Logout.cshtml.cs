@@ -1,14 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-
 using Selector.Model;
+using Selector.Web.Extensions;
 
 namespace Selector.Web.Areas.Identity.Pages.Account
 {
@@ -26,6 +24,7 @@ namespace Selector.Web.Areas.Identity.Pages.Account
 
         public void OnGet()
         {
+            Activity.Current?.Enrich(HttpContext);
         }
 
         public async Task<IActionResult> OnPost(string returnUrl = null)

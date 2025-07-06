@@ -2,6 +2,7 @@
 using Selector.AppleMusic;
 using Selector.Model;
 using Selector.Spotify;
+using Trace = Selector.Event.Trace;
 
 namespace Selector.Events
 {
@@ -24,36 +25,42 @@ namespace Selector.Events
 
         public void OnUserChange(object sender, ApplicationUser args)
         {
+            using var span = Trace.Tracer.StartActivity();
             Logger.LogTrace("Firing user event [{usernamne}]", args?.UserName);
             UserChange?.Invoke(sender, args);
         }
 
         public void OnSpotifyLinkChange(object sender, SpotifyLinkChange args)
         {
+            using var span = Trace.Tracer.StartActivity();
             Logger.LogTrace("Firing user Spotify event [{usernamne}]", args?.UserId);
             SpotifyLinkChange?.Invoke(sender, args);
         }
 
         public void OnAppleMusicLinkChange(object sender, AppleMusicLinkChange args)
         {
+            using var span = Trace.Tracer.StartActivity();
             Logger.LogTrace("Firing user Apple Music event [{usernamne}]", args?.UserId);
             AppleLinkChange?.Invoke(sender, args);
         }
 
         public void OnLastfmCredChange(object sender, LastfmChange args)
         {
+            using var span = Trace.Tracer.StartActivity();
             Logger.LogTrace("Firing user Last.fm event [{usernamne}]", args?.UserId);
             LastfmCredChange?.Invoke(sender, args);
         }
 
         public void OnCurrentlyPlayingChangeSpotify(object sender, SpotifyCurrentlyPlayingDTO args)
         {
+            using var span = Trace.Tracer.StartActivity();
             Logger.LogTrace("Firing currently playing event [{usernamne}/{userId}]", args?.Username, args.UserId);
             CurrentlyPlayingSpotify?.Invoke(sender, args);
         }
 
         public void OnCurrentlyPlayingChangeApple(object sender, AppleCurrentlyPlayingDTO args)
         {
+            using var span = Trace.Tracer.StartActivity();
             Logger.LogTrace("Firing currently playing event");
             CurrentlyPlayingApple?.Invoke(sender, args);
         }

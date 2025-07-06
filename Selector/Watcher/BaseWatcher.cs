@@ -20,7 +20,7 @@ namespace Selector
         public abstract Task Reset();
 
         protected virtual Dictionary<string, object> LogScopeContext => new()
-            { { "id", Id } };
+            { { TraceConst.UserId, Id } };
 
         public async Task Watch(CancellationToken cancelToken)
         {

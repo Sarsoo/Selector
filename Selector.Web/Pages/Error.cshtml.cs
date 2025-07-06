@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Selector.Web.Extensions;
 
 namespace Selector.Web.Pages
 {
@@ -26,6 +23,7 @@ namespace Selector.Web.Pages
 
         public void OnGet()
         {
+            Activity.Current?.Enrich(HttpContext);
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
         }
     }

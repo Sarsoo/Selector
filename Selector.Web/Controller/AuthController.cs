@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -8,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Selector.Model;
 using Selector.Web.Auth;
+using Selector.Web.Extensions;
 
 namespace Selector.Web.Controller;
 
@@ -18,7 +20,9 @@ public class AuthController : BaseAuthController
 {
     private readonly JwtTokenService _tokenService;
 
-    public AuthController(ApplicationDbContext context, IAuthorizationService auth, UserManager<ApplicationUser> userManager, ILogger<BaseAuthController> logger, JwtTokenService tokenService) : base(context, auth, userManager, logger)
+    public AuthController(ApplicationDbContext context, IAuthorizationService auth,
+        UserManager<ApplicationUser> userManager, ILogger<BaseAuthController> logger,
+        JwtTokenService tokenService) : base(context, auth, userManager, logger)
     {
         _tokenService = tokenService;
     }
@@ -32,6 +36,8 @@ public class AuthController : BaseAuthController
     [HttpPost]
     public async Task<IActionResult> Token([FromForm] TokenModel model)
     {
+        Activity.Current?.Enrich(HttpContext);
+
         var user = await UserManager.GetUserAsync(User);
 
         if (user is null) // user isn't logged in, use parameter creds
@@ -65,7 +71,7 @@ public class AuthController : BaseAuthController
 
         return Ok(new Dictionary<string, string>
         {
-            {"token", tokenHandler.WriteToken(token)}
+            { "token", tokenHandler.WriteToken(token) }
         });
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using Selector.Model.Extensions;
 using Selector.SignalR;
 using Selector.Spotify;
 using Selector.Spotify.Consumer;
+using Selector.Web.Extensions;
 using StackExchange.Redis;
 
 namespace Selector.Web.Hubs
@@ -50,11 +52,15 @@ namespace Selector.Web.Hubs
 
         public async Task OnConnected()
         {
+            Activity.Current?.Enrich(Context);
+
             await SendNewPlaying();
         }
 
         public async Task SendNewPlaying()
         {
+            Activity.Current?.Enrich(Context);
+
             var nowPlaying = await Cache.StringGetAsync(Key.CurrentlyPlayingSpotify(Context.UserIdentifier));
             if (nowPlaying != RedisValue.Null)
             {
@@ -74,6 +80,8 @@ namespace Selector.Web.Hubs
 
         public async Task SendAudioFeatures(string trackId)
         {
+            Activity.Current?.Enrich(Context);
+
             if (string.IsNullOrWhiteSpace(trackId)) return;
 
             var user = Db.Users
@@ -98,6 +106,8 @@ namespace Selector.Web.Hubs
 
         public async Task SendPlayCount(string track, string artist, string album, string albumArtist)
         {
+            Activity.Current?.Enrich(Context);
+
             if (PlayCountPuller is not null)
             {
                 var user = Db.Users
@@ -126,11 +136,15 @@ namespace Selector.Web.Hubs
 
         public async Task SendFacts(string track, string artist, string album, string albumArtist)
         {
+            Activity.Current?.Enrich(Context);
+
             await PlayDensityFacts(track, artist, album, albumArtist);
         }
 
         public async Task PlayDensityFacts(string track, string artist, string album, string albumArtist)
         {
+            Activity.Current?.Enrich(Context);
+
             var user = await Db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == Context.UserIdentifier);
 
             if (user.ScrobbleSavingEnabled())

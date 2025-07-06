@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
@@ -90,7 +89,7 @@ namespace Selector.CLI.Jobs
             }
             catch (Exception ex)
             {
-                span?.SetStatus(ActivityStatusCode.Error, "Error while saving");
+                span?.AddException(ex);
                 logger.LogError(ex, "Error occured while saving scrobbles");
             }
         }

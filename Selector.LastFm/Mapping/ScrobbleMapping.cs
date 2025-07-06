@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Selector.Operations;
 using SpotifyAPI.Web;
+using Trace = Selector.LastFm.Trace;
 
 namespace Selector.Mapping
 {
@@ -43,6 +44,8 @@ namespace Selector.Mapping
 
         public Task Execute()
         {
+            using var span = Trace.Tracer.StartActivity();
+
             _logger.LogInformation("Mapping Last.fm {} ({}) to Spotify", Query, QueryType);
 
             var netTime = Stopwatch.StartNew();

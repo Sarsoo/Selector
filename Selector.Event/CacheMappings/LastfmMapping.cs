@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Selector.Cache;
 using StackExchange.Redis;
+using Trace = Selector.Event.Trace;
 
 namespace Selector.Events
 {
@@ -35,9 +37,11 @@ namespace Selector.Events
 
                 (await Subscriber.SubscribeAsync(RedisChannel.Pattern(Key.AllUserLastfm))).OnMessage(message =>
                 {
+                    using var span = Trace.Tracer.StartActivity();
                     try
                     {
                         var userId = Key.Param(message.Channel);
+                        span?.AddBaggage(TraceConst.Username, userId);
 
                         var deserialised =
                             JsonSerializer.Deserialize(message.Message, CacheJsonContext.Default.LastfmChange);
@@ -50,9 +54,11 @@ namespace Selector.Events
                         }
 
                         UserEvent.OnLastfmCredChange(this, deserialised);
+                        span?.SetStatus(ActivityStatusCode.Ok);
                     }
                     catch (Exception e)
                     {
+                        span?.AddException(e);
                         Logger.LogError(e, "Error parsing Last.fm username event");
                     }
                 });

@@ -78,7 +78,7 @@ namespace Selector.CLI
             {
                 using var logScope = logger.BeginScope(new Dictionary<string, string>
                 {
-                    { "username", dbWatcher.User.UserName }
+                    { TraceConst.Username, dbWatcher.User.UserName }
                 });
 
                 var watcherCollectionIdx = dbWatcher.UserId;

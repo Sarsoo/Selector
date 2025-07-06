@@ -37,17 +37,18 @@ namespace Selector.CLI.Consumer
         {
             if (e.Current is null) return;
             using var span = Trace.Tracer.StartActivity();
-            span?.AddTag("spotify_username", e.SpotifyUsername);
-            span?.AddTag("id", e.Id);
+            span?.AddBaggage(TraceConst.SpotifyUsername, e.SpotifyUsername);
+            span?.AddBaggage(TraceConst.UserId, e.Id);
 
             using var serviceScope = ScopeFactory.CreateScope();
             using var scope = Logger.BeginScope(new Dictionary<string, object>()
-                { { "spotify_username", e.SpotifyUsername }, { "id", e.Id } });
+                { { TraceConst.SpotifyUsername, e.SpotifyUsername }, { TraceConst.UserId, e.Id } });
 
             if (e.Current.Item is FullTrack track)
             {
-                span?.AddTag("track_name", track.Name);
-                span?.AddTag("artist_name", track.Artists.FirstOrDefault()?.Name);
+                span?.AddBaggage(TraceConst.TrackName, track.Name);
+                span?.AddBaggage(TraceConst.AlbumName, track.Album.Name);
+                span?.AddBaggage(TraceConst.ArtistName, track.Artists.FirstOrDefault()?.Name);
 
                 var mappingRepo = serviceScope.ServiceProvider.GetRequiredService<IScrobbleMappingRepository>();
 
