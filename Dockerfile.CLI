@@ -1,4 +1,13 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS base
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0 AS base
+
+ARG TARGETPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
+ARG BUILDPLATFORM
+ARG BUILDOS
+ARG BUILDARCH
+ARG BUILDVARIANT
 
 COPY *.sln .
 COPY Selector/*.csproj ./Selector/
@@ -11,12 +20,12 @@ COPY Selector.Event/*.csproj ./Selector.Event/
 COPY Selector.Model/*.csproj ./Selector.Model/
 COPY Selector.CLI/*.csproj ./Selector.CLI/
 COPY Selector.Tests/*.csproj ./Selector.Tests/
-RUN dotnet restore ./Selector.CLI/Selector.CLI.csproj
+RUN dotnet restore ./Selector.CLI/Selector.CLI.csproj -a $TARGETARCH
 
 COPY . ./
 
 FROM base as publish
-RUN dotnet publish Selector.CLI/Selector.CLI.csproj -c Release -o /app
+RUN dotnet publish Selector.CLI/Selector.CLI.csproj -c Release -a $TARGETARCH -o /app
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
