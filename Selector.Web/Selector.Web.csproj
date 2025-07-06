@@ -5,6 +5,7 @@
     <LangVersion>latest</LangVersion>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <IsAotCompatible>true</IsAotCompatible>
+    <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
   </PropertyGroup>
 
   <ItemGroup>
