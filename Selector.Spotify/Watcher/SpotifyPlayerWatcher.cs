@@ -81,8 +81,6 @@ namespace Selector.Spotify.Watcher
                     StoreCurrentPlaying(polledCurrent);
                 }
 
-                ;
-
                 // swap new item into live and bump existing down to previous
                 Previous = Live;
                 Live = polledCurrent;
@@ -142,9 +140,11 @@ namespace Selector.Spotify.Watcher
             switch (Previous, Live)
             {
                 case (null or { Item: null }, { Item: not null }):
+                    span?.Parent?.AddBaggage(TraceConst.TrackStarted, "true");
                     OnItemChange(GetEvent());
                     break;
                 case ({ Item: not null }, null or { Item: null }):
+                    span?.Parent?.AddBaggage(TraceConst.TrackStopped, "true");
                     Logger.LogDebug("Item stopped: {context}", Previous.DisplayString());
                     OnItemChange(GetEvent());
                     break;
@@ -155,6 +155,7 @@ namespace Selector.Spotify.Watcher
                 case ({ Item: FullTrack previousTrack }, { Item: FullTrack currentTrack }):
                     if (!_eq.IsEqual(previousTrack, currentTrack))
                     {
+                        span?.Parent?.AddBaggage(TraceConst.TrackChanged, "true");
                         Logger.LogInformation("Track changed: {prevTrack} -> {currentTrack}",
                             previousTrack.DisplayString(),
                             currentTrack.DisplayString());

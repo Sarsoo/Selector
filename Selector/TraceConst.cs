@@ -11,6 +11,10 @@ public static class TraceConst
     public static readonly string AlbumName = "selector.album.name";
     public static readonly string ArtistName = "selector.artist.name";
 
+    public static readonly string TrackChanged = "selector.track.changed";
+    public static readonly string TrackStarted = "selector.track.started";
+    public static readonly string TrackStopped = "selector.track.stopped";
+
     public static readonly string ServerAddress = "server.address";
     public static readonly string ServerPort = "server.port";
     public static readonly string ClientAddress = "client.address";
