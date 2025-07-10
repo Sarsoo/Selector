@@ -6,6 +6,7 @@
     <StartupObject>Selector.CLI.Program</StartupObject>
     <LangVersion>latest</LangVersion>
     <IsAotCompatible>true</IsAotCompatible>
+    <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
   </PropertyGroup>
 
   <ItemGroup>

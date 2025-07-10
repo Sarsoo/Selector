@@ -1,7 +1,7 @@
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Selector.Cache.Extensions;
 using Selector.Extensions;
 using Selector.Spotify;
 using Selector.Spotify.Consumer;
@@ -26,8 +26,8 @@ namespace Selector.Cache
             using var scope = Logger.GetListeningEventArgsScope(e);
 
             var payload =
-                JsonSerializer.Serialize((SpotifyCurrentlyPlayingDTO)e,
-                    SpotifyJsonContext.Default.SpotifyCurrentlyPlayingDTO);
+                ((SpotifyCurrentlyPlayingDTO)e).SerialiseBaggageWrapped(SpotifyJsonContext.Default
+                    .SpotifyCurrentlyPlayingDTO);
 
             Logger.LogTrace("Publishing current");
 

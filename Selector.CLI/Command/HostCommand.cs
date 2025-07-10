@@ -116,7 +116,7 @@ namespace Selector.CLI
             }
 
             var tracing = context.Configuration.GetSection(TracingOptions.Key).Get<TracingOptions>();
-            if (!string.IsNullOrWhiteSpace(tracing.Endpoint))
+            if (tracing is not null && !string.IsNullOrWhiteSpace(tracing.Endpoint))
             {
                 Console.WriteLine("> Adding OTel Tracing...");
                 services.AddOpenTelemetry()
