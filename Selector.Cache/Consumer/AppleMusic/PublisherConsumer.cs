@@ -1,9 +1,9 @@
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Selector.AppleMusic;
 using Selector.AppleMusic.Consumer;
+using Selector.Cache.Extensions;
 using StackExchange.Redis;
 
 namespace Selector.Cache.Consumer.AppleMusic
@@ -22,8 +22,9 @@ namespace Selector.Cache.Consumer.AppleMusic
         {
             // using var scope = Logger.GetListeningEventArgsScope(e);
 
-            var payload = JsonSerializer.Serialize((AppleCurrentlyPlayingDTO)e,
-                AppleJsonContext.Default.AppleCurrentlyPlayingDTO);
+            var payload =
+                ((AppleCurrentlyPlayingDTO)e).SerialiseBaggageWrapped(AppleJsonContext.Default
+                    .AppleCurrentlyPlayingDTO);
 
             Logger.LogTrace("Publishing current");
 

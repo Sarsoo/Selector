@@ -1,9 +1,8 @@
 using System.Diagnostics;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Selector.Cache;
+using Selector.Cache.Extensions;
 using StackExchange.Redis;
-using Trace = Selector.Event.Trace;
 
 namespace Selector.Events
 {
@@ -37,14 +36,14 @@ namespace Selector.Events
 
                 (await Subscriber.SubscribeAsync(RedisChannel.Pattern(Key.AllUserSpotify))).OnMessage(message =>
                 {
-                    using var span = Trace.Tracer.StartActivity();
                     try
                     {
                         var userId = Key.Param(message.Channel);
-                        span?.AddBaggage(TraceConst.Username, userId);
 
-                        var deserialised = JsonSerializer.Deserialize(message.Message,
-                            CacheJsonContext.Default.SpotifyLinkChange);
+                        using var msg = message.DeserialiseBaggageWrapped(CacheJsonContext.Default.SpotifyLinkChange);
+                        var deserialised = msg.Object;
+                        Activity.Current?.AddBaggage(TraceConst.UserId, userId);
+
                         Logger.LogDebug("Received new Spotify link event for [{userId}]", deserialised.UserId);
 
                         if (!userId.Equals(deserialised.UserId))
@@ -54,16 +53,16 @@ namespace Selector.Events
                         }
 
                         UserEvent.OnSpotifyLinkChange(this, deserialised);
-                        span?.SetStatus(ActivityStatusCode.Ok);
+                        Activity.Current?.SetStatus(ActivityStatusCode.Ok);
                     }
                     catch (TaskCanceledException e)
                     {
-                        span?.AddException(e);
+                        Activity.Current?.AddException(e);
                         Logger.LogDebug("Task Cancelled");
                     }
                     catch (Exception e)
                     {
-                        span?.AddException(e);
+                        Activity.Current?.AddException(e);
                         Logger.LogError(e, "Error parsing new Spotify link event");
                     }
                 });
@@ -94,7 +93,7 @@ namespace Selector.Events
 
                 UserEvent.SpotifyLinkChange += async (o, e) =>
                 {
-                    var payload = JsonSerializer.Serialize(e, CacheJsonContext.Default.SpotifyLinkChange);
+                    var payload = e.SerialiseBaggageWrapped(CacheJsonContext.Default.SpotifyLinkChange);
                     await Subscriber.PublishAsync(RedisChannel.Literal(Key.UserSpotify(e.UserId)), payload);
                 };
 
