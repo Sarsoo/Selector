@@ -30,7 +30,6 @@
     {
         public const string Key = "Tracing";
 
-        public string? Endpoint { get; set; } = null;
         public string ServiceName { get; set; } = "Selector-NOENV";
         public IEnumerable<string> Sources { get; set; } = [];
     }

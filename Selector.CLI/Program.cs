@@ -8,7 +8,9 @@ namespace Selector.CLI
         {
             var cmd = new HostRootCommand();
             cmd.AddCommand(new ScrobbleCommand("scrobble", "Manipulate scrobbles"));
+            #if !AOT
             cmd.AddCommand(new MigrateCommand("migrate", "Migrate database"));
+            #endif
             cmd.AddCommand(new SpotifyHistoryCommand("history", "Insert Spotify history"));
 
             cmd.Invoke(args);

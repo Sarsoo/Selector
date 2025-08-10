@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿#if !AOT
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Selector.CLI.Extensions;
 using Selector.Model;
@@ -53,3 +54,4 @@ namespace Selector.CLI
         }
     }
 }
+#endif

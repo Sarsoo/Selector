@@ -116,7 +116,7 @@ namespace Selector.CLI
             }
 
             var tracing = context.Configuration.GetSection(TracingOptions.Key).Get<TracingOptions>();
-            if (tracing is not null && !string.IsNullOrWhiteSpace(tracing.Endpoint))
+            if (tracing is not null)
             {
                 Console.WriteLine("> Adding OTel Tracing...");
                 services.AddOpenTelemetry()
@@ -129,8 +129,6 @@ namespace Selector.CLI
                             .AddQuartzInstrumentation()
                             .AddOtlpExporter(options =>
                             {
-                                options.Endpoint = new Uri(tracing.Endpoint);
-                                options.Protocol = OtlpExportProtocol.HttpProtobuf;
                                 options.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>()
                                 {
                                     MaxExportBatchSize = 256,
