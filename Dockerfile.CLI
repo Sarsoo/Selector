@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0 AS base
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS base
 
 ARG TARGETPLATFORM
 ARG TARGETOS
@@ -27,7 +27,7 @@ COPY . ./
 FROM base as publish
 RUN dotnet publish Selector.CLI/Selector.CLI.csproj -c Release -a $TARGETARCH -o /app
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine
 WORKDIR /app
 COPY --from=publish /app ./
 ENV DOTNET_EnableDiagnostics=0

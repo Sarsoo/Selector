@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:22 as frontend
+FROM --platform=$BUILDPLATFORM node:22-alpine as frontend
 
 ARG TARGETPLATFORM
 ARG TARGETOS
@@ -16,7 +16,7 @@ RUN npm ci
 COPY ./Selector.Web ./
 RUN npm run build
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0 AS base
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS base
 
 ARG TARGETPLATFORM
 ARG TARGETOS
@@ -47,7 +47,7 @@ FROM base as publish
 COPY --from=frontend /Selector.Web/wwwroot Selector.Web/wwwroot/
 RUN dotnet publish Selector.Web/Selector.Web.csproj -c Release -a $TARGETARCH -o /app
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine
 EXPOSE 80
 WORKDIR /app
 COPY --from=publish /app ./
