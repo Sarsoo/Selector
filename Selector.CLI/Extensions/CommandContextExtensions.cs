@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using IF.Lastfm.Core.Api;
+﻿using IF.Lastfm.Core.Api;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -9,107 +8,106 @@ using Selector.Spotify.ConfigFactory;
 using SpotifyAPI.Web;
 using StackExchange.Redis;
 
-namespace Selector.CLI.Extensions
+namespace Selector.CLI.Extensions;
+
+public static class CommandContextExtensions
 {
-    public static class CommandContextExtensions
+    public static CommandContext WithConfig(this CommandContext context)
     {
-        public static CommandContext WithConfig(this CommandContext context)
-        {
-            var configBuild = new ConfigurationBuilder();
-            configBuild.AddJsonFile("appsettings.json", optional: true)
-                .AddJsonFile("appsettings.Development.json", optional: true)
-                .AddJsonFile("appsettings.Production.json", optional: true);
-            context.Config = configBuild.Build().ConfigureOptions();
+        var configBuild = new ConfigurationBuilder();
+        configBuild.AddJsonFile("appsettings.json", optional: true)
+            .AddJsonFile("appsettings.Development.json", optional: true)
+            .AddJsonFile("appsettings.Production.json", optional: true);
+        context.Config = configBuild.Build().ConfigureOptions();
 
-            return context;
+        return context;
+    }
+
+    public static CommandContext WithLogger(this CommandContext context)
+    {
+        context.Logger = LoggerFactory.Create(builder =>
+        {
+            //builder.AddConsole(a => a.);
+            builder.AddSimpleConsole(options => { options.SingleLine = true; });
+            builder.SetMinimumLevel(LogLevel.Trace);
+        });
+
+        return context;
+    }
+
+    public static CommandContext WithDb(this CommandContext context, string connectionString = null)
+    {
+        if (context.Config is null)
+        {
+            context.WithConfig();
         }
 
-        public static CommandContext WithLogger(this CommandContext context)
-        {
-            context.Logger = LoggerFactory.Create(builder =>
-            {
-                //builder.AddConsole(a => a.);
-                builder.AddSimpleConsole(options => { options.SingleLine = true; });
-                builder.SetMinimumLevel(LogLevel.Trace);
-            });
+        context.DatabaseConfig = new DbContextOptionsBuilder<ApplicationDbContext>();
+        context.DatabaseConfig.UseNpgsql(string.IsNullOrWhiteSpace(connectionString)
+            ? context.Config.DatabaseOptions.ConnectionString
+            : connectionString, x => x.MigrationsHistoryTable("__EFMigrationsHistory", "public"));
 
-            return context;
+        return context;
+    }
+
+    public static CommandContext WithLastfmApi(this CommandContext context)
+    {
+        if (context.Config is null)
+        {
+            context.WithConfig();
         }
 
-        public static CommandContext WithDb(this CommandContext context, string connectionString = null)
+        context.LastFmClient =
+            new LastfmClient(new LastAuth(context.Config.LastfmClient, context.Config.LastfmSecret));
+
+        return context;
+    }
+
+    public static CommandContext WithSpotify(this CommandContext context)
+    {
+        if (context.Config is null)
         {
-            if (context.Config is null)
+            context.WithConfig();
+        }
+
+        var refreshToken = context.Config.RefreshToken;
+
+        if (string.IsNullOrWhiteSpace(refreshToken))
+        {
+            if (context.DatabaseConfig is null)
             {
-                context.WithConfig();
+                context.WithDb();
             }
 
-            context.DatabaseConfig = new DbContextOptionsBuilder<ApplicationDbContext>();
-            context.DatabaseConfig.UseNpgsql(string.IsNullOrWhiteSpace(connectionString)
-                ? context.Config.DatabaseOptions.ConnectionString
-                : connectionString, x => x.MigrationsHistoryTable("__EFMigrationsHistory", "public"));
+            using var db = new ApplicationDbContext(context.DatabaseConfig.Options,
+                NullLogger<ApplicationDbContext>.Instance);
 
-            return context;
+            var user = db.Users.FirstOrDefault(u => u.UserName == "sarsoo");
+
+            refreshToken = user?.SpotifyRefreshToken;
         }
 
-        public static CommandContext WithLastfmApi(this CommandContext context)
+        var configFactory =
+            new RefreshTokenFactory(context.Config.ClientId, context.Config.ClientSecret, refreshToken);
+
+        context.Spotify = new SpotifyClient(configFactory.GetConfig().Result);
+
+        return context;
+    }
+
+    public static CommandContext WithRedis(this CommandContext context)
+    {
+        if (context.Config is null)
         {
-            if (context.Config is null)
-            {
-                context.WithConfig();
-            }
-
-            context.LastFmClient =
-                new LastfmClient(new LastAuth(context.Config.LastfmClient, context.Config.LastfmSecret));
-
-            return context;
+            context.WithConfig();
         }
 
-        public static CommandContext WithSpotify(this CommandContext context)
-        {
-            if (context.Config is null)
-            {
-                context.WithConfig();
-            }
+        var connectionString = context.Config.RedisOptions.ConnectionString;
 
-            var refreshToken = context.Config.RefreshToken;
+        var connMulti = ConnectionMultiplexer.Connect(connectionString);
 
-            if (string.IsNullOrWhiteSpace(refreshToken))
-            {
-                if (context.DatabaseConfig is null)
-                {
-                    context.WithDb();
-                }
+        context.RedisMux = connMulti;
 
-                using var db = new ApplicationDbContext(context.DatabaseConfig.Options,
-                    NullLogger<ApplicationDbContext>.Instance);
-
-                var user = db.Users.FirstOrDefault(u => u.UserName == "sarsoo");
-
-                refreshToken = user?.SpotifyRefreshToken;
-            }
-
-            var configFactory =
-                new RefreshTokenFactory(context.Config.ClientId, context.Config.ClientSecret, refreshToken);
-
-            context.Spotify = new SpotifyClient(configFactory.GetConfig().Result);
-
-            return context;
-        }
-
-        public static CommandContext WithRedis(this CommandContext context)
-        {
-            if (context.Config is null)
-            {
-                context.WithConfig();
-            }
-
-            var connectionString = context.Config.RedisOptions.ConnectionString;
-
-            var connMulti = ConnectionMultiplexer.Connect(connectionString);
-
-            context.RedisMux = connMulti;
-
-            return context;
-        }
+        return context;
     }
 }

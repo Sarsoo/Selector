@@ -49,7 +49,7 @@ namespace Selector.Tests
                 new SpotifyListeningChangeEventArgs()
                     { Id = "test", SpotifyUsername = "test", Current = null, Timeline = null });
 
-            await Task.Delay(100);
+            await Task.Delay(100, TestContext.Current.CancellationToken);
 
             httpHandlerMock.Protected().Verify<Task<HttpResponseMessage>>("SendAsync", Times.Once(),
                 ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>());

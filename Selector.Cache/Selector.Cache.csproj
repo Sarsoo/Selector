@@ -10,7 +10,7 @@
   <ItemGroup>
       <PackageReference Include="OpenTelemetry.Api" Version="1.14.0"/>
       <PackageReference Include="StackExchange.Redis" Version="2.10.1"/>
-      <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9"/>
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0"/>
     <PackageReference Include="SpotifyAPI.Web" Version="7.2.1" />
   </ItemGroup>
 

@@ -42,7 +42,7 @@ namespace Selector.Tests
 
             for (var i = 0; i < playing.Count; i++)
             {
-                await watcher.WatchOne();
+                await watcher.WatchOne(TestContext.Current.CancellationToken);
                 watcher.Live.Should().Be(playing[i]);
             }
         }
@@ -261,8 +261,7 @@ namespace Selector.Tests
             var spotMock = new Mock<IPlayerClient>();
             var eq = new UriEqual();
 
-            spotMock.Setup(
-                s => s.GetCurrentPlayback(It.IsAny<CancellationToken>()).Result
+            spotMock.Setup(s => s.GetCurrentPlayback(It.IsAny<CancellationToken>()).Result
             ).Returns(playingQueue.Dequeue);
 
             var watcher = new SpotifyPlayerWatcher(spotMock.Object, eq) { Id = "test", SpotifyUsername = "test" };
@@ -270,7 +269,7 @@ namespace Selector.Tests
 
             for (var i = 0; i < playing.Count; i++)
             {
-                await watcher.WatchOne();
+                await watcher.WatchOne(TestContext.Current.CancellationToken);
             }
 
             toRaise.ForEach(r => monitoredWatcher.Should().Raise(r).WithSender(watcher));
@@ -295,7 +294,7 @@ namespace Selector.Tests
             var tokenSource = new CancellationTokenSource();
             var task = watch.Watch(tokenSource.Token);
 
-            await Task.Delay(execTime);
+            await Task.Delay(execTime, TestContext.Current.CancellationToken);
             tokenSource.Cancel();
 
             spotMock.Verify(s => s.GetCurrentPlayback(It.IsAny<CancellationToken>()), Times.Exactly(numberOfCalls));

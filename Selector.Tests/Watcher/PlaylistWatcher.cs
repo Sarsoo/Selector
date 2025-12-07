@@ -42,7 +42,7 @@ namespace Selector.Tests
 
             for (var i = 0; i < playing.Count; i++)
             {
-                await watcher.WatchOne();
+                await watcher.WatchOne(TestContext.Current.CancellationToken);
                 watcher.Live.Should().Be(playing[i]);
             }
         }
@@ -98,7 +98,7 @@ namespace Selector.Tests
 
             for (var i = 0; i < playing.Count; i++)
             {
-                await watcher.WatchOne();
+                await watcher.WatchOne(TestContext.Current.CancellationToken);
             }
 
             toRaise.ForEach(r => monitoredWatcher.Should().Raise(r).WithSender(watcher));

@@ -1,97 +1,93 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using IF.Lastfm.Core.Api;
+﻿using IF.Lastfm.Core.Api;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Quartz;
 using Selector.Model;
 using Selector.Model.Extensions;
 
-namespace Selector.CLI.Jobs
+namespace Selector.CLI.Jobs;
+
+[DisallowConcurrentExecution]
+public class ScrobbleWatcherJob : IJob
 {
-    [DisallowConcurrentExecution]
-    public class ScrobbleWatcherJob : IJob
+    private readonly ILogger<ScrobbleWatcherJob> logger;
+    private readonly ILoggerFactory loggerFactory;
+
+    private readonly IUserApi userApi;
+    private readonly IScrobbleRepository scrobbleRepo;
+    private readonly ApplicationDbContext db;
+    private readonly ScrobbleWatcherJobOptions options;
+
+    private static object databaseLock = new();
+
+    public bool IsFull { get; set; }
+
+    public ScrobbleWatcherJob(
+        IUserApi _userApi,
+        IScrobbleRepository _scrobbleRepo,
+        ApplicationDbContext _db,
+        IOptions<ScrobbleWatcherJobOptions> _options,
+        ILogger<ScrobbleWatcherJob> _logger,
+        ILoggerFactory _loggerFactory)
     {
-        private readonly ILogger<ScrobbleWatcherJob> logger;
-        private readonly ILoggerFactory loggerFactory;
+        logger = _logger;
+        loggerFactory = _loggerFactory;
 
-        private readonly IUserApi userApi;
-        private readonly IScrobbleRepository scrobbleRepo;
-        private readonly ApplicationDbContext db;
-        private readonly ScrobbleWatcherJobOptions options;
+        userApi = _userApi;
+        scrobbleRepo = _scrobbleRepo;
+        db = _db;
+        options = _options.Value;
+    }
 
-        private static object databaseLock = new();
-
-        public bool IsFull { get; set; }
-
-        public ScrobbleWatcherJob(
-            IUserApi _userApi,
-            IScrobbleRepository _scrobbleRepo,
-            ApplicationDbContext _db,
-            IOptions<ScrobbleWatcherJobOptions> _options,
-            ILogger<ScrobbleWatcherJob> _logger,
-            ILoggerFactory _loggerFactory)
+    public async Task Execute(IJobExecutionContext context)
+    {
+        using var span = Trace.Tracer.StartActivity();
+        try
         {
-            logger = _logger;
-            loggerFactory = _loggerFactory;
+            logger.LogInformation("Starting scrobble watching job");
 
-            userApi = _userApi;
-            scrobbleRepo = _scrobbleRepo;
-            db = _db;
-            options = _options.Value;
-        }
+            var users = db.Users
+                .AsEnumerable()
+                .Where(u => u.ScrobbleSavingEnabled())
+                .ToArray();
 
-        public async Task Execute(IJobExecutionContext context)
-        {
-            using var span = Trace.Tracer.StartActivity();
-            try
+            foreach (var user in users)
             {
-                logger.LogInformation("Starting scrobble watching job");
+                using var userSpan = Trace.Tracer.StartActivity(nameof(Execute) + $" - {user.UserName}");
+                logger.LogInformation("Saving scrobbles for {}/{}", user.UserName, user.LastFmUsername);
 
-                var users = db.Users
-                    .AsEnumerable()
-                    .Where(u => u.ScrobbleSavingEnabled())
-                    .ToArray();
-
-                foreach (var user in users)
+                DateTime? from = null;
+                if (options.From is not null && !IsFull)
                 {
-                    using var userSpan = Trace.Tracer.StartActivity(nameof(Execute) + $" - {user.UserName}");
-                    logger.LogInformation("Saving scrobbles for {}/{}", user.UserName, user.LastFmUsername);
-
-                    DateTime? from = null;
-                    if (options.From is not null && !IsFull)
-                    {
-                        from = options.From.Value.ToUniversalTime();
-                    }
-
-                    var saver = new ScrobbleSaver(
-                        userApi,
-                        new()
-                        {
-                            User = user,
-                            InterRequestDelay = options.InterRequestDelay,
-                            From = from,
-                            PageSize = options.PageSize,
-                            DontAdd = false,
-                            DontRemove = false,
-                            SimultaneousConnections = options.Simultaneous
-                        },
-                        scrobbleRepo,
-                        loggerFactory.CreateLogger<ScrobbleSaver>(),
-                        loggerFactory,
-                        databaseLock);
-
-                    await saver.Execute(context.CancellationToken);
-
-                    logger.LogInformation("Finished scrobbles for {}/{}", user.UserName, user.LastFmUsername);
+                    from = options.From.Value.ToUniversalTime();
                 }
+
+                var saver = new ScrobbleSaver(
+                    userApi,
+                    new()
+                    {
+                        User = user,
+                        InterRequestDelay = options.InterRequestDelay,
+                        From = from,
+                        PageSize = options.PageSize,
+                        DontAdd = false,
+                        DontRemove = false,
+                        SimultaneousConnections = options.Simultaneous
+                    },
+                    scrobbleRepo,
+                    loggerFactory.CreateLogger<ScrobbleSaver>(),
+                    loggerFactory,
+                    databaseLock);
+
+                await saver.Execute(context.CancellationToken);
+
+                logger.LogInformation("Finished scrobbles for {}/{}", user.UserName, user.LastFmUsername);
             }
-            catch (Exception ex)
-            {
-                span?.AddException(ex);
-                logger.LogError(ex, "Error occured while saving scrobbles");
-            }
+        }
+        catch (Exception ex)
+        {
+            span?.AddException(ex);
+            logger.LogError(ex, "Error occured while saving scrobbles");
         }
     }
 }
