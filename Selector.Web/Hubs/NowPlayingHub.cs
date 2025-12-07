@@ -65,7 +65,8 @@ namespace Selector.Web.Hubs
             if (nowPlaying != RedisValue.Null)
             {
                 var deserialised =
-                    JsonSerializer.Deserialize(nowPlaying, SpotifyJsonContext.Default.SpotifyCurrentlyPlayingDTO);
+                    JsonSerializer.Deserialize(nowPlaying.ToString(),
+                        SpotifyJsonContext.Default.SpotifyCurrentlyPlayingDTO);
                 await Clients.Caller.OnNewPlayingSpotify(deserialised);
             }
 
@@ -73,7 +74,8 @@ namespace Selector.Web.Hubs
             if (nowPlayingApple != RedisValue.Null)
             {
                 var deserialised =
-                    JsonSerializer.Deserialize(nowPlayingApple, AppleJsonContext.Default.AppleCurrentlyPlayingDTO);
+                    JsonSerializer.Deserialize(nowPlayingApple.ToString(),
+                        AppleJsonContext.Default.AppleCurrentlyPlayingDTO);
                 await Clients.Caller.OnNewPlayingApple(deserialised);
             }
         }

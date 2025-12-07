@@ -44,7 +44,8 @@ namespace Selector.Cache
             }
             else
             {
-                var deserialised = JsonSerializer.Deserialize(track, SpotifyJsonContext.Default.TrackAudioFeatures);
+                var deserialised =
+                    JsonSerializer.Deserialize(track.ToString(), SpotifyJsonContext.Default.TrackAudioFeatures);
                 return deserialised;
             }
         }
