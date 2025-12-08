@@ -6,7 +6,7 @@ namespace Selector.CLI.Extensions;
 public static class SpotifyExtensions
 {
     public static async Task<(FullPlaylist, IEnumerable<PlaylistTrack<IPlayableItem>>)> GetPopulated(
-        this ISpotifyClient client, string playlistId, ILogger logger = null)
+        this ISpotifyClient client, string playlistId, ILogger? logger = null)
     {
         try
         {

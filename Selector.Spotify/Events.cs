@@ -6,14 +6,14 @@ namespace Selector.Spotify
     public class SpotifyListeningChangeEventArgs : ListeningChangeEventArgs
     {
         public CurrentlyPlayingContext? Previous { get; set; }
-        public required CurrentlyPlayingContext Current { get; set; }
+        public required CurrentlyPlayingContext? Current { get; set; }
 
         /// <summary>
         /// Spotify Username
         /// </summary>
         public required string SpotifyUsername { get; set; }
 
-        public required PlayerTimeline Timeline { get; set; }
+        public required PlayerTimeline? Timeline { get; set; }
 
         public static SpotifyListeningChangeEventArgs From(CurrentlyPlayingContext? previous,
             CurrentlyPlayingContext current, PlayerTimeline timeline, string id, string username)

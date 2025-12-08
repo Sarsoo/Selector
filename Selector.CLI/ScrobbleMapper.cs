@@ -27,7 +27,7 @@ public class ScrobbleMapper
 
     public ScrobbleMapper(ISearchClient _searchClient, ScrobbleMapperConfig _config,
         IScrobbleRepository _scrobbleRepository, IScrobbleMappingRepository _scrobbleMappingRepository,
-        ILogger<ScrobbleMapper> _logger, ILoggerFactory _loggerFactory = null)
+        ILogger<ScrobbleMapper> _logger, ILoggerFactory? _loggerFactory = null)
     {
         searchClient = _searchClient;
         config = _config;

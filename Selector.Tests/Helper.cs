@@ -8,7 +8,7 @@ namespace Selector.Tests
 {
     static class Helper
     {
-        public static FullTrack FullTrack(string name, string album = "album name", List<string> artists = null)
+        public static FullTrack FullTrack(string name, string album = "album name", List<string>? artists = null)
         {
             if (artists is null) artists = new List<string>() { "artist" };
 
@@ -26,7 +26,7 @@ namespace Selector.Tests
             return FullTrack(name, album, new List<string>() { artist });
         }
 
-        public static FullEpisode FullEpisode(string name, string show = null, string publisher = null)
+        public static FullEpisode FullEpisode(string name, string? show = null, string? publisher = null)
         {
             return new FullEpisode()
             {
@@ -36,7 +36,7 @@ namespace Selector.Tests
             };
         }
 
-        public static SimpleAlbum SimpleAlbum(string name, List<string> artists = null)
+        public static SimpleAlbum SimpleAlbum(string name, List<string>? artists = null)
         {
             if (artists is null) artists = new List<string>() { "artist" };
             return new SimpleAlbum()
@@ -61,7 +61,7 @@ namespace Selector.Tests
             };
         }
 
-        public static SimpleShow SimpleShow(string name, string publisher = null)
+        public static SimpleShow SimpleShow(string name, string? publisher = null)
         {
             return new SimpleShow()
             {
@@ -71,7 +71,7 @@ namespace Selector.Tests
             };
         }
 
-        public static CurrentlyPlaying CurrentlyPlaying(FullTrack track, bool isPlaying = true, string context = null)
+        public static CurrentlyPlaying CurrentlyPlaying(FullTrack track, bool isPlaying = true, string? context = null)
         {
             return new CurrentlyPlaying()
             {
@@ -81,7 +81,7 @@ namespace Selector.Tests
             };
         }
 
-        public static CurrentlyPlayingContext CurrentPlayback(FullTrack track, Device device = null,
+        public static CurrentlyPlayingContext CurrentPlayback(FullTrack track, Device? device = null,
             bool isPlaying = true, string context = "context")
         {
             return new CurrentlyPlayingContext()
@@ -94,7 +94,7 @@ namespace Selector.Tests
         }
 
         public static CurrentlyPlaying CurrentlyPlaying(FullEpisode episode, bool isPlaying = true,
-            string context = null)
+            string? context = null)
         {
             return new CurrentlyPlaying()
             {
@@ -104,8 +104,8 @@ namespace Selector.Tests
             };
         }
 
-        public static CurrentlyPlayingContext CurrentPlayback(FullEpisode episode, Device device = null,
-            bool isPlaying = true, string context = null)
+        public static CurrentlyPlayingContext CurrentPlayback(FullEpisode episode, Device? device = null,
+            bool isPlaying = true, string? context = null)
         {
             return new CurrentlyPlayingContext()
             {
@@ -124,7 +124,7 @@ namespace Selector.Tests
             };
         }
 
-        public static Device Device(string name, string id = null, int volume = 50)
+        public static Device Device(string name, string? id = null, int volume = 50)
         {
             return new Device()
             {
@@ -135,7 +135,7 @@ namespace Selector.Tests
             };
         }
 
-        public static FullPlaylist FullPlaylist(string name, string id = null, string snapshotId = null)
+        public static FullPlaylist FullPlaylist(string name, string? id = null, string? snapshotId = null)
         {
             return new FullPlaylist()
             {

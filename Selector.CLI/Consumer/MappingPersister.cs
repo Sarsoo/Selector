@@ -22,7 +22,7 @@ public class MappingPersister : BaseParallelPlayerConsumer<ISpotifyPlayerWatcher
     public MappingPersister(
         ISpotifyPlayerWatcher watcher,
         IServiceScopeFactory scopeFactory,
-        ILogger<MappingPersister> logger = null,
+        ILogger<MappingPersister>? logger = null,
         CancellationToken token = default
     ) : base(watcher, logger)
     {

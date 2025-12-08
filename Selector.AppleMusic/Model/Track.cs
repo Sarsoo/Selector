@@ -40,8 +40,8 @@ public class Track
 {
     public required string Id { get; set; }
     public required string Type { get; set; }
-    public required string Href { get; set; }
-    public required TrackAttributes Attributes { get; set; }
+    public required string? Href { get; set; }
+    public required TrackAttributes? Attributes { get; set; }
 
     public override string ToString()
     {

@@ -33,10 +33,10 @@ class DbWatcherService(
     ILogger<DbWatcherService> logger,
     IOptions<AppleMusicOptions> appleMusicOptions,
     IServiceProvider serviceProvider,
-    IPublisherFactory publisherFactory = null,
-    ICacheWriterFactory cacheWriterFactory = null,
-    IMappingPersisterFactory mappingPersisterFactory = null,
-    IUserEventFirerFactory userEventFirerFactory = null)
+    IPublisherFactory? publisherFactory = null,
+    ICacheWriterFactory? cacheWriterFactory = null,
+    IMappingPersisterFactory? mappingPersisterFactory = null,
+    IUserEventFirerFactory? userEventFirerFactory = null)
     : IHostedService
 {
     private const int PollPeriod = 1000;

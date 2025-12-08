@@ -35,7 +35,7 @@ public static class CommandContextExtensions
         return context;
     }
 
-    public static CommandContext WithDb(this CommandContext context, string connectionString = null)
+    public static CommandContext WithDb(this CommandContext context, string? connectionString = null)
     {
         if (context.Config is null)
         {

@@ -37,7 +37,7 @@ public class ScrobbleSaver
     private readonly object dbLock;
 
     public ScrobbleSaver(IUserApi _userClient, ScrobbleSaverConfig _config, IScrobbleRepository _scrobbleRepository,
-        ILogger<ScrobbleSaver> _logger, ILoggerFactory _loggerFactory = null, object _dbLock = null)
+        ILogger<ScrobbleSaver> _logger, ILoggerFactory? _loggerFactory = null, object? _dbLock = null)
     {
         userClient = _userClient;
         config = _config;
