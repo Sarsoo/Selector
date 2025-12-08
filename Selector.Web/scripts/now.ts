@@ -1,6 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import * as Vue from "vue";
-import {
+import type {
     AppleCurrentlyPlayingDTO,
     CountSample,
     PlayCount,

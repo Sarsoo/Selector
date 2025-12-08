@@ -1,6 +1,5 @@
 import * as Vue from "vue";
 import { Chart, DoughnutController, ArcElement } from "chart.js";
-import { PlayCount } from "scripts/HubInterfaces";
 
 Chart.register(DoughnutController, ArcElement);
 

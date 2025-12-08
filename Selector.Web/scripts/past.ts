@@ -1,7 +1,7 @@
 import * as signalR from "@microsoft/signalr";
 // import { stringifyStyle } from "@vue/shared";
 import * as Vue from "vue";
-import { RankResult, RankEntry, PastParams } from "./HubInterfaces";
+import type {RankResult, RankEntry, PastParams} from "./HubInterfaces";
 import { RankCard } from "./Past/RankCard";
 import { CountCard } from "./Past/CountCard";
 import { PlayCountChartCard } from "./Now/PlayCountGraph";

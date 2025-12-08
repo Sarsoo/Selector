@@ -5,11 +5,14 @@
         "sourceMap": true,
         "noImplicitAny": true,
         "noEmitOnError": true,
+        "isolatedModules": true,
+        "verbatimModuleSyntax": true,
         "module": "es6",
-        "target": "es5",
+        "target": "es6",
         "allowJs": true,
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "outDir": "./wwwroot/js",
         "baseUrl": "."
-    }
+    },
+    "include": ["scripts/**/*.ts", "scripts/**/*.tsx", "scripts/**/*.vue"]
 }

@@ -1,7 +1,7 @@
 import * as Vue from "vue";
 import { Chart, BarElement, BarController } from "chart.js";
 import 'chartjs-adapter-luxon';
-import { CountSample, RankEntry } from "scripts/HubInterfaces";
+import type {RankEntry} from "scripts/HubInterfaces";
 
 Chart.register(BarElement, BarController);
 

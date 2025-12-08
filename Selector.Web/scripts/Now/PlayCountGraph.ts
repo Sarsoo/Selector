@@ -1,8 +1,8 @@
 import * as Vue from "vue";
 import {CategoryScale, Chart, LinearScale, LineController, LineElement, PointElement, TimeSeriesScale} from "chart.js";
 import 'chartjs-adapter-luxon';
-import {CountSample} from "scripts/HubInterfaces";
-import {ScrobbleDataSeries} from "scripts/now";
+import type {CountSample} from "scripts/HubInterfaces";
+import type {ScrobbleDataSeries} from "scripts/now";
 
 Chart.register(LineController, CategoryScale, LinearScale, TimeSeriesScale, PointElement, LineElement);
 
