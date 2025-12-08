@@ -23,7 +23,7 @@ jobs:
       - name: Build
         run: dotnet build --configuration Debug --no-restore Selector.Core.sln
       - name: Test
-        run: dotnet test --no-restore --verbosity normal Selector.Core.sln
+        run: dotnet test --no-restore --verbosity normal --solution Selector.Core.sln
 
   build-MAUI:
 
