@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:22-alpine as frontend
+FROM --platform=$BUILDPLATFORM node:26-alpine as frontend
 
 ARG TARGETPLATFORM
 ARG TARGETOS
