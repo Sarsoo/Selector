@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
-        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('OSX'))">$(TargetFrameworks);net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
-        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('OSX'))">$(TargetFrameworks);net11.0-ios;net11.0-maccatalyst</TargetFrameworks>
+        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net11.0-windows10.0.19041.0</TargetFrameworks>
         <!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
-        <!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
+        <!-- <TargetFrameworks>$(TargetFrameworks);net11.0-tizen</TargetFrameworks> -->
         <OutputType>Exe</OutputType>
         <RootNamespace>Selector.MAUI</RootNamespace>
         <UseMaui>true</UseMaui>
@@ -25,39 +25,39 @@
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
 
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">27.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">27.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-maccatalyst'">
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net11.0-maccatalyst'">
       <RuntimeIdentifier>maccatalyst-arm64</RuntimeIdentifier>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-ios|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net11.0-ios|AnyCPU'">
       <CreatePackage>false</CreatePackage>
       <CodesignProvision>Automatic</CodesignProvision>
       <CodesignKey>iPhone Developer</CodesignKey>
       <!-- <CodesignEntitlements>Platforms\iOS\Entitlements.Debug.plist</CodesignEntitlements> -->
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-ios|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net11.0-ios|AnyCPU'">
       <CreatePackage>false</CreatePackage>
       <MtouchLink>None</MtouchLink>
     </PropertyGroup>
     <!-- <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst' and '$(Configuration)' == 'Debug'">
         <CodeSignEntitlements>Platforms/MacCatalyst/Entitlements.Debug.plist</CodeSignEntitlements>
     </PropertyGroup> -->
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-maccatalyst|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net11.0-maccatalyst|AnyCPU'">
       <CreatePackage>false</CreatePackage>
       <CodesignKey>Mac Developer</CodesignKey>
       <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
       <EnableCodeSigning>True</EnableCodeSigning>
       <CodesignEntitlements>Platforms/MacCatalyst/Entitlements.Debug.plist</CodesignEntitlements>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-maccatalyst|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net11.0-maccatalyst|AnyCPU'">
       <CreatePackage>false</CreatePackage>
       <CodesignKey>Mac Developer</CodesignKey>
       <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
@@ -87,16 +87,16 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.81"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="9.0.81"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.6"/>
-        <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.6"/>
-        <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="9.0.6"/>
-        <PackageReference Include="System.Net.Http.Json" Version="9.0.6"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.6"/>
+        <PackageReference Include="Microsoft.Maui.Controls" Version="11.0.10" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="11.0.10" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="11.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="11.0.0" />
+        <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="11.0.0" />
+        <PackageReference Include="System.Net.Http.Json" Version="11.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="11.0.0" />
         <!-- <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.2" /> -->
-        <PackageReference Include="Microsoft.AspNetCore.Components.Forms" Version="9.0.6"/>
-        <PackageReference Include="Radzen.Blazor" Version="7.1.3"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.Forms" Version="11.0.0" />
+        <PackageReference Include="Radzen.Blazor" Version="13.1.0" />
     </ItemGroup>
 
     <ItemGroup>

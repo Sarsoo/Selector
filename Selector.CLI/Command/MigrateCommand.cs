@@ -5,7 +5,7 @@ using Selector.CLI.Extensions;
 using Selector.Model;
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.Threading.Tasks;
 
 namespace Selector.CLI
 {
@@ -14,10 +14,14 @@ namespace Selector.CLI
         public MigrateCommand(string name, string description = null) : base(name, description)
         {
             var connectionString = new Option<string>("--connection", "database to migrate");
-            connectionString.AddAlias("-c");
-            AddOption(connectionString);
+            connectionString.Aliases.Add("-c");
+            Add(connectionString);
 
-            Handler = CommandHandler.Create((string connectionString) => Execute(connectionString));
+            SetAction((pr, _) =>
+            {
+                Execute(pr.GetValue(connectionString));
+                return Task.CompletedTask;
+            });
         }
 
         public static int Execute(string connectionString)

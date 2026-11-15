@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0</TargetFrameworks>
+    <TargetFrameworks>net11.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsAotCompatible>true</IsAotCompatible>
@@ -13,8 +13,8 @@
     <ProjectReference Include="..\Selector\Selector.csproj" />
   </ItemGroup>
   <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.6"/>
-      <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="9.0.6"/>
+      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="11.0.0" />
+      <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="11.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Models\" />

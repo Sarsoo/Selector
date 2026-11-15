@@ -1,19 +1,18 @@
-﻿using System.CommandLine;
+﻿using System.Threading.Tasks;
 
-namespace Selector.CLI
+namespace Selector.CLI;
+
+public static class Program
 {
-    public static class Program
+    public static async Task<int> Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            var cmd = new HostRootCommand();
-            cmd.AddCommand(new ScrobbleCommand("scrobble", "Manipulate scrobbles"));
-            #if !AOT
-            cmd.AddCommand(new MigrateCommand("migrate", "Migrate database"));
-            #endif
-            cmd.AddCommand(new SpotifyHistoryCommand("history", "Insert Spotify history"));
+        var cmd = new HostRootCommand();
+        cmd.Add(new ScrobbleCommand("scrobble", "Manipulate scrobbles"));
+#if !AOT
+        cmd.Add(new MigrateCommand("migrate", "Migrate database"));
+#endif
+        cmd.Add(new SpotifyHistoryCommand("history", "Insert Spotify history"));
 
-            cmd.Invoke(args);
-        }
+        return await cmd.Parse(args).InvokeAsync();
     }
 }

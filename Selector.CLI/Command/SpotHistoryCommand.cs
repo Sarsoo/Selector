@@ -1,14 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Selector.CLI.Extensions;
 using Selector.Data;
 using Selector.Model;
 using System;
 using System.IO;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Selector.Cache;
 
 namespace Selector.CLI
@@ -18,18 +17,22 @@ namespace Selector.CLI
         public SpotifyHistoryCommand(string name, string description = null) : base(name, description)
         {
             var connectionString = new Option<string>("--connection", "database to migrate");
-            connectionString.AddAlias("-c");
-            AddOption(connectionString);
+            connectionString.Aliases.Add("-c");
+            Add(connectionString);
 
             var pathString = new Option<string>("--path", "path to find data");
-            pathString.AddAlias("-i");
-            AddOption(pathString);
+            pathString.Aliases.Add("-i");
+            Add(pathString);
 
             var username = new Option<string>("--username", "user to pulls scrobbles for");
-            username.AddAlias("-u");
-            AddOption(username);
+            username.Aliases.Add("-u");
+            Add(username);
 
-            Handler = CommandHandler.Create((string connection, string path, string username) => Execute(connection, path, username));
+            SetAction((pr, _) =>
+            {
+                Execute(pr.GetValue(connectionString), pr.GetValue(pathString), pr.GetValue(username));
+                return Task.CompletedTask;
+            });
         }
 
         public static int Execute(string connection, string path, string username)

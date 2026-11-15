@@ -4,7 +4,6 @@ using Selector.CLI.Extensions;
 using Selector.Model;
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,16 +15,24 @@ namespace Selector.CLI
         public ScrobbleClearCommand(string name, string description = null) : base(name, description) 
         {
             var fromOption = new Option<DateTime>("--from", "Date from which to pull scrobbles");
-            AddOption(fromOption);
+            Add(fromOption);
 
             var toOption = new Option<DateTime>( "--to", "Last date for which to pull scrobbles");
-            AddOption(toOption);
+            Add(toOption);
 
             var username = new Option<string>("--username", "user to pulls scrobbles for");
-            username.AddAlias("-u");
-            AddOption(username);
+            username.Aliases.Add("-u");
+            Add(username);
 
-            Handler = CommandHandler.Create(async (DateTime? from, DateTime? to, string username, CancellationToken token) => await Execute(from, to, username, token));
+            SetAction(async (pr, cr) =>
+            {
+                await Execute(
+                    pr.GetValue(fromOption),
+                    pr.GetValue(toOption),
+                    pr.GetValue(username),
+                    cr
+                );
+            });
         }
 
         public static async Task<int> Execute(DateTime? from, DateTime? to, string username, CancellationToken token)

@@ -1,12 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Selector.CLI.Extensions;
 using Selector.Model;
-using Selector.Model.Extensions;
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,19 +12,30 @@ namespace Selector.CLI
     {
         public ScrobbleMapCommand(string name, string description = null) : base(name, description)
         {
-            var delayOption = new Option<int>("--delay", getDefaultValue: () => 100, "milliseconds to delay");
-            delayOption.AddAlias("-d");
-            AddOption(delayOption);
+            var delayOption = new Option<int>("--delay", "milliseconds to delay");
+            delayOption.DefaultValueFactory = (_) => 100;
+            delayOption.Aliases.Add("-d");
+            Add(delayOption);
 
-            var simulOption = new Option<int>("--simultaneous", getDefaultValue: () => 3, "simultaneous connections when pulling");
-            simulOption.AddAlias("-s");
-            AddOption(simulOption);
+            var simulOption = new Option<int>("--simultaneous", "simultaneous connections when pulling");
+            simulOption.DefaultValueFactory = (_) => 3;
+            simulOption.Aliases.Add("-s");
+            Add(simulOption);
 
-            var limitOption = new Option<int?>("--limit", getDefaultValue: () => 200, "limit number of objects to poll");
-            limitOption.AddAlias("-l");
-            AddOption(limitOption);
+            var limitOption = new Option<int?>("--limit", "limit number of objects to poll");
+            limitOption.DefaultValueFactory = (_) => 200;
+            limitOption.Aliases.Add("-l");
+            Add(limitOption);
 
-            Handler = CommandHandler.Create(async (int delay, int simultaneous, int? limit, CancellationToken token) => await Execute(delay, simultaneous, limit, token));
+            SetAction(async (pr, cr) =>
+            {
+                await Execute(
+                    pr.GetValue(delayOption),
+                    pr.GetValue(simulOption),
+                    pr.GetValue(limitOption),
+                    cr
+                );
+            });
         }
 
         public static async Task<int> Execute(int delay, int simultaneous, int? limit, CancellationToken token)

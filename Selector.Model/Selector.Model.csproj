@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
     <LangVersion>latest</LangVersion>
     <IsAotCompatible>true</IsAotCompatible>
@@ -15,22 +15,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.1"/>
-      <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.6"/>
-      <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.6"/>
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6"/>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.14" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="11.0.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="11.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="11.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="11.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.6">
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="11.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.6"/>
-      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.6"/>
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4"/>
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="9.0.6"/>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="11.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="11.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="11.0.0" />
   </ItemGroup>
 
   <ItemGroup>

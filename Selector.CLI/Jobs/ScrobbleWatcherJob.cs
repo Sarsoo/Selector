@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
 using Microsoft.Extensions.Logging;
@@ -42,7 +43,7 @@ namespace Selector.CLI.Jobs
             options = _options.Value;
         }
 
-        public async Task Execute(IJobExecutionContext context)
+        public async ValueTask Execute(IJobExecutionContext context, CancellationToken cancellationToken = default)
         {
             using var span = Trace.Tracer.StartActivity();
             try

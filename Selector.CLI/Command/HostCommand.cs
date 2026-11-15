@@ -25,7 +25,10 @@ namespace Selector.CLI
     {
         public HostRootCommand()
         {
-            Handler = CommandHandler.Create(() => HostCommand.Execute());
+            SetAction(async (pr, ct) =>
+            {
+                HostCommand.Execute();
+            });
         }
     }
 
@@ -33,7 +36,10 @@ namespace Selector.CLI
     {
         public HostCommand(string name, string description = null) : base(name, description)
         {
-            Handler = CommandHandler.Create(() => Execute());
+            SetAction(async (pr, ct) =>
+            {
+                Execute();
+            });
         }
 
         public static int Execute()

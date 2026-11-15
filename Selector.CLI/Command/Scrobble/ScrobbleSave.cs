@@ -16,37 +16,55 @@ namespace Selector.CLI
     {
         public ScrobbleSaveCommand(string name, string description = null) : base(name, description) 
         {
-            var fromOption = new Option<DateTime>("--from", getDefaultValue: () => DateTime.UtcNow.AddDays(-7), "Date from which to pull scrobbles");
-            AddOption(fromOption);
+            var fromOption = new Option<DateTime>("--from", "Date from which to pull scrobbles");
+            fromOption.DefaultValueFactory = (_) => DateTime.UtcNow.AddDays(-7);
+            Add(fromOption);
 
-            var toOption = new Option<DateTime>( "--to", getDefaultValue: () => DateTime.UtcNow.AddHours(1), "Last date for which to pull scrobbles");
-            AddOption(toOption);
+            var toOption = new Option<DateTime>( "--to", "Last date for which to pull scrobbles");
+            toOption.DefaultValueFactory = (_) => DateTime.UtcNow.AddHours(1);
+            Add(toOption);
 
-            var pageOption = new Option<int>("--page", getDefaultValue: () => 100, "number of scrobbles per page");
-            pageOption.AddAlias("-p");
-            AddOption(pageOption);
+            var pageOption = new Option<int>("--page", "number of scrobbles per page");
+            pageOption.DefaultValueFactory = (_) => 100;
+            pageOption.Aliases.Add("-p");
+            Add(pageOption);
 
-            var delayOption = new Option<int>("--delay", getDefaultValue: () => 200, "milliseconds to delay");
-            delayOption.AddAlias("-d");
-            AddOption(delayOption);
+            var delayOption = new Option<int>("--delay", "milliseconds to delay");
+            delayOption.DefaultValueFactory = (_) => 200;
+            delayOption.Aliases.Add("-d");
+            Add(delayOption);
 
-            var simulOption = new Option<int>("--simultaneous", getDefaultValue: () => 5, "simultaneous connections when pulling");
-            simulOption.AddAlias("-s");
-            AddOption(simulOption);
+            var simulOption = new Option<int>("--simultaneous", "simultaneous connections when pulling");
+            simulOption.DefaultValueFactory = (_) => 5;
+            simulOption.Aliases.Add("-s");
+            Add(simulOption);
 
             var username = new Option<string>("--username", "user to pulls scrobbles for");
-            username.AddAlias("-u");
-            AddOption(username);
+            username.Aliases.Add("-u");
+            Add(username);
 
-            var dontAdd = new Option("--no-add", "don't add any scrobbles to the database");
-            dontAdd.AddAlias("-na");
-            AddOption(dontAdd);
+            var dontAdd = new Option<bool>("--no-add", "don't add any scrobbles to the database");
+            dontAdd.Aliases.Add("-na");
+            Add(dontAdd);
 
-            var dontRemove = new Option("--no-remove", "don't remove any scrobbles from the database");
-            dontRemove.AddAlias("-nr");
-            AddOption(dontRemove);
+            var dontRemove = new Option<bool>("--no-remove", "don't remove any scrobbles from the database");
+            dontRemove.Aliases.Add("-nr");
+            Add(dontRemove);
 
-            Handler = CommandHandler.Create(async (DateTime from, DateTime to, int page, int delay, int simultaneous, string username, bool noAdd, bool noRemove, CancellationToken token) => await Execute(from, to, page, delay, simultaneous, username, noAdd, noRemove, token));
+            SetAction(async (pr, cr) =>
+            {
+                await Execute(
+                    pr.GetValue(fromOption),
+                    pr.GetValue(toOption),
+                    pr.GetValue(pageOption),
+                    pr.GetValue(delayOption),
+                    pr.GetValue(simulOption),
+                    pr.GetValue(username),
+                    pr.GetValue(dontAdd),
+                    pr.GetValue(dontRemove),
+                    cr
+                );
+            });
         }
 
         public static async Task<int> Execute(DateTime from, DateTime to, int page, int delay, int simultaneous, string username, bool noAdd, bool noRemove, CancellationToken token)
