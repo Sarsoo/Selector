@@ -14,13 +14,22 @@ namespace Selector.CLI
     {
         public ScrobbleClearCommand(string name, string description = null) : base(name, description) 
         {
-            var fromOption = new Option<DateTime>("--from", "Date from which to pull scrobbles");
+            var fromOption = new Option<DateTime>("--from")
+            {
+                Description = "Date from which to pull scrobbles"
+            };
             Add(fromOption);
 
-            var toOption = new Option<DateTime>( "--to", "Last date for which to pull scrobbles");
+            var toOption = new Option<DateTime>( "--to")
+            {
+                Description = "Last date for which to pull scrobbles"
+            };
             Add(toOption);
 
-            var username = new Option<string>("--username", "user to pulls scrobbles for");
+            var username = new Option<string>("--username")
+            {
+                Description = "user to pulls scrobbles for"
+            };
             username.Aliases.Add("-u");
             Add(username);
 

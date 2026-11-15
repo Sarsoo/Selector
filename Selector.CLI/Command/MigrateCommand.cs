@@ -13,7 +13,10 @@ namespace Selector.CLI
     {
         public MigrateCommand(string name, string description = null) : base(name, description)
         {
-            var connectionString = new Option<string>("--connection", "database to migrate");
+            var connectionString = new Option<string>("--connection")
+            {
+                Description = description
+            };
             connectionString.Aliases.Add("-c");
             Add(connectionString);
 

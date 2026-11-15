@@ -2,6 +2,7 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,9 +26,17 @@ namespace Selector.CLI
     {
         public HostRootCommand()
         {
-            SetAction(async (pr, ct) =>
+            SetAction((_, _) =>
             {
-                HostCommand.Execute();
+                try
+                {
+                    HostCommand.Execute();
+                    return Task.CompletedTask;
+                }
+                catch (Exception exception)
+                {
+                    return Task.FromException(exception);
+                }
             });
         }
     }

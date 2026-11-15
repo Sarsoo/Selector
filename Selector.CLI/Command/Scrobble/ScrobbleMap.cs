@@ -12,18 +12,27 @@ namespace Selector.CLI
     {
         public ScrobbleMapCommand(string name, string description = null) : base(name, description)
         {
-            var delayOption = new Option<int>("--delay", "milliseconds to delay");
-            delayOption.DefaultValueFactory = (_) => 100;
+            var delayOption = new Option<int>("--delay")
+            {
+                DefaultValueFactory = (_) => 100,
+                Description = "milliseconds to delay"
+            };
             delayOption.Aliases.Add("-d");
             Add(delayOption);
 
-            var simulOption = new Option<int>("--simultaneous", "simultaneous connections when pulling");
-            simulOption.DefaultValueFactory = (_) => 3;
+            var simulOption = new Option<int>("--simultaneous")
+            {
+                DefaultValueFactory = (_) => 3,
+                Description = "simultaneous connections when pulling"
+            };
             simulOption.Aliases.Add("-s");
             Add(simulOption);
 
-            var limitOption = new Option<int?>("--limit", "limit number of objects to poll");
-            limitOption.DefaultValueFactory = (_) => 200;
+            var limitOption = new Option<int?>("--limit")
+            {
+                DefaultValueFactory = (_) => 200,
+                Description = "limit number of objects to poll"
+            };
             limitOption.Aliases.Add("-l");
             Add(limitOption);
 

@@ -16,15 +16,24 @@ namespace Selector.CLI
     {
         public SpotifyHistoryCommand(string name, string description = null) : base(name, description)
         {
-            var connectionString = new Option<string>("--connection", "database to migrate");
+            var connectionString = new Option<string>("--connection")
+            {
+                Description = "database to migrate"
+            };
             connectionString.Aliases.Add("-c");
             Add(connectionString);
 
-            var pathString = new Option<string>("--path", "path to find data");
+            var pathString = new Option<string>("--path")
+            {
+                Description = "path to find data"
+            };
             pathString.Aliases.Add("-i");
             Add(pathString);
 
-            var username = new Option<string>("--username", "user to pulls scrobbles for");
+            var username = new Option<string>("--username")
+            {
+                Description = "user to pulls scrobbles for"
+            };
             username.Aliases.Add("-u");
             Add(username);
 

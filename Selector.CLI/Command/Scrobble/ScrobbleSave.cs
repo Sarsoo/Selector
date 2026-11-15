@@ -5,7 +5,6 @@ using Selector.Model;
 using Selector.Model.Extensions;
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,38 +15,62 @@ namespace Selector.CLI
     {
         public ScrobbleSaveCommand(string name, string description = null) : base(name, description) 
         {
-            var fromOption = new Option<DateTime>("--from", "Date from which to pull scrobbles");
-            fromOption.DefaultValueFactory = (_) => DateTime.UtcNow.AddDays(-7);
+            var fromOption = new Option<DateTime>("--from")
+            {
+                DefaultValueFactory = (_) => DateTime.UtcNow.AddDays(-7),
+                Description = "Date from which to pull scrobbles"
+            };
             Add(fromOption);
 
-            var toOption = new Option<DateTime>( "--to", "Last date for which to pull scrobbles");
-            toOption.DefaultValueFactory = (_) => DateTime.UtcNow.AddHours(1);
+            var toOption = new Option<DateTime>( "--to")
+            {
+                DefaultValueFactory = (_) => DateTime.UtcNow.AddHours(1),
+                Description = "Last date for which to pull scrobbles"
+            };
             Add(toOption);
 
-            var pageOption = new Option<int>("--page", "number of scrobbles per page");
-            pageOption.DefaultValueFactory = (_) => 100;
+            var pageOption = new Option<int>("--page")
+            {
+                DefaultValueFactory = (_) => 100,
+                Description = "number of scrobbles per page"
+            };
             pageOption.Aliases.Add("-p");
             Add(pageOption);
 
-            var delayOption = new Option<int>("--delay", "milliseconds to delay");
-            delayOption.DefaultValueFactory = (_) => 200;
+            var delayOption = new Option<int>("--delay")
+            {
+                DefaultValueFactory = (_) => 200,
+                Description = "milliseconds to delay"
+            };
             delayOption.Aliases.Add("-d");
             Add(delayOption);
 
-            var simulOption = new Option<int>("--simultaneous", "simultaneous connections when pulling");
-            simulOption.DefaultValueFactory = (_) => 5;
+            var simulOption = new Option<int>("--simultaneous")
+            {
+                DefaultValueFactory = (_) => 5,
+                Description = "simultaneous connections when pulling"
+            };
             simulOption.Aliases.Add("-s");
             Add(simulOption);
 
-            var username = new Option<string>("--username", "user to pulls scrobbles for");
+            var username = new Option<string>("--username")
+            {
+                Description = "user to pulls scrobbles for"
+            };
             username.Aliases.Add("-u");
             Add(username);
 
-            var dontAdd = new Option<bool>("--no-add", "don't add any scrobbles to the database");
+            var dontAdd = new Option<bool>("--no-add")
+            {
+                Description = "don't add any scrobbles to the database"
+            };
             dontAdd.Aliases.Add("-na");
             Add(dontAdd);
 
-            var dontRemove = new Option<bool>("--no-remove", "don't remove any scrobbles from the database");
+            var dontRemove = new Option<bool>("--no-remove")
+            {
+                Description = "don't remove any scrobbles from the database"
+            };
             dontRemove.Aliases.Add("-nr");
             Add(dontRemove);
 
